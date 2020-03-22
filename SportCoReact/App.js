@@ -2,10 +2,11 @@ import * as React from 'react';
 import { Platform, StatusBar, StyleSheet, View } from 'react-native';
 import { SplashScreen } from 'expo';
 import * as Font from 'expo-font';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from 'react-native-vector-icons';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-
+import { Provider } from 'react-redux'
+import Store from './Store/configureStore'
 import BottomTabNavigator from './navigation/BottomTabNavigator';
 import useLinking from './navigation/useLinking';
 
@@ -47,7 +48,8 @@ export default function App(props) {
     return null;
   } else {
     return (
-      <View style={styles.container}>
+      <Provider store={Store}>
+        <View style={styles.container}>
         {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
         <NavigationContainer ref={containerRef} initialState={initialNavigationState}>
           <Stack.Navigator>
@@ -55,6 +57,7 @@ export default function App(props) {
           </Stack.Navigator>
         </NavigationContainer>
       </View>
+      </Provider>
     );
   }
 }
