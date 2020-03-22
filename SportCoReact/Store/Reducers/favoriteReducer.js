@@ -1,9 +1,10 @@
 // Store/Reducers/favoriteReducer.js
 
-const initialState = { favoriteSportss: [] }
+const initialState = { favoriteSports: [] }
 
 function toggleFavorite(state = initialState, action) {
-    let nextState
+    let nextState;
+    console.log(action);
     switch (action.type) {
         case 'TOGGLE_FAVORITE':
             const favoriteSportIndex = state.favoriteSports.findIndex(item => item.id === action.value.id)
