@@ -12,8 +12,6 @@ const options = {
   keyPrefix: 'sports/',
   bucket: 'sportcoapp-assets',
   region: 'eu-west-3',
-  accessKey: 'AKIAJ7QXG4WN4PBKT3YQ',
-  secretKey: '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',
   successActionStatus: 201
 };
 
