@@ -4,7 +4,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { connect } from 'react-redux'
 import {styles} from './styles'
 
-export class HomeScreen extends React.Component {
+class HomeScreen extends React.Component {
 
   render() {
     console.log("from Home :");

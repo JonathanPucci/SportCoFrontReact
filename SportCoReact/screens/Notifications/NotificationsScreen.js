@@ -6,7 +6,7 @@ import { RectButton, ScrollView } from 'react-native-gesture-handler';
 import { connect } from 'react-redux'
 import {styles} from './styles'
 
-export class LinksScreen extends React.Component {
+class NotificationsScreen extends React.Component {
   state = {
     sports: [
       {
@@ -61,5 +61,5 @@ const mapStateToProps = (state) => {
   return state
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(LinksScreen)
+export default connect(mapStateToProps, mapDispatchToProps)(NotificationsScreen)
 

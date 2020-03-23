@@ -3,7 +3,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import TabBarIcon from '../components/TabBarIcon';
 import HomeScreen from '../screens/Home/HomeScreen';
 import ProfileScreen from '../screens/Profile/ProfileScreen';
-import LinksScreen from '../screens/Links/LinksScreen';
+import NotificationsScreen from '../screens/Notifications/NotificationsScreen';
+import SearchScreen from '../screens/Search/SearchScreen';
 
 const BottomTab = createBottomTabNavigator();
 const INITIAL_ROUTE_NAME = 'Home';
@@ -25,11 +26,19 @@ export default function BottomTabNavigator({ navigation, route }) {
         }}
       />
       <BottomTab.Screen
-        name="Links"
-        component={LinksScreen}
+        name="Notifications"
+        component={NotificationsScreen}
         options={{
-          title: 'Resources',
-          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-book" />,
+          title: 'Notifications',
+          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="ios-information-circle-outline" />,
+        }}
+      />
+      <BottomTab.Screen
+        name="Search"
+        component={SearchScreen}
+        options={{
+          title: 'Search',
+          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-search" />,
         }}
       />
       <BottomTab.Screen
@@ -50,9 +59,11 @@ function getHeaderTitle(route) {
   switch (routeName) {
     case 'Home':
       return 'Home Page Title Here';
-    case 'Links':
-      return 'Links Page Title Here';
+    case 'Notifications':
+      return 'Notifications Page Title Here';
     case 'Profile':
       return 'Profile Page Title Here';
+    case 'Search':
+      return 'Search Page Title Here';
   }
 }

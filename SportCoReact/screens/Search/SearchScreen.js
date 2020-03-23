@@ -4,14 +4,14 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { connect } from 'react-redux'
 import {styles} from './styles'
 
-class ProfileScreen extends React.Component {
+class SearchScreen extends React.Component {
 
   render() {
     return (
       <View style={styles.container}>
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
           <View style={styles.welcomeContainer}>
-            <Text style={styles.text}>ProfilePage</Text>
+            <Text style={styles.text}>SearchPage</Text>
           </View>
 
          
@@ -28,5 +28,5 @@ const mapStateToProps = (state) => {
   }
 }
 
-export default connect(mapStateToProps)(ProfileScreen)
+export default connect(mapStateToProps)(SearchScreen)
 
