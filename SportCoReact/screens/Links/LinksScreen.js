@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as WebBrowser from 'expo-web-browser';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
 import { connect } from 'react-redux'
+import {styles} from './styles'
 
 export class LinksScreen extends React.Component {
   state = {
@@ -62,20 +63,3 @@ const mapStateToProps = (state) => {
 
 export default connect(mapStateToProps, mapDispatchToProps)(LinksScreen)
 
-
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fafafa',
-  },
-  contentContainer: {
-    paddingTop: 15,
-  },
-
-  text: {
-    fontSize: 15,
-    alignSelf: 'center',
-    marginTop: 1,
-  },
-});
