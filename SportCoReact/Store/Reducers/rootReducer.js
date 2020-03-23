@@ -49,7 +49,7 @@ function auth(state = { user: null, waiting: false }, action) {
       user = action.value;
       var nextState = {
         ...state,
-        user: {},
+        user: undefined,
         s3Options: options
       };
       return nextState;

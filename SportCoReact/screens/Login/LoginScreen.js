@@ -10,7 +10,6 @@ import {
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import BoidiApi from '../../services/apiService';
-import {USER_LOGGED_OUT} from '../../Store/Actions'
 
 import * as firebase from 'firebase';
 import FacebookLogin from './FacebookLogin';
@@ -55,38 +54,26 @@ class LoginScreen extends React.Component {
       <KeyboardAwareScrollView>
         <ScrollView>
           <Image
-            style={{ width: '100%', height: 200 }}
-            source={require('../../assets/images/robot-dev.png')}
+            style={{ width: '100%', height: 400 }}
+            source={require('../../assets/images/basketCourt.jpg')}
           />
           <View style={{ marginVertical: 10, flex: 1 }}>
             <FacebookLogin navigation={this.props.navigation} />
           </View>
-          <View style={{ marginVertical: 10, flex: 1 }}>
-            <Button title={'Logout'} onPress={() => this.Logout()} />
-          </View>
-          <View style={{ marginVertical: 10, flex: 1, alignSelf:'center' }}>
+
+          
+          
+          <View style={{ flex: 1, alignSelf: 'center' }}>
+          <Image
+            style={{ width: 100, height: 100, alignSelf:'center' }}
+            source={require('../../assets/images/Logo.png')}
+          />
             <Text>By SportCo crew</Text>
           </View>
-
         </ScrollView>
       </KeyboardAwareScrollView>
     );
   }
-
-  Logout = () => {
-    try {
-      firebase
-        .auth()
-        .signOut()
-        .then(res => {
-          console.log('logged out');
-          const action = { type: USER_LOGGED_OUT, payload: null };
-          this.props.dispatch(action);
-        });
-    } catch (error) {
-      console.log(error.toString(error));
-    }
-  };
 }
 
 /*

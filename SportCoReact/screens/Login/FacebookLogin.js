@@ -5,6 +5,9 @@ import { StyleSheet, Text, TouchableHighlight, View } from 'react-native';
 import * as Facebook from 'expo-facebook';
 import firebase from 'firebase';
 import SportCoApi from '../../services/apiService';
+import { StackActions } from '@react-navigation/native';
+
+
 // Enter your Facebooko app ID here.
 import { RETRIEVED_USER_INFO, USER_LOGGED } from '../../Store/Actions';
 const FACEBOOK_APP_ID = '238361847284548';
@@ -132,7 +135,6 @@ export default (connectedApp = connect(mapStateToProps, mapDispatchToProps)(Face
 const styles = StyleSheet.create({
   container: {
     marginTop: 20,
-    backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center'
   },

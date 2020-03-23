@@ -1,10 +1,12 @@
 import * as React from 'react';
 import { Image, SafeAreaView, View } from 'react-native';
-import { Divider, Text } from 'react-native-elements'
+import { Divider, Text, Button } from 'react-native-elements'
 import { Social } from '../../components/social'
 import Icon from '../../components/Icon'
 import { ScrollView, TouchableWithoutFeedback } from 'react-native-gesture-handler';
-
+import * as firebase from 'firebase';
+import {USER_LOGGED_OUT} from '../../Store/Actions'
+import { StackActions } from '@react-navigation/native';
 
 import { connect } from 'react-redux'
 import { styles } from './styles'
@@ -59,6 +61,9 @@ class ProfileScreen extends React.Component {
                 <Social name="facebook-square" />
               </View>
             </View>
+            <View style={{ marginVertical: 10, flex: 1 }}>
+            <Button title={'Logout'} onPress={() => this.Logout()} />
+          </View>
           </SafeAreaView>
 
         </ScrollView>
@@ -115,6 +120,22 @@ class ProfileScreen extends React.Component {
       newsports.push(sport);
     this.setState({ sportsSelected: newsports });
   }
+
+
+  Logout = () => {
+    try {
+      firebase
+        .auth()
+        .signOut()
+        .then(res => {
+          console.log('logged out');
+          const action = { type: USER_LOGGED_OUT, payload: null };
+          this.props.dispatch(action);
+        });
+    } catch (error) {
+      console.log(error.toString(error));
+    }
+  };
 }
 
 

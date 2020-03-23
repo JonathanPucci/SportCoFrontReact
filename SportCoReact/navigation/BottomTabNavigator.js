@@ -50,14 +50,6 @@ export default function BottomTabNavigator({ navigation, route }) {
           tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="ios-body" />,
         }}
       />
-      <BottomTab.Screen
-        name="Login"
-        component={LoginScreen}
-        options={{
-          title: 'Login',
-          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="ios-contact" />,
-        }}
-      />
     </BottomTab.Navigator>
   );
 }
@@ -74,7 +66,5 @@ function getHeaderTitle(route) {
       return 'Profile Page';
     case 'Search':
       return 'Search Page Title Here';
-      case 'Login':
-      return 'Login Page Title Here';
   }
 }
