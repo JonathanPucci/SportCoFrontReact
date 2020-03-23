@@ -7,8 +7,8 @@ import {styles} from './styles'
 class HomeScreen extends React.Component {
 
   render() {
-    console.log("from Home :");
-    console.log(this.props);
+    // console.log("from Home :");
+    // console.log(this.props);
     return (
       <View style={styles.container}>
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>

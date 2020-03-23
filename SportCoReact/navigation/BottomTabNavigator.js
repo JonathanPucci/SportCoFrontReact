@@ -62,7 +62,7 @@ function getHeaderTitle(route) {
     case 'Notifications':
       return 'Notifications Page Title Here';
     case 'Profile':
-      return 'Profile Page Title Here';
+      return 'Profile Page';
     case 'Search':
       return 'Search Page Title Here';
   }
