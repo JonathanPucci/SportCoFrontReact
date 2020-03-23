@@ -16,6 +16,12 @@ class ProfileScreen extends React.Component {
   }
 
   render() {
+    let photoURL = '';
+    let displayName = '';
+    if(this.props.auth && this.props.auth.user != null && this.props.auth.user != {}){
+      photoURL= this.props.auth.user.photoURL + '?type=large&width=500&height=500';
+      displayName = this.props.auth.user.displayName;
+    }
     return (
       <View style={styles.container}>
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
@@ -23,15 +29,16 @@ class ProfileScreen extends React.Component {
             <View style={styles.basicInfoContainer}>
               <View style={styles.basicInfo}>
                 <Text h4 style={styles.name}>
-                  Jonathan Pucci
+                  {displayName}
                 </Text>
                 <Text h5 style={styles.name}>
-                  25 ans
+                25 ans
                 </Text>
                 <Text style={styles.desc}>Developer at DreamTeam & Co.</Text>
               </View>
               <View style={styles.imageContainer}>
-                <Image source={require('../../assets/images/robot-dev.png')} style={styles.image} />
+              {photoURL!= '' && <Image source={{uri: photoURL }} style={styles.image} />}
+              {photoURL== '' && <Image source={require('../../assets/images/robot-dev.png') } style={styles.image} />}
               </View>
             </View>
             <Divider style={styles.divider} />
@@ -112,9 +119,7 @@ class ProfileScreen extends React.Component {
 
 
 const mapStateToProps = (state) => {
-  return {
-    favoriteSports: state.favoriteSports
-  }
+  return state
 }
 
 export default connect(mapStateToProps)(ProfileScreen)

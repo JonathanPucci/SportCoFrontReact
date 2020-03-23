@@ -1,0 +1,153 @@
+import React from 'react';
+import { connect } from 'react-redux';
+
+import { StyleSheet, Text, TouchableHighlight, View } from 'react-native';
+import * as Facebook from 'expo-facebook';
+import firebase from 'firebase';
+import SportCoApi from '../../services/apiService';
+// Enter your Facebooko app ID here.
+import { RETRIEVED_USER_INFO, USER_LOGGED } from '../../Store/Actions';
+const FACEBOOK_APP_ID = '238361847284548';
+
+// Enter your Firebase app web configuration settings here.
+const config = {
+  apiKey: 'AIzaSyC9px960ofSQlIrqKFmyj8_aqWnimsEFS0',
+  authDomain: '',
+  databaseURL: '',
+  projectId: 'sportcoapp',
+  messagingSenderId: ''
+};
+
+if (!firebase.apps.length) {
+  firebase.initializeApp(config);
+}
+
+
+const auth = firebase.auth();
+
+class FacebookLogin extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      logInStatus: 'signed out',
+      errorMessage: 'none'
+    };
+  }
+
+  loginAction(user) {
+    const action = {
+      type: USER_LOGGED,
+      value: user
+    };
+    this.props.dispatch(action);
+  }
+
+  componentDidMount() {
+    const loginAction = this.loginAction.bind(this);
+
+    auth.onAuthStateChanged(user => {
+      if (user != null) {
+        loginAction(user);
+        //     loginAction(user).then(() => {
+        //       let apiService = new SportCoApi();
+        //       let user = this.props.auth.user;
+        //       apiService
+        //         .getSingleEntity('homeinhabitants/user', user.user_id)
+        //         .then(data => {
+        //           let userHome = data.entities.data[0];
+        //           if (userHome != undefined) {
+        //             user.home_id = userHome.home_id;
+        //           } else {
+        //             user.home_id = 'NO_HOME_YET';
+        //           }
+        //           this.props.dispatch({ type: RETRIEVED_USER_INFO, payload: user });
+        //           this.props.navigation.navigate('Main');
+        //         });
+        //     });
+      } else {
+        // this.setState({ logInStatus: 'You are currently logged out.' });
+      }
+    });
+  }
+
+
+  async handleFacebookButton() {
+    Facebook.initializeAsync(FACEBOOK_APP_ID, 'sportcoapp');
+    try {
+      const {
+        type,
+        token
+      } = await Facebook.logInWithReadPermissionsAsync(FACEBOOK_APP_ID, {
+        permissions: ['public_profile', 'email','user_birthday']
+      });
+      if (type === 'success') {
+        //Firebase credential is created with the Facebook access token.
+        const credential = firebase.auth.FacebookAuthProvider.credential(token);
+        auth.signInWithCredential(credential).catch(error => {
+          this.setState({ errorMessage: error.message });
+          console.log(error.message);
+        });
+      } else {
+        console.log("Type : " + type);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  render() {
+    return (
+      <View style={styles.container}>
+        <TouchableHighlight
+          style={styles.facebookButton}
+          name="Facebook"
+          underlayColor={styles.facebookButton.backgroundColor}
+          onPress={() => this.handleFacebookButton()}
+        >
+          <Text style={styles.facebookButtonText}>
+            Se connecter avec Facebook
+          </Text>
+        </TouchableHighlight>
+        <View style={styles.space} />
+      </View>
+    );
+  }
+}
+
+const mapDispatchToProps = dispatch => {
+  return {
+    dispatch: action => {
+      dispatch(action);
+    }
+  };
+};
+
+function mapStateToProps(state) {
+  return state;
+}
+
+export default (connectedApp = connect(mapStateToProps, mapDispatchToProps)(FacebookLogin));
+
+const styles = StyleSheet.create({
+  container: {
+    marginTop: 20,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  facebookButton: {
+    width: 375 * 0.75,
+    height: 48,
+    borderRadius: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#3B5998'
+  },
+  facebookButtonText: {
+    color: '#fff'
+  },
+  space: {
+    height: 17
+  }
+});

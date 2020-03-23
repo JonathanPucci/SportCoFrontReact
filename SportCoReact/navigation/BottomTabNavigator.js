@@ -5,6 +5,7 @@ import HomeScreen from '../screens/Home/HomeScreen';
 import ProfileScreen from '../screens/Profile/ProfileScreen';
 import NotificationsScreen from '../screens/Notifications/NotificationsScreen';
 import SearchScreen from '../screens/Search/SearchScreen';
+import LoginScreen from '../screens/Login/LoginScreen';
 
 const BottomTab = createBottomTabNavigator();
 const INITIAL_ROUTE_NAME = 'Home';
@@ -49,6 +50,14 @@ export default function BottomTabNavigator({ navigation, route }) {
           tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="ios-body" />,
         }}
       />
+      <BottomTab.Screen
+        name="Login"
+        component={LoginScreen}
+        options={{
+          title: 'Login',
+          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="ios-contact" />,
+        }}
+      />
     </BottomTab.Navigator>
   );
 }
@@ -65,5 +74,7 @@ function getHeaderTitle(route) {
       return 'Profile Page';
     case 'Search':
       return 'Search Page Title Here';
+      case 'Login':
+      return 'Login Page Title Here';
   }
 }
