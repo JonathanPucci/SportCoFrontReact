@@ -28,7 +28,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.sportcoapp",
       "config": {
-        "googleMapsApiKey": "AIzaSyDyO4r0GuAE6iYJilYzUzgrgwqbfWhloyY"
+        "googleMapsApiKey": "AIzaSyCT_VgQZTK38MmlW4IBxn58cbf_9TChXK8"
       }
     },
     "android": {
@@ -36,7 +36,7 @@
       "versionCode": 1,
       "config": {
         "googleMaps": {
-          "apiKey": "AIzaSyDyO4r0GuAE6iYJilYzUzgrgwqbfWhloyY"
+          "apiKey": "AIzaSyActNSLf-qg2NfX87wzHY8tp0mI0l3qol8"
         }
       }
     }
