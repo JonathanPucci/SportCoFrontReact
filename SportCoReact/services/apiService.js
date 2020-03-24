@@ -3,7 +3,7 @@ import axios from 'axios';
 export default class SportCoApi {
   constructor() {
     // this.apiUrl = 'http://127.0.0.1:3000/';
-    this.apiUrl = 'https://sportcoback.herokuapp.com/';
+    this.apiUrl = 'https://sportcoback.herokuapp.com/api/';
   }
 
   getEntities(entities) {
@@ -20,26 +20,14 @@ export default class SportCoApi {
 
   getSingleEntity(name, id) {
     return axios.get(this.apiUrl + name + '/' + id).then(res => {
-      let entities = res.data;
-      return { entities: entities };
+      return res.data;
     });
   }
 
   getAllEntities(name) {
     return axios.get(this.apiUrl + name + '/').then(res => {
-      return { entities: res.data };
+      return res.data;
     });
-  }
-
-  compareEntity(property) {
-    return function(a, b) {
-      if (a[property] > b[property]) {
-        return 1;
-      } else if (a[property] < b[property]) {
-        return -1;
-      }
-      return 0;
-    };
   }
 
   deleteEntity(name, id) {
@@ -56,5 +44,16 @@ export default class SportCoApi {
 
   addEntity(name, entity) {
     return axios.post(this.apiUrl + name + '/', entity);
+  }
+
+  compareEntity(property) {
+    return function(a, b) {
+      if (a[property] > b[property]) {
+        return 1;
+      } else if (a[property] < b[property]) {
+        return -1;
+      }
+      return 0;
+    };
   }
 }

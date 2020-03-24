@@ -1,20 +1,31 @@
 import * as React from 'react';
+import * as firebase from 'firebase';
 import { Image, SafeAreaView, View } from 'react-native';
 import { Divider, Text, Button } from 'react-native-elements'
 import { Social } from '../../components/social'
 import Icon from '../../components/Icon'
 import { ScrollView, TouchableWithoutFeedback } from 'react-native-gesture-handler';
-import * as firebase from 'firebase';
-import {USER_LOGGED_OUT} from '../../Store/Actions'
-import { StackActions } from '@react-navigation/native';
 
+import {USER_LOGGED_OUT} from '../../Store/Actions'
 import { connect } from 'react-redux'
+
+import SportCoApi from '../../services/apiService';
+
 import { styles } from './styles'
 
 class ProfileScreen extends React.Component {
 
   state = {
-    sportsSelected: ['Tennis']
+    sportsSelected: ['Tennis'],
+    apiService : new SportCoApi(),
+    userPseudoName : 'Squatman'
+  }
+
+  componentDidMount(){
+    this.state.apiService.getSingleEntity('users',1)
+    .then(res => {
+      this.setState({userPseudoName : res.data.User_Name});
+    })
   }
 
   render() {
@@ -45,7 +56,7 @@ class ProfileScreen extends React.Component {
             </View>
             <Divider style={styles.divider} />
             <Text style={styles.desc}>
-              {`As everyone else, need to get out of this containment, let's play a basketball once it's all over.
+              {this.state.userPseudoName + ` : As everyone else, need to get out of this containment, let's play a basketball once it's all over.
               \rPure squatteur.`}
             </Text>
             <Divider style={styles.divider} />

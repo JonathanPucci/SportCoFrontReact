@@ -25,7 +25,20 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.sportcoapp",
+      "config": {
+        "googleMapsApiKey": "AIzaSyDyO4r0GuAE6iYJilYzUzgrgwqbfWhloyY"
+      }
+    },
+    "android": {
+      "package": "com.sportcoapp",
+      "versionCode": 1,
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyDyO4r0GuAE6iYJilYzUzgrgwqbfWhloyY"
+        }
+      }
     }
   }
 }

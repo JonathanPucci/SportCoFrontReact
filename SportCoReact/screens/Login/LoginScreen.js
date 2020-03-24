@@ -9,7 +9,7 @@ import {
   Input
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import BoidiApi from '../../services/apiService';
+import SportCoApi from '../../services/apiService';
 
 import * as firebase from 'firebase';
 import FacebookLogin from './FacebookLogin';
@@ -25,7 +25,7 @@ class LoginScreen extends React.Component {
   }
 
   loginAction(payload) {
-    // const apiService = new BoidiApi();
+    // const apiService = new SportCoApi();
     // apiService.getSingleEntity('users/email', payload).then(data => {
     //   let user = data.entities.data;
     //   const action = { type: USER_LOGGED, payload: user };

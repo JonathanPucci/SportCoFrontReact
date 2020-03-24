@@ -7,48 +7,16 @@ import { connect } from 'react-redux'
 import {styles} from './styles'
 
 class NotificationsScreen extends React.Component {
-  state = {
-    sports: [
-      {
-        id: 1,
-        desc: "Football"
-      },
-      {
-        id: 2,
-        desc: "Basketball"
-      },
-    ]
-  }
+  state = {}
+
   render() {
     return (
       <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-        <Text style={styles.text}>Clean Page</Text>
-        {this._displaySports()}
+        <Text style={styles.text}>Clean Page redux ready</Text>
       </ScrollView>
     );
   }
 
-
-_toggleFavorite(sport) {
-  const action = { type: "TOGGLE_FAVORITE", value: sport }
-  this.props.dispatch(action);
-}  
-
-  _displaySports() {
-    return (
-      <ScrollView style={styles.container}>
-        {this.state.sports.map(sport => {
-          return (
-
-            <View key={sport.id}>
-              <Button title={sport.desc} onPress={() => this._toggleFavorite(sport)}>{sport.desc}</Button>
-            </View>
-          )
-        })}
-      </ScrollView>
-    )
-
-  }
 }
 
 const mapDispatchToProps = (dispatch) => {
