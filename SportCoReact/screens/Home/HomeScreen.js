@@ -13,6 +13,9 @@ class HomeScreen extends React.Component {
           <View style={styles.welcomeContainer}>
             <Text style={styles.text}>HomePage</Text>
           </View>
+          <View style={styles.imageContainer}>
+              <Image source={require('../../assets/images/logomultisports.png') } style={styles.image} />
+              </View>
 
           <View style={styles.welcomeContainer}>
             <Text style={styles.text}>Test Redux with user info : </Text>

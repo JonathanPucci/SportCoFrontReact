@@ -20,6 +20,16 @@ export const styles = StyleSheet.create({
       color: 'rgba(96,100,109, 1)',
       lineHeight: 24,
       textAlign: 'center',
+    },
+    imageContainer:{
+      height:200,
+      width:200,
+      alignSelf:'center',
+      justifyContent:'center'
+    },
+    image:{
+      height:200,
+      width:200
     }
   });
   

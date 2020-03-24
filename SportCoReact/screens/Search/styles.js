@@ -8,7 +8,7 @@ export const styles = StyleSheet.create({
     },
   
     contentContainer: {
-      paddingTop: 30,
+      paddingTop: 0,
     },
     welcomeContainer: {
       alignItems: 'center',
@@ -29,7 +29,7 @@ export const styles = StyleSheet.create({
         justifyContent : 'center'
     },
     mapStyle: {
-      width: Layout.window.width-60,
+      width: Layout.window.width,
       height: Layout.window.height -250,
     },
   });
