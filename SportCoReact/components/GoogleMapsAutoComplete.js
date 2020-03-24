@@ -2,13 +2,14 @@
 import PlacesInput from 'react-native-places-input';
 import * as React from 'react';
 import { Ionicons } from 'react-native-vector-icons';
+import Credentials from "../credentials"
 
 export default class GoogleMapsAutoComplete extends React.Component {
 
     render() {
         return (
             <PlacesInput
-                googleApiKey={"AIzaSyB4QBqfuVAHEpIJRTzKn4F7tIAABqKwL8s"}
+                googleApiKey={Credentials.googlePlacesApiKey}
                 placeHolder={"Some Place holder"}
                 language={"en-US"}
                 onSelect={place => {
