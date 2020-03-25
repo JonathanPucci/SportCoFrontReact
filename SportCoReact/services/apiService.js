@@ -2,8 +2,8 @@ import axios from 'axios';
 
 export default class SportCoApi {
   constructor() {
-    // this.apiUrl = 'http://127.0.0.1:3000/';
-    this.apiUrl = 'https://sportcoback.herokuapp.com/api/';
+    this.apiUrl = 'http://192.168.1.17:8080/api/';
+    //this.apiUrl = 'https://sportcoback.herokuapp.com/api/';
   }
 
   getEntities(entities) {

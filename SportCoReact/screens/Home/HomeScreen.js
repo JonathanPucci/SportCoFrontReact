@@ -5,7 +5,14 @@ import { connect } from 'react-redux'
 import { styles, eventCalloutStyles } from './styles'
 
 import Icon from '../../components/Icon'
+import SportCoApi from '../../services/apiService';
+
 class HomeScreen extends React.Component {
+
+  constructor() {
+    super();
+    
+  }
 
   render() {
     return (
@@ -20,7 +27,6 @@ class HomeScreen extends React.Component {
 
           <View style={styles.welcomeContainer}>
             <Text style={styles.text}>Test Redux with user info : </Text>
-
             {this.props.auth != undefined && this.props.auth.user != undefined && (
               <View >
                 <Text style={styles.text}>{this.props.auth.user.displayName}</Text>
@@ -29,7 +35,7 @@ class HomeScreen extends React.Component {
             }
           </View>
 
-          
+
         </ScrollView>
       </View>
     );

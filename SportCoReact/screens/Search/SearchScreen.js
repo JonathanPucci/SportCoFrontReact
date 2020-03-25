@@ -1,22 +1,60 @@
 import * as React from 'react';
-import { View, Image, Animated } from 'react-native';
+import { View, Image, Animated, Text } from 'react-native';
 import { connect } from 'react-redux'
 import GoogleMapsAutoComplete from "../../components/GoogleMapsAutoComplete"
 
 import MapView from 'react-native-maps';
 
 import { styles, markerStyles, CARD_WIDTH } from './styles'
-import { markers } from './markers';
 import EventScrollList from './EventScrollList'
 import CalloutEvent from './CalloutEvent'
+import { markers } from './markers';
+import SportCoApi from '../../services/apiService';
 
 class SearchScreen extends React.Component {
 
   constructor() {
     super();
+    this.state = {
+      loading: true,
+      events: [],
+      currentEventIndex: 0,
+      region: {
+        latitude: 43.59,
+        longitude: 7.1,
+        latitudeDelta: 0.08,
+        longitudeDelta: 0.08
+      }
+    }
+
     this.index = 0;
     this.animation = new Animated.Value(0);
-    const interpolations = this.state.markers.map((marker, index) => {
+    this.interpolations = [];
+    this.sportCoApi = new SportCoApi();
+    this.getData();
+  }
+
+  getData() {
+    this.sportCoApi.getAllEntities("events")
+      .then((eventsdata) => {
+        let events = eventsdata.data;
+        for (let index = 0; index < events.length; index++) {
+          const event = events[index];
+          this.sportCoApi.getSingleEntity("events", event.Event_ID)
+            .then(event => {
+              let newArray = [...this.state.events];
+              newArray[index] = event.data;
+              this.setState({ events: newArray }, () => {
+                if (index == events.length - 1)
+                  this.calculateInterpolations();
+              });
+            })
+        }
+      })
+  }
+
+  calculateInterpolations() {
+    const interpolations = this.state.events.map((marker, index) => {
       const inputRange = [
         (index - 1) * CARD_WIDTH,
         index * CARD_WIDTH,
@@ -35,21 +73,17 @@ class SearchScreen extends React.Component {
       return { scale, opacity };
     });
     this.interpolations = interpolations;
-  }
+    this.setState({ loading: false })
 
-  state = {
-    search: '',
-    markers: markers,
-    currentEventIndex: 0,
-    region: {
-      latitude: 43.59,
-      longitude: 7.1,
-      latitudeDelta: 0.08,
-      longitudeDelta: 0.08
-    }
   }
 
   render() {
+    if (this.state.loading) {
+      return (
+        <View>
+          <Text>Loading</Text>
+        </View>);
+    }
     return (
       <View style={styles.container} contentContainerStyle={styles.contentContainer}>
         <GoogleMapsAutoComplete handler={this.goToLocation.bind(this)} />
@@ -61,11 +95,15 @@ class SearchScreen extends React.Component {
             showsUserLocation={true}
             ref={ref => (this.mapView = ref)}
           >
-            {this.state.markers.map((marker, index) => {
+            {this.state.events.map((event, index) => {
+              let coordinateEvent = {
+                latitude: parseFloat(event.spot.Spot_latitude),
+                longitude: parseFloat(event.spot.Spot_longitude)
+              };
               return (
                 <MapView.Marker
                   key={index}
-                  coordinate={marker.coordinate}
+                  coordinate={coordinateEvent}
                   ref={comp => this['callout-' + index] = comp}
                   onPress={() => { this.pressedEvent(index) }}
                 >
@@ -75,7 +113,7 @@ class SearchScreen extends React.Component {
                       style={{ height: 40, resizeMode: 'contain', bottom: 18, left: 0.5 }}
                     />
                   </Animated.View>
-                  <CalloutEvent event={marker} index={index} />
+                  <CalloutEvent event={event} index={index} />
                 </MapView.Marker>
               );
             })}
@@ -85,9 +123,10 @@ class SearchScreen extends React.Component {
             handler={this.goToLocation.bind(this)}
             animation={this.animation}
             currentIndex={this.state.currentEventIndex}
-            markers={this.state.markers} />
+            markers={this.state.events} />
         </View>
       </View>
+
     );
   }
 
@@ -116,8 +155,8 @@ class SearchScreen extends React.Component {
     // We should just debounce the event listener here
     this.animation.addListener(({ value }) => {
       let index = Math.floor(value / CARD_WIDTH + 0.3); // animate 30% away from landing on the next item
-      if (index >= this.state.markers.length) {
-        index = this.state.markers.length - 1;
+      if (index >= this.state.events.length) {
+        index = this.state.events.length - 1;
       }
       if (index <= 0) {
         index = 0;
@@ -126,8 +165,12 @@ class SearchScreen extends React.Component {
       this.regionTimeout = setTimeout(() => {
         if (this.index !== index) {
           this.index = index;
-          const { coordinate } = this.state.markers[index];
-          this.mapView.animateToRegion(coordinate, 350);
+          const event = this.state.events[index];
+          let coordinateEvent = {
+            latitude: parseFloat(event.spot.Spot_latitude),
+            longitude: parseFloat(event.spot.Spot_longitude)
+          };
+          this.mapView.animateToRegion(coordinateEvent, 350);
           this.setState({ currentEventIndex: index });
           this['callout-' + index].showCallout();
         }

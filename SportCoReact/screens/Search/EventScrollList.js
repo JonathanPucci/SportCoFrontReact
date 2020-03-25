@@ -13,14 +13,14 @@ import { mapSportIcon } from "../../helpers/mapper";
 
 export default class EventMarkers extends Component {
 
-    componentDidMount(){
+    componentDidMount() {
         this.scrollToElement(this.props.currentIndex);
     }
 
-    componentDidUpdate(prevProps){
+    componentDidUpdate(prevProps) {
         if (this.props.currentIndex !== prevProps.currentIndex) {
             this.scrollToElement(this.props.currentIndex);
-          }
+        }
     }
 
     render() {
@@ -31,7 +31,7 @@ export default class EventMarkers extends Component {
                 showsHorizontalScrollIndicator={false}
                 snapToInterval={CARD_WIDTH}
                 ref={(ref) => this.myScroll = ref}
-                onScrollToIndexFailed={()=>{}}
+                onScrollToIndexFailed={() => { }}
                 onScroll={Animated.event(
                     [
                         {
@@ -47,36 +47,38 @@ export default class EventMarkers extends Component {
                 style={markerStyles.scrollView}
                 contentContainerStyle={markerStyles.endPadding}
                 data={this.props.markers}
-                renderItem={({ item, index }) => (
-                    <TouchableWithoutFeedback onPress={this.scrollToElement.bind(this, index, true)}>
-                        <View style={[markerStyles.card, this.props.currentIndex==index?markerStyles.borderActive:'']} >
-                            <Image
-                                source={mapSportIcon(item.sport).image}
-                                style={markerStyles.cardImage}
-                                resizeMode="cover"
-                            />
-                            <View style={markerStyles.textContent}>
-                                <Text numberOfLines={1} style={markerStyles.cardtitle}>{item.title}</Text>
-                                <Text numberOfLines={1} style={markerStyles.cardDescription}>
-                                    {item.description}
-                                </Text>
-                            </View>
-                        </View>
-                    </TouchableWithoutFeedback>
-                )}
-            >
-            </Animated.FlatList>
-        );
-    }
-
-    renderMarker(marker, index) {
-        return (
-            <View></View>
+                keyExtractor={item => { if (item != undefined) return item.event.Event_ID.toString(); }}
+                renderItem={({ item, index }) => {
+                    return this.renderMarker(item, index);
+                }}
+            />
         )
     }
 
+    renderMarker(item, index) {
+
+        return (
+            <TouchableWithoutFeedback onPress={this.scrollToElement.bind(this, index, true)}>
+                <View style={[markerStyles.card, this.props.currentIndex == index ? markerStyles.borderActive : '']} >
+                    <Image
+                        source={mapSportIcon(item.event.Sport).image}
+                        style={markerStyles.cardImage}
+                        resizeMode="cover"
+                    />
+                    <View style={markerStyles.textContent}>
+                        <Text numberOfLines={1} style={markerStyles.cardtitle}>{item.event.Title}</Text>
+                        <Text numberOfLines={1} style={markerStyles.cardDescription}>
+                            {item.event.Description}
+                        </Text>
+                    </View>
+                </View>
+            </TouchableWithoutFeedback>
+        )
+
+    }
+
     scrollToElement(i, animated = false) {
-        this.myScroll.getNode().scrollToIndex({animated: animated, index: i});
+        this.myScroll.getNode().scrollToIndex({ animated: animated, index: i });
     }
 }
 
