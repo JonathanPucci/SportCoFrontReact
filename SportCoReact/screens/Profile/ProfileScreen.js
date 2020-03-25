@@ -56,7 +56,7 @@ class ProfileScreen extends React.Component {
             </View>
             <Divider style={styles.divider} />
             <Text style={styles.desc}>
-              {this.state.userPseudoName + ` : As everyone else, need to get out of this containment, let's play a basketball once it's all over.
+              {this.state.userPseudoName + ` : As everyone else, need to get out of this containment, let's play a basketball game once it's all over.
               \rPure squatteur.`}
             </Text>
             <Divider style={styles.divider} />

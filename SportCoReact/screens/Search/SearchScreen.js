@@ -1,17 +1,16 @@
 import * as React from 'react';
-import { View, Text, Animated } from 'react-native';
+import { View, Image, Animated } from 'react-native';
 import { connect } from 'react-redux'
 import GoogleMapsAutoComplete from "../../components/GoogleMapsAutoComplete"
 
 import MapView from 'react-native-maps';
 
 import { styles, markerStyles, CARD_WIDTH } from './styles'
-import LocationIqService from '../../services/locationIqService';
 import { markers } from './markers';
 import EventScrollList from './EventScrollList'
+import CalloutEvent from './CalloutEvent'
 
 class SearchScreen extends React.Component {
-
 
   constructor() {
     super();
@@ -41,6 +40,7 @@ class SearchScreen extends React.Component {
   state = {
     search: '',
     markers: markers,
+    currentEventIndex: 0,
     region: {
       latitude: 43.59,
       longitude: 7.1,
@@ -60,33 +60,44 @@ class SearchScreen extends React.Component {
             followUserLocation={true}
             showsUserLocation={true}
             ref={ref => (this.mapView = ref)}
-            onMapChange={this.goToLocation.bind(this)}
           >
             {this.state.markers.map((marker, index) => {
               return (
-                <MapView.Marker key={index} coordinate={marker.coordinate}>
+                <MapView.Marker
+                  key={index}
+                  coordinate={marker.coordinate}
+                  ref={comp => this['callout-' + index] = comp}
+                  onPress={() => { this.pressedEvent(index) }}
+                >
                   <Animated.View style={[markerStyles.markerWrap, this.calculateOpacityStyle(index)]}>
                     <Animated.View style={[markerStyles.ring, this.calculateScaleStyle(index)]} />
-                    <View style={markerStyles.marker} />
+                    <Image source={require('../../assets/images/pinIcon.png')}
+                      style={{ height: 40, resizeMode: 'contain', bottom: 18, left: 0.5 }}
+                    />
                   </Animated.View>
+                  <CalloutEvent event={marker} index={index} />
                 </MapView.Marker>
               );
             })}
 
           </MapView>
-          <EventScrollList handler={this.goToLocation.bind(this)} animation={this.animation} markers={this.state.markers} />
+          <EventScrollList
+            handler={this.goToLocation.bind(this)}
+            animation={this.animation}
+            currentIndex={this.state.currentEventIndex}
+            markers={this.state.markers} />
         </View>
       </View>
     );
   }
 
-  calculateOpacityStyle(index){
-    return  {
+  calculateOpacityStyle(index) {
+    return {
       opacity: this.interpolations[index].opacity,
     }
   }
 
-  calculateScaleStyle(index){
+  calculateScaleStyle(index) {
     return {
       transform: [
         {
@@ -96,15 +107,9 @@ class SearchScreen extends React.Component {
     }
   }
 
-  // componentDidMount() {
-  // navigator.geolocation.getCurrentPosition(pos => {
-  //   this.goToLocation(pos.coords.latitude, pos.coords.longitude)
-  // },
-  //   err => {
-  //     console.log(err);
-  //     alert("Fetching the Position failed");
-  //   })
-  // }
+  pressedEvent(index) {
+    this.setState({ currentEventIndex: index })
+  }
 
   componentDidMount() {
     // We should detect when scrolling has stopped then animate
@@ -122,14 +127,13 @@ class SearchScreen extends React.Component {
         if (this.index !== index) {
           this.index = index;
           const { coordinate } = this.state.markers[index];
-          this.mapView.animateToRegion(coordinate,350);
+          this.mapView.animateToRegion(coordinate, 350);
+          this.setState({ currentEventIndex: index });
+          this['callout-' + index].showCallout();
         }
-      }, 10);
+      }, 40);
     });
   }
-
-
-
 
   goToLocation(lat, lon) {
     this.setState(prevState => {
@@ -138,11 +142,13 @@ class SearchScreen extends React.Component {
           ...prevState.region,
           latitude: lat,
           longitude: lon,
-          latitudeDelta: 0.03,
-          longitudeDelta: 0.03,
+          latitudeDelta: 0.08,
+          longitudeDelta: 0.08
         }
       };
-    }, () => { this.mapView.animateToRegion(this.state.region, 1500) });
+    }, () => {
+      this.mapView.animateToRegion(this.state.region, 1500);
+    });
 
   }
 
