@@ -47,7 +47,7 @@ export default class EventMarkers extends Component {
                 style={markerStyles.scrollView}
                 contentContainerStyle={markerStyles.endPadding}
                 data={this.props.markers}
-                keyExtractor={item => { if (item != undefined) return item.event.Event_ID.toString(); }}
+                keyExtractor={item => { if (item != undefined) return item.event.event_id.toString(); }}
                 renderItem={({ item, index }) => {
                     return this.renderMarker(item, index);
                 }}
@@ -61,14 +61,14 @@ export default class EventMarkers extends Component {
             <TouchableWithoutFeedback onPress={this.scrollToElement.bind(this, index, true)}>
                 <View style={[markerStyles.card, this.props.currentIndex == index ? markerStyles.borderActive : '']} >
                     <Image
-                        source={mapSportIcon(item.event.Sport).image}
+                        source={mapSportIcon(item.event.sport).image}
                         style={markerStyles.cardImage}
                         resizeMode="cover"
                     />
                     <View style={markerStyles.textContent}>
-                        <Text numberOfLines={1} style={markerStyles.cardtitle}>{item.event.Title}</Text>
+                        <Text numberOfLines={1} style={markerStyles.cardtitle}>{item.event.title}</Text>
                         <Text numberOfLines={1} style={markerStyles.cardDescription}>
-                            {item.event.Description}
+                            {item.event.description}
                         </Text>
                     </View>
                 </View>

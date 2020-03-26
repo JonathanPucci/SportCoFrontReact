@@ -12,15 +12,15 @@ class CalloutEvent extends React.Component {
 
     render() {
         let eventInfo = this.props.event;
-        let icon = mapSportIcon(eventInfo.event.Sport.toLowerCase());
+        let icon = mapSportIcon(eventInfo.event.sport.toLowerCase());
         return (
             <Callout>
                 <View style={eventCalloutStyles.eventContainer}>
-                    <Text h5 style={eventCalloutStyles.eventTitle}>{eventInfo.event.Sport.toUpperCase()}</Text>
+                    <Text h5 style={eventCalloutStyles.eventTitle}>{eventInfo.event.sport.toUpperCase()}</Text>
                     <View style={eventCalloutStyles.eventDescriptionRow}>
                         <View style={eventCalloutStyles.eventDescriptionView}>
                             <View style={eventCalloutStyles.eventDescription}>
-                                <Text h5 >{eventInfo.event.Description}</Text>
+                                <Text h5 >{eventInfo.event.description}</Text>
                                 <Text h5 >Participants : 2/4</Text>
                                 <Text h5 >Mercredi 25 Mars 14h-16h </Text>
                             </View>

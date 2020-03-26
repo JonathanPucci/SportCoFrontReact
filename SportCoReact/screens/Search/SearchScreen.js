@@ -40,10 +40,11 @@ class SearchScreen extends React.Component {
         let events = eventsdata.data;
         for (let index = 0; index < events.length; index++) {
           const event = events[index];
-          this.sportCoApi.getSingleEntity("events", event.Event_ID)
+          this.sportCoApi.getSingleEntity("events", event.event_id)
             .then(event => {
               let newArray = [...this.state.events];
               newArray[index] = event.data;
+              console.log(event.data)
               this.setState({ events: newArray }, () => {
                 if (index == events.length - 1)
                   this.calculateInterpolations();
@@ -97,8 +98,8 @@ class SearchScreen extends React.Component {
           >
             {this.state.events.map((event, index) => {
               let coordinateEvent = {
-                latitude: parseFloat(event.spot.Spot_latitude),
-                longitude: parseFloat(event.spot.Spot_longitude)
+                latitude: parseFloat(event.spot.spot_latitude),
+                longitude: parseFloat(event.spot.spot_longitude)
               };
               return (
                 <MapView.Marker
@@ -166,9 +167,10 @@ class SearchScreen extends React.Component {
         if (this.index !== index) {
           this.index = index;
           const event = this.state.events[index];
+          console.log(event.spot)
           let coordinateEvent = {
-            latitude: parseFloat(event.spot.Spot_latitude),
-            longitude: parseFloat(event.spot.Spot_longitude)
+            latitude: parseFloat(event.spot.spot_latitude),
+            longitude: parseFloat(event.spot.spot_longitude)
           };
           this.mapView.animateToRegion(coordinateEvent, 350);
           this.setState({ currentEventIndex: index });
