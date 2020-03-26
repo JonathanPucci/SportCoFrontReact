@@ -6,9 +6,9 @@ export default class SportCoApi {
     //this.apiUrl = 'https://sportcoback.herokuapp.com/api/';
   }
 
-  getEntities(entities) {
+  getEntities(name, body) {
     return axios
-      .get(this.apiUrl + entities)
+      .post(this.apiUrl + name, body)
       .then(response => {
         return response.data;
       })

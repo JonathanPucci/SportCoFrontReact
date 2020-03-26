@@ -1,7 +1,8 @@
 import * as React from 'react';
-import { View, Image, Animated, Text } from 'react-native';
+import { View, Image, Animated, Text, Button } from 'react-native';
 import { connect } from 'react-redux'
 import GoogleMapsAutoComplete from "../../components/GoogleMapsAutoComplete"
+import Fade from "../../components/Fade"
 
 import MapView from 'react-native-maps';
 
@@ -24,18 +25,35 @@ class SearchScreen extends React.Component {
         longitude: 7.1,
         latitudeDelta: 0.08,
         longitudeDelta: 0.08
-      }
+      },
+      moved: false,
+      regionAfterMove: {}
     }
 
     this.index = 0;
     this.animation = new Animated.Value(0);
     this.interpolations = [];
     this.sportCoApi = new SportCoApi();
-    this.getData();
+    this.retrieveEventsInArea();
   }
 
-  getData() {
-    this.sportCoApi.getAllEntities("events")
+  getData(afterMove = false) {
+    this.setState({ events: [] }, () => {
+      this.retrieveEventsInArea(afterMove);
+    })
+
+  }
+
+  retrieveEventsInArea(afterMove = false) {
+    let area = {
+      longitude: this.state.region.longitude,
+      latitude: this.state.region.latitude
+    }
+    if (afterMove) {
+      area.longitude = this.state.regionAfterMove.longitude;
+      area.latitude = this.state.regionAfterMove.latitude;
+    }
+    this.sportCoApi.getEntities("events/area", area)
       .then((eventsdata) => {
         let events = eventsdata.data;
         for (let index = 0; index < events.length; index++) {
@@ -44,15 +62,17 @@ class SearchScreen extends React.Component {
             .then(event => {
               let newArray = [...this.state.events];
               newArray[index] = event.data;
-              console.log(event.data)
               this.setState({ events: newArray }, () => {
+                this.calculateInterpolations();
                 if (index == events.length - 1)
-                  this.calculateInterpolations();
+                  this.setState({ loading: false, moved: false })
+
               });
             })
         }
       })
   }
+
 
   calculateInterpolations() {
     const interpolations = this.state.events.map((marker, index) => {
@@ -74,8 +94,10 @@ class SearchScreen extends React.Component {
       return { scale, opacity };
     });
     this.interpolations = interpolations;
-    this.setState({ loading: false })
+  }
 
+  setRegionAfterMove(region) {
+    this.setState({ moved: true, regionAfterMove: region })
   }
 
   render() {
@@ -87,16 +109,23 @@ class SearchScreen extends React.Component {
     }
     return (
       <View style={styles.container} contentContainerStyle={styles.contentContainer}>
+
         <GoogleMapsAutoComplete handler={this.goToLocation.bind(this)} />
+
         <View style={styles.mapContainer}>
+
           <MapView style={styles.mapStyle}
             initialRegion={this.state.region}
             zoomEnabled={true}
             followUserLocation={true}
             showsUserLocation={true}
             ref={ref => (this.mapView = ref)}
+            onRegionChangeComplete={this.setRegionAfterMove.bind(this)}
           >
             {this.state.events.map((event, index) => {
+              if (event == undefined || event.event == undefined) {
+                return (<View key={index} />)
+              }
               let coordinateEvent = {
                 latitude: parseFloat(event.spot.spot_latitude),
                 longitude: parseFloat(event.spot.spot_longitude)
@@ -120,6 +149,11 @@ class SearchScreen extends React.Component {
             })}
 
           </MapView>
+          <Fade isVisible={this.state.moved} style={styles.searchButton} >
+            <View>
+              <Button title={"SEARCH HERE"} onPress={this.getData.bind(this, true)} />
+            </View>
+          </Fade>
           <EventScrollList
             handler={this.goToLocation.bind(this)}
             animation={this.animation}
@@ -132,19 +166,21 @@ class SearchScreen extends React.Component {
   }
 
   calculateOpacityStyle(index) {
-    return {
-      opacity: this.interpolations[index].opacity,
-    }
+    if (this.interpolations[index] != undefined)
+      return {
+        opacity: this.interpolations[index].opacity,
+      }
   }
 
   calculateScaleStyle(index) {
-    return {
-      transform: [
-        {
-          scale: this.interpolations[index].scale,
-        },
-      ],
-    }
+    if (this.interpolations[index] != undefined)
+      return {
+        transform: [
+          {
+            scale: this.interpolations[index].scale,
+          },
+        ],
+      }
   }
 
   pressedEvent(index) {

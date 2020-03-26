@@ -34,6 +34,14 @@ export const styles = StyleSheet.create({
     width: Layout.window.width,
     height: Layout.window.height - 150,
   },
+  searchButton:{
+    position: "absolute",
+    top: 70,
+    left: Layout.window.width/2 - 75,
+    paddingVertical: 10,
+    backgroundColor:'white',
+    borderRadius:10
+  }
 });
 
 export const CARD_HEIGHT = Layout.window.height / 4;

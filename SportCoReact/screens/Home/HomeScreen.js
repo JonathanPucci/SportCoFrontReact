@@ -5,13 +5,30 @@ import { connect } from 'react-redux'
 import { styles, eventCalloutStyles } from './styles'
 
 import Icon from '../../components/Icon'
+import Fade from '../../components/Fade'
 import SportCoApi from '../../services/apiService';
 
 class HomeScreen extends React.Component {
 
+
   constructor() {
     super();
-    
+    this.state = {
+      isVisible: false
+    }
+    this.api = new SportCoApi();
+    // this.api.getEntities("events/area", {longitude : 42, latitude  : 43})
+    // .then(data => {
+    //   console.log(data)
+    // })
+
+  }
+
+  getData() {
+    this.api.getEntities("events/area", { longitude: 42, latitude: 43 })
+      .then(data => {
+        console.log(data)
+      })
   }
 
   render() {
@@ -35,7 +52,21 @@ class HomeScreen extends React.Component {
             }
           </View>
 
+          <Button title={"OK"} onPress={this.getData.bind(this)} />
+          <Button title={"Fade"} onPress={() => { this.setState({ isVisible: !this.state.isVisible }) }} />
 
+          <Fade isVisible={this.state.isVisible}>
+            <View style={{
+              position: "absolute",
+              top: 70,
+              left: 200,
+              paddingVertical: 10,
+              backgroundColor: 'white',
+              borderRadius: 10
+            }}>
+              <Button title={"SEARCH HERE"} onPress={() => { }} />
+            </View>
+          </Fade>
         </ScrollView>
       </View>
     );
