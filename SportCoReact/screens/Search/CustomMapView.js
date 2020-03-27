@@ -90,38 +90,13 @@ export default class CustomMapView extends React.Component {
     }
 
 
-    goToLocation(lat, lon) {
-        //Only coming from autoComplete
-        console.log("goToLocation");
-        this.setState(
-            {
-                region: {
-                    latitude: lat,
-                    longitude: lon,
-                    latitudeDelta: this.props.searchState.region.latitudeDelta,
-                    longitudeDelta: this.props.searchState.region.longitudeDelta
-                },
-                regionAfterMove: {
-                    latitude: lat,
-                    longitude: lon,
-                    atitudeDelta: this.props.searchState.region.latitudeDelta,
-                    longitudeDelta: this.props.searchState.region.longitudeDelta
-                }
-            }
-            , () => {
-                // console.log("animate To" + JSON.stringify(this.props.searchState.region));
-                this.mapView.animateToRegion(this.props.searchState.region, 1500);
-                this.getData(true)
-            });
-    }
-
     onMapPress(mapEvent) {
         //Filter out marker presses
         if (mapEvent.nativeEvent.action === 'marker-press') {
             return;
         }
         // console.log("Map pressed" + JSON.stringify(mapEvent.nativeEvent.coordinate));
-        const event = this.props.events[this.props.searchState.currentEventIndex];
+        const event = this.props.searchState.events[this.props.searchState.currentEventIndex];
         let coordinateEvent = {
             latitude: parseFloat(event.spot.spot_latitude),
             longitude: parseFloat(event.spot.spot_longitude)

@@ -28,7 +28,7 @@ class SearchScreen extends React.Component {
         longitudeDelta: 0.08
       },
       moved: false,
-      interpolations : [],
+      interpolations: [],
       regionAfterMove: {},
     }
 
@@ -42,33 +42,33 @@ class SearchScreen extends React.Component {
     // We should detect when scrolling has stopped then animate
     // We should just debounce the event listener here
     this.animation.addListener(({ value }) => {
-        //TODO : Find a way to go less often this listener
-        // console.log("listener" + new Date())
-        let index = Math.floor(value / CARD_WIDTH + 0.3); // animate 30% away from landing on the next item
-        if (index >= this.state.events.length) {
-            index = this.state.events.length - 1;
-        }
-        if (index <= 0) {
-            index = 0;
-        }
-        clearTimeout(this.regionTimeout);
-        this.regionTimeout = setTimeout(() => {
-            this.index = index;
-            const event = this.state.events[index];
-            let coordinateEvent = {
-                latitude: parseFloat(event.spot.spot_latitude),
-                longitude: parseFloat(event.spot.spot_longitude),
-                latitudeDelta: this.state.region.latitudeDelta,
-                longitudeDelta: this.state.region.longitudeDelta
-            };
-            // console.log("animate To" + JSON.stringify(coordinateEvent));
-            this.setState({ currentEventIndex: index });
-            this.mapViewRef.mapView.animateToRegion(coordinateEvent, 350);
-            clearTimeout(this.calloutTimeout);
-            this.calloutTimeout = setTimeout(() => { this.showCallout(index) }, 500);
-        }, 40);
+      //TODO : Find a way to go less often this listener
+      // console.log("listener" + new Date())
+      let index = Math.floor(value / CARD_WIDTH + 0.3); // animate 30% away from landing on the next item
+      if (index >= this.state.events.length) {
+        index = this.state.events.length - 1;
+      }
+      if (index <= 0) {
+        index = 0;
+      }
+      clearTimeout(this.regionTimeout);
+      this.regionTimeout = setTimeout(() => {
+        this.index = index;
+        const event = this.state.events[index];
+        let coordinateEvent = {
+          latitude: parseFloat(event.spot.spot_latitude),
+          longitude: parseFloat(event.spot.spot_longitude),
+          latitudeDelta: this.state.region.latitudeDelta,
+          longitudeDelta: this.state.region.longitudeDelta
+        };
+        // console.log("animate To" + JSON.stringify(coordinateEvent));
+        this.setState({ currentEventIndex: index });
+        this.mapViewRef.mapView.animateToRegion(coordinateEvent, 350);
+        clearTimeout(this.calloutTimeout);
+        this.calloutTimeout = setTimeout(() => { this.showCallout(index) }, 500);
+      }, 40);
     });
-}
+  }
 
 
   getData(afterMove = false) {
@@ -101,7 +101,7 @@ class SearchScreen extends React.Component {
               let newArray = [...this.state.events];
               newArray[index] = event.data;
               this.setState({ events: newArray }, () => {
-                if (index == events.length - 1){
+                if (index == events.length - 1) {
                   this.setState({ loading: false, moved: false })
                   this.calculateInterpolations();
                 }
@@ -121,15 +121,17 @@ class SearchScreen extends React.Component {
     }
     return (
       <View style={styles.container} contentContainerStyle={styles.contentContainer}>
-        <GoogleMapsAutoComplete handler={
-          (lat, lon) => {this.mapViewRef.goToLocation(lat, lon)}} />
+        <GoogleMapsAutoComplete 
+        handler={this.goToLocation.bind(this) }
+        />
         <View style={styles.mapContainer}>
           <CustomMapView
-            ref={(ref) => {this.mapViewRef = ref}}
+            ref={(ref) => { this.mapViewRef = ref }}
             searchState={this.state}
             interpolations={this.state.interpolations}
             animation={this.animation}
             myEventScrollList={this.myEventScrollList}
+            getData={this.getData.bind(this)}
           />
           <Fade isVisible={this.state.moved} style={styles.searchButton} >
             <View>
@@ -148,35 +150,61 @@ class SearchScreen extends React.Component {
     );
   }
 
-  setMapViewRef(ref){
-    this.setState({mapViewRef : ref});
+  setMapViewRef(ref) {
+    this.setState({ mapViewRef: ref });
   }
 
   calculateInterpolations() {
     const interpolations = this.state.events.map((marker, index) => {
-        const inputRange = [
-            (index - 1) * CARD_WIDTH,
-            index * CARD_WIDTH,
-            ((index + 1) * CARD_WIDTH),
-        ];
-        const scale = this.animation.interpolate({
-            inputRange,
-            outputRange: [1, 2.5, 1],
-            extrapolate: "clamp",
-        });
-        const opacity = this.animation.interpolate({
-            inputRange,
-            outputRange: [0.35, 1, 0.35],
-            extrapolate: "clamp",
-        });
-        return { scale, opacity };
+      const inputRange = [
+        (index - 1) * CARD_WIDTH,
+        index * CARD_WIDTH,
+        ((index + 1) * CARD_WIDTH),
+      ];
+      const scale = this.animation.interpolate({
+        inputRange,
+        outputRange: [1, 2.5, 1],
+        extrapolate: "clamp",
+      });
+      const opacity = this.animation.interpolate({
+        inputRange,
+        outputRange: [0.35, 1, 0.35],
+        extrapolate: "clamp",
+      });
+      return { scale, opacity };
     });
     this.interpolations = interpolations;
+  }
+
+  goToLocation(lat, lon) {
+    //Only coming from autoComplete
+    this.setState(
+        {
+            region: {
+                latitude: lat,
+                longitude: lon,
+                latitudeDelta: this.state.region.latitudeDelta,
+                longitudeDelta: this.state.region.longitudeDelta
+            },
+            regionAfterMove: {
+                latitude: lat,
+                longitude: lon,
+                latitudeDelta: this.state.region.latitudeDelta,
+                longitudeDelta: this.state.region.longitudeDelta
+            }
+        }
+        , () => {
+            // console.log("animate To" + JSON.stringify(this.state.region));
+            this.mapViewRef.mapView.animateToRegion(this.state.region, 1500);
+            // console.log("GoGetData" + JSON.stringify(this.state.regionAfterMove));
+
+            this.getData(true);
+        });
 }
 
-showCallout(index){
-  this.mapViewRef['callout-' + index].showCallout()
-}
+  showCallout(index) {
+    this.mapViewRef['callout-' + index].showCallout()
+  }
 
 }
 
