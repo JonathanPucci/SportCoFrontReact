@@ -57,7 +57,7 @@ export default class CustomMapView extends React.Component {
 
     setRegionAfterMove(region) {
         // console.log("regionAfterMove");
-        this.setState({ moved: true, regionAfterMove: region });
+        this.props.regionMoved(region);
     }
 
 

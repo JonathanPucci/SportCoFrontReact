@@ -91,6 +91,7 @@ class SearchScreen extends React.Component {
       area.longitudeDelta = this.state.regionAfterMove.longitudeDelta;
       area.latitudeDelta = this.state.regionAfterMove.latitudeDelta;
     }
+
     this.sportCoApi.getEntities("events/area", area)
       .then((eventsdata) => {
         let events = eventsdata.data;
@@ -102,8 +103,8 @@ class SearchScreen extends React.Component {
               newArray[index] = event.data;
               this.setState({ events: newArray }, () => {
                 if (index == events.length - 1) {
-                  this.setState({ loading: false, moved: false })
                   this.calculateInterpolations();
+                  this.setState({ loading: false, moved: false })
                 }
               });
             })
@@ -131,11 +132,11 @@ class SearchScreen extends React.Component {
             interpolations={this.state.interpolations}
             animation={this.animation}
             myEventScrollList={this.myEventScrollList}
-            getData={this.getData.bind(this)}
+            regionMoved={this.setRegionMoved.bind(this)}
           />
           <Fade isVisible={this.state.moved} style={styles.searchButton} >
             <View>
-              <Button title={"SEARCH HERE"} onPress={this.getData.bind(this, true)} />
+              <Button title={"SEARCH HERE"} onPress={this.pressedSearchHere.bind(this)} />
             </View>
           </Fade>
           <EventScrollList
@@ -150,9 +151,14 @@ class SearchScreen extends React.Component {
     );
   }
 
-  setMapViewRef(ref) {
-    this.setState({ mapViewRef: ref });
+  setRegionMoved(region){
+    this.setState({ moved: true, regionAfterMove: region });
   }
+
+  pressedSearchHere(){
+    this.getData(true);
+  }
+
 
   calculateInterpolations() {
     const interpolations = this.state.events.map((marker, index) => {
