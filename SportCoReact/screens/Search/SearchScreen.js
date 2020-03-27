@@ -1,16 +1,14 @@
 import * as React from 'react';
-import { View, Image, Animated, Text, Button } from 'react-native';
+import { View, Animated, Text, Button } from 'react-native';
 import { connect } from 'react-redux'
 import GoogleMapsAutoComplete from "../../components/GoogleMapsAutoComplete"
 import Fade from "../../components/Fade"
+import ActionButton from 'react-native-action-button';
+import Icon from 'react-native-vector-icons/Ionicons';
 
-import MapView from 'react-native-maps';
-
-import { styles, markerStyles, CARD_WIDTH } from './styles'
+import { styles, CARD_WIDTH } from './styles'
 import EventScrollList from './EventScrollList'
-import CalloutEvent from './CalloutEvent'
 import CustomMapView from './CustomMapView'
-import { markers } from './markers';
 import SportCoApi from '../../services/apiService';
 
 class SearchScreen extends React.Component {
@@ -30,6 +28,7 @@ class SearchScreen extends React.Component {
       moved: false,
       interpolations: [],
       regionAfterMove: {},
+      addingEvent: true
     }
 
     this.index = 0;
@@ -39,6 +38,176 @@ class SearchScreen extends React.Component {
   }
 
   componentDidMount() {
+    this.setAnimationForScrollView();
+  }
+
+  /*********************************************************************************
+   *************************                 ***************************************
+   ********************        DATA STUFF       ************************************
+   *************************                 ***************************************
+   ********************************************************************************/
+
+
+  getData(afterMove = false) {
+    this.setState({ events: [] }, () => {
+      this.retrieveEventsInArea(afterMove);
+    })
+
+  }
+
+  retrieveEventsInArea(afterMove = false) {
+    this.sportCoApi.getEntities("events/area", afterMove ? this.state.regionAfterMove : this.state.region)
+      .then((eventsdata) => {
+        let events = eventsdata.data;
+        for (let index = 0; index < events.length; index++) {
+          const event = events[index];
+          this.sportCoApi.getSingleEntity("events", event.event_id)
+            .then(event => {
+              let newArray = [...this.state.events];
+              newArray[index] = event.data;
+              this.setState({ events: newArray }, () => {
+                if (index == events.length - 1) {
+                  this.calculateInterpolations();
+                  this.setState({ loading: false, moved: false })
+                }
+              });
+            })
+        }
+      })
+  }
+
+  /*********************************************************************************
+   *************************                 ***************************************
+   ********************      RENDERING STUFF    ************************************
+   *************************                 ***************************************
+   ********************************************************************************/
+
+
+  render() {
+    if (this.state.loading) {
+      return (
+        <View>
+          <Text>Loading</Text>
+        </View>);
+    }
+    return (
+      <View style={styles.container} contentContainerStyle={styles.contentContainer}>
+        <GoogleMapsAutoComplete
+          handler={this.goToLocation.bind(this)}
+        />
+        <View style={styles.mapContainer}>
+          <CustomMapView
+            ref={(ref) => { this.mapViewRef = ref }}
+            searchState={this.state}
+            interpolations={this.state.interpolations}
+            animation={this.animation}
+            myEventScrollList={this.myEventScrollList}
+            regionMoved={this.setRegionMoved.bind(this)}
+            addingEvent={this.state.addingEvent}
+            addingDone={this.addingDone.bind(this)}
+          />
+          <Fade isVisible={this.state.moved} style={styles.searchButton} >
+            <View>
+              <Button title={"SEARCH HERE"} onPress={this.pressedSearchHere.bind(this)} />
+            </View>
+          </Fade>
+          <Fade isVisible={this.state.moved} style={styles.searchButton} >
+            {this.renderActionButton()}
+          </Fade>
+          <EventScrollList
+            ref={(ref) => this.myEventScrollList = ref}
+            animation={this.animation}
+            currentIndex={this.state.currentEventIndex}
+            markers={this.state.events}
+          />
+        </View>
+      </View>
+
+    );
+  }
+
+  renderActionButton() {
+    return (
+      <View style={styles.actionButton}>
+        {/* Rest of the app comes ABOVE the action button component !*/}
+        <ActionButton buttonColor="rgba(231,76,60,1)"
+          ref={(ref) => this.actionButton = ref}
+          verticalOrientation="down"
+          position='right'
+          renderIcon={() => <Icon name="md-create" style={styles.actionButtonIcon} />}
+          active={this.state.isActionButtonActive}
+          onPress={() => {
+            this.setState({ isActionButtonActive: true },
+              () => {
+                setTimeout(() => { this.actionButton.animateButton() }, 2500)
+              })
+
+          }}
+        >
+          <ActionButton.Item buttonColor='#9b59b6' onPress={() => { this.setState({ addingEvent: true }) }}>
+            <Icon name="md-add" style={styles.actionButtonIcon} />
+          </ActionButton.Item>
+          <ActionButton.Item buttonColor='#3498db' onPress={() => { }}>
+            <Icon name="md-notifications-off" style={styles.actionButtonIcon} />
+          </ActionButton.Item>
+          <ActionButton.Item buttonColor='#1abc9c' onPress={() => { }}>
+            <Icon name="md-done-all" style={styles.actionButtonIcon} />
+          </ActionButton.Item>
+        </ActionButton>
+      </View >
+    );
+
+  }
+
+  /*********************************************************************************
+   *************************                 ***************************************
+   ********************      REGION MOVE STUFF    **********************************
+   *************************                 ***************************************
+   ********************************************************************************/
+
+  setRegionMoved(region) {
+    this.setState({ moved: true, regionAfterMove: region });
+  }
+
+  pressedSearchHere() {
+    this.getData(true);
+  }
+
+  goToLocation(lat, lon) {
+    //Only coming from autoComplete
+    this.setState(
+      {
+        region: {
+          ...this.state.region,
+          latitude: lat,
+          longitude: lon,
+        },
+        regionAfterMove: {
+          ...this.state.region,
+          latitude: lat,
+          longitude: lon,
+        }
+      }
+      , () => {
+        // console.log("animate To" + JSON.stringify(this.state.region));
+        this.mapViewRef.mapView.animateToRegion(this.state.region, 1500);
+        // console.log("GoGetData" + JSON.stringify(this.state.regionAfterMove));
+
+        this.getData(true);
+      });
+  }
+
+  showCallout(index) {
+    this.mapViewRef['callout-' + index].showCallout()
+  }
+
+  /*********************************************************************************
+   *************************                 ***************************************
+   ********************      ANIMATION STUFF    ************************************
+   *************************                 ***************************************
+   ********************************************************************************/
+
+  setAnimationForScrollView() {
     // We should detect when scrolling has stopped then animate
     // We should just debounce the event listener here
     this.animation.addListener(({ value }) => {
@@ -71,95 +240,6 @@ class SearchScreen extends React.Component {
   }
 
 
-  getData(afterMove = false) {
-    this.setState({ events: [] }, () => {
-      this.retrieveEventsInArea(afterMove);
-    })
-
-  }
-
-  retrieveEventsInArea(afterMove = false) {
-    let area = {
-      longitude: this.state.region.longitude,
-      latitude: this.state.region.latitude,
-      longitudeDelta: this.state.region.longitudeDelta,
-      latitudeDelta: this.state.region.latitudeDelta
-    }
-    if (afterMove) {
-      area.longitude = this.state.regionAfterMove.longitude;
-      area.latitude = this.state.regionAfterMove.latitude;
-      area.longitudeDelta = this.state.regionAfterMove.longitudeDelta;
-      area.latitudeDelta = this.state.regionAfterMove.latitudeDelta;
-    }
-
-    this.sportCoApi.getEntities("events/area", area)
-      .then((eventsdata) => {
-        let events = eventsdata.data;
-        for (let index = 0; index < events.length; index++) {
-          const event = events[index];
-          this.sportCoApi.getSingleEntity("events", event.event_id)
-            .then(event => {
-              let newArray = [...this.state.events];
-              newArray[index] = event.data;
-              this.setState({ events: newArray }, () => {
-                if (index == events.length - 1) {
-                  this.calculateInterpolations();
-                  this.setState({ loading: false, moved: false })
-                }
-              });
-            })
-        }
-      })
-  }
-
-
-  render() {
-    if (this.state.loading) {
-      return (
-        <View>
-          <Text>Loading</Text>
-        </View>);
-    }
-    return (
-      <View style={styles.container} contentContainerStyle={styles.contentContainer}>
-        <GoogleMapsAutoComplete 
-        handler={this.goToLocation.bind(this) }
-        />
-        <View style={styles.mapContainer}>
-          <CustomMapView
-            ref={(ref) => { this.mapViewRef = ref }}
-            searchState={this.state}
-            interpolations={this.state.interpolations}
-            animation={this.animation}
-            myEventScrollList={this.myEventScrollList}
-            regionMoved={this.setRegionMoved.bind(this)}
-          />
-          <Fade isVisible={this.state.moved} style={styles.searchButton} >
-            <View>
-              <Button title={"SEARCH HERE"} onPress={this.pressedSearchHere.bind(this)} />
-            </View>
-          </Fade>
-          <EventScrollList
-            ref={(ref) => this.myEventScrollList = ref}
-            animation={this.animation}
-            currentIndex={this.state.currentEventIndex}
-            markers={this.state.events}
-          />
-        </View>
-      </View>
-
-    );
-  }
-
-  setRegionMoved(region){
-    this.setState({ moved: true, regionAfterMove: region });
-  }
-
-  pressedSearchHere(){
-    this.getData(true);
-  }
-
-
   calculateInterpolations() {
     const interpolations = this.state.events.map((marker, index) => {
       const inputRange = [
@@ -182,34 +262,15 @@ class SearchScreen extends React.Component {
     this.interpolations = interpolations;
   }
 
-  goToLocation(lat, lon) {
-    //Only coming from autoComplete
-    this.setState(
-        {
-            region: {
-                latitude: lat,
-                longitude: lon,
-                latitudeDelta: this.state.region.latitudeDelta,
-                longitudeDelta: this.state.region.longitudeDelta
-            },
-            regionAfterMove: {
-                latitude: lat,
-                longitude: lon,
-                latitudeDelta: this.state.region.latitudeDelta,
-                longitudeDelta: this.state.region.longitudeDelta
-            }
-        }
-        , () => {
-            // console.log("animate To" + JSON.stringify(this.state.region));
-            this.mapViewRef.mapView.animateToRegion(this.state.region, 1500);
-            // console.log("GoGetData" + JSON.stringify(this.state.regionAfterMove));
+  /*********************************************************************************
+   *************************                 ***************************************
+   ********************      CREATION  STUFF    ************************************
+   *************************                 ***************************************
+   ********************************************************************************/
 
-            this.getData(true);
-        });
-}
 
-  showCallout(index) {
-    this.mapViewRef['callout-' + index].showCallout()
+  addingDone() {
+    this.setState({ addingEvent: false })
   }
 
 }

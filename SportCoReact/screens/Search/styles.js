@@ -41,7 +41,19 @@ export const styles = StyleSheet.create({
     paddingVertical: 10,
     backgroundColor:'white',
     borderRadius:10
-  }
+  },
+  actionButton:{
+    bottom: 40,
+    right: 90,
+    paddingVertical: 10,
+    backgroundColor:'white',
+    borderRadius:10
+  },
+  actionButtonIcon: {
+    fontSize: 20,
+    height: 22,
+    color: 'white',
+  },
 });
 
 export const CARD_HEIGHT = Layout.window.height / 6;

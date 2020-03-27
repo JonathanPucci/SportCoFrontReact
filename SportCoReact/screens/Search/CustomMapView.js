@@ -21,7 +21,7 @@ export default class CustomMapView extends React.Component {
                 followUserLocation={true}
                 showsUserLocation={true}
                 ref={ref => { this.mapView = ref; }}
-                onRegionChangeComplete={this.setRegionAfterMove.bind(this)}
+                onRegionChangeComplete={(region) => { this.props.regionMoved(region); }}
                 onPress={this.onMapPress.bind(this)}
                 onMarkerPress={() => { console.log("Marker pressed"); return; }}
             >
@@ -55,11 +55,12 @@ export default class CustomMapView extends React.Component {
         )
     }
 
-    setRegionAfterMove(region) {
-        // console.log("regionAfterMove");
-        this.props.regionMoved(region);
-    }
 
+    /*********************************************************************************
+     *************************                 ***************************************
+     ********************      ANIMATION STUFF    ************************************
+     *************************                 ***************************************
+     ********************************************************************************/
 
     calculateOpacityStyle(index) {
         if (this.props.interpolations[index] != undefined)
@@ -89,18 +90,28 @@ export default class CustomMapView extends React.Component {
 
     }
 
+    /*********************************************************************************
+     *************************                 ***************************************
+     ********************      CREATION  STUFF    ************************************
+     *************************                 ***************************************
+     ********************************************************************************/
 
     onMapPress(mapEvent) {
         //Filter out marker presses
         if (mapEvent.nativeEvent.action === 'marker-press') {
             return;
         }
-        // console.log("Map pressed" + JSON.stringify(mapEvent.nativeEvent.coordinate));
-        const event = this.props.searchState.events[this.props.searchState.currentEventIndex];
-        let coordinateEvent = {
-            latitude: parseFloat(event.spot.spot_latitude),
-            longitude: parseFloat(event.spot.spot_longitude)
-        };
+        if (this.props.addingEvent) {
+            // console.log("Map pressed" + JSON.stringify(mapEvent.nativeEvent.coordinate));
+            const event = this.props.searchState.events[this.props.searchState.currentEventIndex];
+            let coordinateEvent = {
+                latitude: parseFloat(event.spot.spot_latitude),
+                longitude: parseFloat(event.spot.spot_longitude)
+            };
+            
+            console.log("TODO : Adding Process")
+            this.props.addingDone();
+        }
     }
 
 }
