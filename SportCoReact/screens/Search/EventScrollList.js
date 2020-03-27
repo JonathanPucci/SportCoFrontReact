@@ -47,7 +47,12 @@ export default class EventMarkers extends Component {
                 style={markerStyles.scrollView}
                 contentContainerStyle={markerStyles.endPadding}
                 data={this.props.markers}
-                keyExtractor={item => { if (item != undefined && item.event != undefined) return item.event.event_id.toString(); }}
+                keyExtractor={(item, index) => {
+                    if (item != undefined && item.event != undefined)
+                        return item.event.event_id.toString();
+                    else
+                        return 'key'+index
+                }}
                 renderItem={({ item, index }) => {
                     return this.renderMarker(item, index);
                 }}
@@ -56,8 +61,8 @@ export default class EventMarkers extends Component {
     }
 
     renderMarker(item, index) {
-        if (item == undefined || item.event == undefined){
-            return (<View/>)
+        if (item == undefined || item.event == undefined) {
+            return (<View />)
         }
         return (
             <TouchableWithoutFeedback onPress={this.scrollToElement.bind(this, index, true)}>

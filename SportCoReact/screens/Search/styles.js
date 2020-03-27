@@ -32,7 +32,7 @@ export const styles = StyleSheet.create({
   },
   mapStyle: {
     width: Layout.window.width,
-    height: Layout.window.height - 150,
+    height: Layout.window.height - 200,
   },
   searchButton:{
     position: "absolute",

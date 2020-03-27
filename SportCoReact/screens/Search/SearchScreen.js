@@ -47,11 +47,15 @@ class SearchScreen extends React.Component {
   retrieveEventsInArea(afterMove = false) {
     let area = {
       longitude: this.state.region.longitude,
-      latitude: this.state.region.latitude
+      latitude: this.state.region.latitude,
+      longitudeDelta: this.state.region.longitudeDelta,
+      latitudeDelta: this.state.region.latitudeDelta
     }
     if (afterMove) {
       area.longitude = this.state.regionAfterMove.longitude;
       area.latitude = this.state.regionAfterMove.latitude;
+      area.longitudeDelta = this.state.regionAfterMove.longitudeDelta;
+      area.latitudeDelta = this.state.regionAfterMove.latitudeDelta;
     }
     this.sportCoApi.getEntities("events/area", area)
       .then((eventsdata) => {
@@ -203,7 +207,6 @@ class SearchScreen extends React.Component {
         if (this.index !== index) {
           this.index = index;
           const event = this.state.events[index];
-          console.log(event.spot)
           let coordinateEvent = {
             latitude: parseFloat(event.spot.spot_latitude),
             longitude: parseFloat(event.spot.spot_longitude)
