@@ -13,13 +13,17 @@ import { mapSportIcon } from "../../helpers/mapper";
 
 export default class EventMarkers extends Component {
 
+    state = {
+        currentOffset: 0
+    }
+
     componentDidMount() {
-        this.scrollToElement(this.props.currentIndex);
+        this.scrollToElement();
     }
 
     componentDidUpdate(prevProps) {
         if (this.props.currentIndex !== prevProps.currentIndex) {
-            this.scrollToElement(this.props.currentIndex);
+            this.scrollToElement();
         }
     }
 
@@ -33,16 +37,22 @@ export default class EventMarkers extends Component {
                 ref={(ref) => this.myScroll = ref}
                 onScrollToIndexFailed={() => { }}
                 onScroll={Animated.event(
-                    [
-                        {
-                            nativeEvent: {
-                                contentOffset: {
-                                    x: this.props.animation,
-                                },
+                    [{
+                        nativeEvent: {
+                            contentOffset: {
+                                x: this.props.animation,
                             },
                         },
+                    },
                     ],
-                    { useNativeDriver: true }
+                    {
+                        useNativeDriver: true,
+                        listener: event => {
+                            const offsetX = event.nativeEvent.contentOffset.x;
+                            this.setState({ currentOffset: offsetX });
+                            // do something special
+                        },
+                    }
                 )}
                 style={markerStyles.scrollView}
                 contentContainerStyle={markerStyles.endPadding}
@@ -51,7 +61,7 @@ export default class EventMarkers extends Component {
                     if (item != undefined && item.event != undefined)
                         return item.event.event_id.toString();
                     else
-                        return 'key'+index
+                        return 'key' + index
                 }}
                 renderItem={({ item, index }) => {
                     return this.renderMarker(item, index);
@@ -81,11 +91,14 @@ export default class EventMarkers extends Component {
                 </View>
             </TouchableWithoutFeedback>
         )
-
     }
 
-    scrollToElement(i, animated = false) {
-        this.myScroll.getNode().scrollToIndex({ animated: animated, index: i });
+
+    scrollToElement(i = this.props.currentIndex, fromPress = false) {
+        if (fromPress) {
+            this.myScroll.getNode().scrollToOffset({ animated: fromPress, offset: (this.state.currentOffset + (i ==0? 10:-10))});
+        }
+        setTimeout(() => { this.myScroll.getNode().scrollToIndex({ animated: fromPress, index: i }); }, 100);
     }
 }
 

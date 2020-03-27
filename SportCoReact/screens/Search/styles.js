@@ -32,7 +32,7 @@ export const styles = StyleSheet.create({
   },
   mapStyle: {
     width: Layout.window.width,
-    height: Layout.window.height - 200,
+    height: Layout.window.height,
   },
   searchButton:{
     position: "absolute",
@@ -44,8 +44,8 @@ export const styles = StyleSheet.create({
   }
 });
 
-export const CARD_HEIGHT = Layout.window.height / 4;
-export const CARD_WIDTH = CARD_HEIGHT - 50;
+export const CARD_HEIGHT = Layout.window.height / 6;
+export const CARD_WIDTH = CARD_HEIGHT - 40;
 
 export const markerStyles = StyleSheet.create({
   container: {

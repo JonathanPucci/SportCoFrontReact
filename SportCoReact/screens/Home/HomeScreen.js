@@ -52,16 +52,16 @@ class HomeScreen extends React.Component {
             }
           </View>
 
-          <Button title={"OK"} onPress={this.getData.bind(this)} />
+          <Button title={"TestData"} onPress={this.getData.bind(this)} />
           <Button title={"Fade"} onPress={() => { this.setState({ isVisible: !this.state.isVisible }) }} />
 
           <Fade isVisible={this.state.isVisible}>
             <View style={{
               position: "absolute",
               top: 70,
-              left: 200,
+              left: 150,
               paddingVertical: 10,
-              backgroundColor: 'white',
+              backgroundColor: '#DDD',
               borderRadius: 10
             }}>
               <Button title={"SEARCH HERE"} onPress={() => { }} />

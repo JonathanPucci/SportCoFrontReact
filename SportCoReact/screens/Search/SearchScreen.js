@@ -100,7 +100,8 @@ class SearchScreen extends React.Component {
   }
 
   setRegionAfterMove(region) {
-    this.setState({ moved: true, regionAfterMove: region })
+    // console.log("regionAfterMove");
+    this.setState({ moved: true, regionAfterMove: region });
   }
 
   render() {
@@ -124,6 +125,9 @@ class SearchScreen extends React.Component {
             showsUserLocation={true}
             ref={ref => (this.mapView = ref)}
             onRegionChangeComplete={this.setRegionAfterMove.bind(this)}
+            onPress={this.onMapPress.bind(this)}
+            onMarkerPress={() => { console.log("Marker pressed"); return; }
+            }
           >
             {this.state.events.map((event, index) => {
               if (event == undefined || event.event == undefined) {
@@ -158,7 +162,7 @@ class SearchScreen extends React.Component {
             </View>
           </Fade>
           <EventScrollList
-            handler={this.goToLocation.bind(this)}
+            ref={(ref) => this.myEventScrollList = ref}
             animation={this.animation}
             currentIndex={this.state.currentEventIndex}
             markers={this.state.events} />
@@ -187,14 +191,21 @@ class SearchScreen extends React.Component {
   }
 
   pressedEvent(index) {
+    //Force animation as child won't do it if same index as before
+    if (this.state.currentIndex == index) {
+      this.myEventScrollList.scrollToElement(index, true)
+    }
     // Will set index on scrollList which will trigger animation here
-    this.setState({ currentEventIndex: index })
+    this.setState({ currentEventIndex: index });
+
   }
 
   componentDidMount() {
     // We should detect when scrolling has stopped then animate
     // We should just debounce the event listener here
     this.animation.addListener(({ value }) => {
+      //TODO : Find a way to go less often this listener
+      // console.log("listener" + new Date())
       let index = Math.floor(value / CARD_WIDTH + 0.3); // animate 30% away from landing on the next item
       if (index >= this.state.events.length) {
         index = this.state.events.length - 1;
@@ -204,48 +215,64 @@ class SearchScreen extends React.Component {
       }
       clearTimeout(this.regionTimeout);
       this.regionTimeout = setTimeout(() => {
-        if (this.index !== index) {
-          this.index = index;
-          const event = this.state.events[index];
-          let coordinateEvent = {
-            latitude: parseFloat(event.spot.spot_latitude),
-            longitude: parseFloat(event.spot.spot_longitude)
-          };
-          this.mapView.animateToRegion(coordinateEvent, 350);
-          this.setState({ currentEventIndex: index });
-          this['callout-' + index].showCallout();
-        }
+        this.index = index;
+        const event = this.state.events[index];
+        let coordinateEvent = {
+          latitude: parseFloat(event.spot.spot_latitude),
+          longitude: parseFloat(event.spot.spot_longitude),
+          latitudeDelta: this.state.region.latitudeDelta,
+          longitudeDelta: this.state.region.longitudeDelta
+        };
+        // console.log("animate To" + JSON.stringify(coordinateEvent));
+        this.setState({ currentEventIndex: index });
+        this.mapView.animateToRegion(coordinateEvent, 350);
+        clearTimeout(this.callOutTimeout);
+        this.callOutTimeout = setTimeout(() => { this['callout-' + index].showCallout() }, 1000);
       }, 40);
     });
   }
 
-  goToLocationAfterSelectPlace(lat,lon){
-    this.goToLocation(lat,lon,true)
+  goToLocationAfterSelectPlace(lat, lon) {
+    this.goToLocation(lat, lon, true)
   }
 
   goToLocation(lat, lon, fromAutocomplete = false) {
+    console.log("goToLocation");
     this.setState(
       {
         region: {
           latitude: lat,
           longitude: lon,
-          latitudeDelta: 0.08,
-          longitudeDelta: 0.08
+          latitudeDelta: this.state.region.latitudeDelta,
+          longitudeDelta: this.state.region.longitudeDelta
         },
         regionAfterMove: {
           latitude: lat,
           longitude: lon,
-          latitudeDelta: 0.08,
-          longitudeDelta: 0.08
+          atitudeDelta: this.state.region.latitudeDelta,
+          longitudeDelta: this.state.region.longitudeDelta
         }
       }
       , () => {
+        // console.log("animate To" + JSON.stringify(this.state.region));
         this.mapView.animateToRegion(this.state.region, 1500);
         if (fromAutocomplete) {
           this.getData(true)
         }
       });
+  }
 
+  onMapPress(mapEvent) {
+    //Filter out marker presses
+    if (mapEvent.nativeEvent.action === 'marker-press') {
+      return;
+    }
+    // console.log("Map pressed" + JSON.stringify(mapEvent.nativeEvent.coordinate));
+    const event = this.state.events[this.state.currentEventIndex];
+    let coordinateEvent = {
+      latitude: parseFloat(event.spot.spot_latitude),
+      longitude: parseFloat(event.spot.spot_longitude)
+    };
   }
 
 }
