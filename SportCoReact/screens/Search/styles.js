@@ -53,7 +53,7 @@ export const markerStyles = StyleSheet.create({
   },
   scrollView: {
     position: "absolute",
-    bottom: 30,
+    bottom: 0,
     left: 0,
     right: 0,
     paddingVertical: 10,

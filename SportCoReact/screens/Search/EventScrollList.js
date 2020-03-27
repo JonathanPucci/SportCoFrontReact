@@ -40,7 +40,7 @@ export default class EventMarkers extends Component {
                     [{
                         nativeEvent: {
                             contentOffset: {
-                                x: this.props.animation,
+                                x: (this.props.animation),
                             },
                         },
                     },
@@ -50,7 +50,6 @@ export default class EventMarkers extends Component {
                         listener: event => {
                             const offsetX = event.nativeEvent.contentOffset.x;
                             this.setState({ currentOffset: offsetX });
-                            // do something special
                         },
                     }
                 )}
@@ -96,7 +95,7 @@ export default class EventMarkers extends Component {
 
     scrollToElement(i = this.props.currentIndex, fromPress = false) {
         if (fromPress) {
-            this.myScroll.getNode().scrollToOffset({ animated: fromPress, offset: (this.state.currentOffset + (i ==0? 10:-10))});
+            this.myScroll.getNode().scrollToOffset({ animated: fromPress, offset: (this.state.currentOffset + (i == 0 ? 10 : -10)) });
         }
         setTimeout(() => { this.myScroll.getNode().scrollToIndex({ animated: fromPress, index: i }); }, 100);
     }
