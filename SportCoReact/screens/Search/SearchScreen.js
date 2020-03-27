@@ -66,7 +66,6 @@ class SearchScreen extends React.Component {
                 this.calculateInterpolations();
                 if (index == events.length - 1)
                   this.setState({ loading: false, moved: false })
-
               });
             })
         }
@@ -110,7 +109,7 @@ class SearchScreen extends React.Component {
     return (
       <View style={styles.container} contentContainerStyle={styles.contentContainer}>
 
-        <GoogleMapsAutoComplete handler={this.goToLocation.bind(this)} />
+        <GoogleMapsAutoComplete handler={this.goToLocationAfterSelectPlace.bind(this)} />
 
         <View style={styles.mapContainer}>
 
@@ -184,6 +183,7 @@ class SearchScreen extends React.Component {
   }
 
   pressedEvent(index) {
+    // Will set index on scrollList which will trigger animation here
     this.setState({ currentEventIndex: index })
   }
 
@@ -216,20 +216,32 @@ class SearchScreen extends React.Component {
     });
   }
 
-  goToLocation(lat, lon) {
-    this.setState(prevState => {
-      return {
+  goToLocationAfterSelectPlace(lat,lon){
+    this.goToLocation(lat,lon,true)
+  }
+
+  goToLocation(lat, lon, fromAutocomplete = false) {
+    this.setState(
+      {
         region: {
-          ...prevState.region,
+          latitude: lat,
+          longitude: lon,
+          latitudeDelta: 0.08,
+          longitudeDelta: 0.08
+        },
+        regionAfterMove: {
           latitude: lat,
           longitude: lon,
           latitudeDelta: 0.08,
           longitudeDelta: 0.08
         }
-      };
-    }, () => {
-      this.mapView.animateToRegion(this.state.region, 1500);
-    });
+      }
+      , () => {
+        this.mapView.animateToRegion(this.state.region, 1500);
+        if (fromAutocomplete) {
+          this.getData(true)
+        }
+      });
 
   }
 
