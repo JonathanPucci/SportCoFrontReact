@@ -31,6 +31,11 @@ class HomeScreen extends React.Component {
       })
   }
 
+  navigate(){
+    console.log(this.props.navigation);
+    this.props.navigation.navigate('Search')
+  }
+
   render() {
     return (
       <View style={styles.container}>
@@ -53,6 +58,7 @@ class HomeScreen extends React.Component {
           </View>
 
           <Button title={"TestData"} onPress={this.getData.bind(this)} />
+          <Button title={"TestNavigate"} onPress={this.navigate.bind(this)} />
           <Button title={"Fade"} onPress={() => { this.setState({ isVisible: !this.state.isVisible }) }} />
 
           <Fade isVisible={this.state.isVisible}>

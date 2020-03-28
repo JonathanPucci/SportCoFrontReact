@@ -105,6 +105,7 @@ class SearchScreen extends React.Component {
             regionMoved={this.setRegionMoved.bind(this)}
             addingEvent={this.state.addingEvent}
             addingDone={this.addingDone.bind(this)}
+            navigation={this.props.navigation}
           />
           <Fade isVisible={this.state.moved} style={styles.searchButton} >
             <View>

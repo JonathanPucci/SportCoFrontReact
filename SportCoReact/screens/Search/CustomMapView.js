@@ -46,7 +46,7 @@ export default class CustomMapView extends React.Component {
                                     style={{ height: 40, resizeMode: 'contain', bottom: 18, left: 0.5 }}
                                 />
                             </Animated.View>
-                            <CalloutEvent event={event} index={index} />
+                            <CalloutEvent navigation={this.props.navigation} event={event} index={index} />
                         </MapView.Marker>
                     );
                 })}

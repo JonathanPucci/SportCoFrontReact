@@ -4,6 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import BottomTabNavigator from './BottomTabNavigator';
 import LoginScreen from '../screens/Login/LoginScreen';
+import EventScreen from '../screens/Event/Event';
 import { connect } from 'react-redux';
 
 function LogoTitle() {
@@ -37,6 +38,7 @@ class AppNavigator extends React.Component {
                             // When logged in, the user will be shown this route
                             : <Stack.Screen name="Authorized" component={BottomTabNavigator} />
                         }
+                              <Stack.Screen name="Event" component={EventScreen} />
                     </Stack.Navigator>
                 </NavigationContainer>
             </View>

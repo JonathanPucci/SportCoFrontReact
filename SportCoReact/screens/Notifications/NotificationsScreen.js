@@ -5,9 +5,25 @@ import * as WebBrowser from 'expo-web-browser';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
 import { connect } from 'react-redux'
 import {styles} from './styles'
+import SportCoApi from '../../services/apiService';
 
 class NotificationsScreen extends React.Component {
-  state = {}
+  
+  constructor(){
+    super()
+    this.state = {
+      event : {}
+    }
+    this.apiService = new SportCoApi()
+
+  }
+
+  componentDidMount(){
+    this.apiService.getAllEntities('events')
+    .then((data)=>{
+      this.setState({event : data.data[0]})
+    })
+  }
 
   render() {
     return (

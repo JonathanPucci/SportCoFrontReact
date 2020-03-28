@@ -163,7 +163,9 @@ export const eventCalloutStyles = StyleSheet.create({
     alignSelf:'flex-end'
   },
   buttonStyle:{
-    alignSelf:'flex-end'
+    alignSelf:'center',
+    fontSize:20,
+    textDecorationLine:'underline'
   }
 
 });

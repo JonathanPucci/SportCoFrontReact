@@ -5,7 +5,6 @@ import { connect } from 'react-redux'
 import { Callout, CalloutSubview } from 'react-native-maps';
 import { eventCalloutStyles } from './styles';
 import Icon from '../../components/Icon'
-import { Button } from 'react-native-elements';
 import { mapSportIcon } from '../../helpers/mapper'
 
 class CalloutEvent extends React.Component {
@@ -14,7 +13,7 @@ class CalloutEvent extends React.Component {
         let eventInfo = this.props.event;
         let icon = mapSportIcon(eventInfo.event.sport.toLowerCase());
         return (
-            <Callout>
+            <Callout onPress={this.goToEvent.bind(this, this.props.event)}>
                 <View style={eventCalloutStyles.eventContainer}>
                     <Text h5 style={eventCalloutStyles.eventTitle}>{eventInfo.event.sport.toUpperCase()}</Text>
                     <View style={eventCalloutStyles.eventDescriptionRow}>
@@ -33,10 +32,11 @@ class CalloutEvent extends React.Component {
                             selected={false}
                         />
                     </View>
-                    <Button
+                    <Text
                         style={eventCalloutStyles.buttonStyle}
-                        title="Voir plus..."
-                        onPress={this.goToEvent(this.props.event)} />
+                    >
+                        Voir plus...
+                    </Text>
 
                 </View>
             </Callout>
@@ -44,7 +44,9 @@ class CalloutEvent extends React.Component {
     }
 
     goToEvent(event) {
-
+        this.props.navigation.navigate('Event', {
+            event: event
+        });
     }
 
 }

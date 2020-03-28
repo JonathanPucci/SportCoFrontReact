@@ -8,7 +8,7 @@ import NotificationsScreen from '../screens/Notifications/NotificationsScreen';
 import SearchScreen from '../screens/Search/SearchScreen';
 
 const BottomTab = createBottomTabNavigator();
-const INITIAL_ROUTE_NAME = 'Search';
+const INITIAL_ROUTE_NAME = 'Home';
 
 export default function BottomTabNavigator({ navigation, route }) {
   // Set the header title on the parent stack navigator depending on the
@@ -54,20 +54,20 @@ export default function BottomTabNavigator({ navigation, route }) {
   );
 }
 
-function getHeaderTitle(route) {
-  const routeName = route.state?.routes[route.state.index]?.name ?? INITIAL_ROUTE_NAME;
+// function getHeaderTitle(route) {
+//   const routeName = route.state?.routes[route.state.index]?.name ?? INITIAL_ROUTE_NAME;
 
-  switch (routeName) {
-    case 'Home':
-      return 'Home Page Title Here';
-    case 'Notifications':
-      return 'Notifications Page Title Here';
-    case 'Profile':
-      return 'Profile Page';
-    case 'Search':
-      return 'Search Page Title Here';
-  }
-}
+//   switch (routeName) {
+//     case 'Home':
+//       return 'Home Page Title Here';
+//     case 'Notifications':
+//       return 'Notifications Page Title Here';
+//     case 'Profile':
+//       return 'Profile Page';
+//     case 'Search':
+//       return 'Search Page Title Here';
+//   }
+// }
 
 function LogoTitle() {
   return (
