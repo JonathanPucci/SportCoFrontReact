@@ -30,12 +30,8 @@ export default class SportCoApi {
     });
   }
 
-  deleteEntity(name, id) {
-    return axios.delete(this.apiUrl + name + '/' + id);
-  }
-
-  removeEntity(name, entity) {
-    return axios.delete(this.apiUrl + name + '/', { data: entity });
+  deleteEntity(name, params) {
+    return axios.delete(this.apiUrl + name + '/' + JSON.stringify(params));
   }
 
   editEntity(name, entity) {

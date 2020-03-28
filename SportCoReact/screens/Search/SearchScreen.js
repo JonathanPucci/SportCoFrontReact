@@ -59,6 +59,9 @@ class SearchScreen extends React.Component {
     this.sportCoApi.getEntities("events/area", afterMove ? this.state.regionAfterMove : this.state.region)
       .then((eventsdata) => {
         let events = eventsdata.data;
+        if (eventsdata.data.length == 0)
+          this.setState({ loading: false, moved: false })
+
         for (let index = 0; index < events.length; index++) {
           const event = events[index];
           this.sportCoApi.getSingleEntity("events", event.event_id)
@@ -74,6 +77,8 @@ class SearchScreen extends React.Component {
             })
         }
       })
+
+
   }
 
   /*********************************************************************************
@@ -101,11 +106,12 @@ class SearchScreen extends React.Component {
             searchState={this.state}
             interpolations={this.state.interpolations}
             animation={this.animation}
-            myEventScrollList={this.myEventScrollList}
+            myEventScrollList={(index) => { this.setState({ currentEventIndex: index, reloadCallout: true }) }}
             regionMoved={this.setRegionMoved.bind(this)}
             addingEvent={this.state.addingEvent}
             addingDone={this.addingDone.bind(this)}
             navigation={this.props.navigation}
+
           />
           <Fade isVisible={this.state.moved} style={styles.searchButton} >
             <View>
@@ -199,7 +205,7 @@ class SearchScreen extends React.Component {
   }
 
   showCallout(index) {
-    this.mapViewRef['callout-' + index].showCallout()
+    this.mapViewRef['callout-' + index].showCallout();
   }
 
   /*********************************************************************************
@@ -260,7 +266,7 @@ class SearchScreen extends React.Component {
       });
       return { scale, opacity };
     });
-    this.setState({interpolations : interpolations});
+    this.setState({ interpolations: interpolations });
   }
 
   /*********************************************************************************

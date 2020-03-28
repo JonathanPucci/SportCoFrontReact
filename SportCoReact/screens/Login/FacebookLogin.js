@@ -64,6 +64,7 @@ class FacebookLogin extends React.Component {
             apiService
               .editEntity('users/update', userDB)
               .then(data => {
+                user['user_id'] = data.data.user_id;
                 loginAction(user);
               });
           })

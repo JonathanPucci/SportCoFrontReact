@@ -11,6 +11,9 @@ export default class CustomMapView extends React.Component {
 
     constructor() {
         super();
+        this.state = {
+            reloadCallout : false
+        }
     }
 
     render() {
@@ -23,7 +26,8 @@ export default class CustomMapView extends React.Component {
                 ref={ref => { this.mapView = ref; }}
                 onRegionChangeComplete={(region) => { this.props.regionMoved(region); }}
                 onPress={this.onMapPress.bind(this)}
-                onMarkerPress={() => { console.log("Marker pressed"); return; }}
+                onMarkerPress={() => { this.setState({ reloadCallout: true }) }}
+                reloadCallout
             >
                 {this.props.searchState.events.map((event, index) => {
                     if (event == undefined || event.event == undefined) {
@@ -46,7 +50,12 @@ export default class CustomMapView extends React.Component {
                                     style={{ height: 40, resizeMode: 'contain', bottom: 18, left: 0.5 }}
                                 />
                             </Animated.View>
-                            <CalloutEvent navigation={this.props.navigation} event={event} index={index} />
+                            <CalloutEvent
+                                reloadCallout={this.state.reloadCallout}
+                                doneReloadingCallout={() => { this.setState({ reloadCallout: false }) }}
+                                navigation={this.props.navigation}
+                                event={event}
+                                index={index} />
                         </MapView.Marker>
                     );
                 })}
@@ -82,11 +91,10 @@ export default class CustomMapView extends React.Component {
 
     pressedEvent(index) {
         //Force animation as child won't do it if same index as before
-        if (this.props.searchState.currentIndex == index) {
-            this.props.myEventScrollList.scrollToElement(index, true)
-        }
+        this.props.myEventScrollList(index);
+
         // Will set index on scrollList which will trigger animation here
-        this.setState({ currentEventIndex: index });
+        // this.setState({ currentEventIndex: index });
 
     }
 
@@ -108,7 +116,7 @@ export default class CustomMapView extends React.Component {
                 latitude: parseFloat(event.spot.spot_latitude),
                 longitude: parseFloat(event.spot.spot_longitude)
             };
-            
+
             console.log("TODO : Adding Process")
             this.props.addingDone();
         }

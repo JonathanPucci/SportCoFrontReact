@@ -44,10 +44,10 @@ export const styles = StyleSheet.create({
   },
   image: {
     alignSelf: 'center',
-    height: 120,
-    width: 120,
+    height: 100,
+    width: 100,
     borderWidth: 1,
-    borderRadius: 60,
+    borderRadius: 50,
 
   },
   imageContainer : {

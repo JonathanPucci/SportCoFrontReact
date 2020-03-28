@@ -22,6 +22,7 @@ const Stack = createStackNavigator();
 
 class AppNavigator extends React.Component {
 
+
     render() {
         return (
             <View style={styles.container}>
@@ -36,7 +37,7 @@ class AppNavigator extends React.Component {
                             options={{ headerTitle: props => <LogoTitle {...props} /> }}
                             />
                             // When logged in, the user will be shown this route
-                            : <Stack.Screen name="Authorized" component={BottomTabNavigator} />
+                            : <Stack.Screen name="Back" component={BottomTabNavigator} />
                         }
                               <Stack.Screen name="Event" component={EventScreen} />
                     </Stack.Navigator>
