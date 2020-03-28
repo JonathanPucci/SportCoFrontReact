@@ -21,9 +21,11 @@ class EventScreen extends React.Component {
   }
 
   componentDidMount() {
-
-        this.setState({ event: this.props.route.params.event})
-      
+    let event = this.props.route.params.event;
+    this.apiService.getSingleEntity("users", event.event.host_id)
+      .then((data) => {
+        this.setState({ event: event, hostPhotoUrl: data.data.photo_url })
+      });
   }
 
   render() {
@@ -31,26 +33,34 @@ class EventScreen extends React.Component {
     if (event == undefined || event === {}) {
       return <View />
     }
-
+    let photoUrl = this.state.hostPhotoUrl;
     let eventIcon = mapSportIcon(event.event.sport.toLowerCase());
     let date = this.computeDate(event.event.date);
     return (
       <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+        <View style={{ flex: 1, flexDirection: 'row' }}>
 
+          <View style={styles.imageContainer}>
+            {photoUrl != undefined && <Image source={{ uri: photoUrl + '?type=large&width=500&height=500' }} style={styles.image} />}
+            {photoUrl == undefined && <Image source={require('../../assets/images/robot-dev.png')} style={styles.image} />}
+          </View>
+          <View style={{flex : 1, justifyContent: 'center', marginLeft : 15}}>
+            <Text style={{fontSize : 18}}>Salut ! Moi c'est {event.host.user_name}, on va faire un {event.event.sport}, n'hésite pas à nous rejoindre !</Text>
+          </View>
+        </View>
 
         <View style={{ flex: 1, alignSelf: 'center' }}>
           <View style={styles.descriptionView}>
 
             <View style={{ flexDirection: 'column', flex: 1 }}>
-              <View style={{ flex: 1, flexDirection: 'row' }}>
+              <View style={{ flex: 1, flexDirection: 'row', marginLeft:20 }}>
                 <Icon
                   name={eventIcon.iconName}
                   type={eventIcon.iconFamily}
                   size={30}
-                  style={{ alignSelf: 'flex-start', flex: 1 }}
+                  style={{ alignSelf: 'center', flex: 1 }}
                   selected={true}
                 />
-                <Text style={{ fontSize: 20, margin: 15, flex: 1 }}>{event.event.sport.toUpperCase()}</Text>
               </View>
               {this.renderDescriptionText('Description', event.event.description)}
               {this.renderDescriptionText('Date', date)}
@@ -65,7 +75,7 @@ class EventScreen extends React.Component {
             <Text>Vous trouverez ici toutes les informations concernant l'évènement ! L'adresse se trouve via le plan, ou en cliquant sur ce lien : LinkToMap</Text>
           </View>
           {this.renderMapView(event)}
-          {this.renderDescriptionText('Participants', event.event.participants_min + ' / ' + event.participants.length + ' / ' +  event.event.participants_max)}
+          {this.renderDescriptionText('Participants', event.event.participants_min + ' / ' + event.participants.length + ' / ' + event.event.participants_max)}
 
         </View>
 
@@ -118,7 +128,7 @@ class EventScreen extends React.Component {
     )
   }
 
-  computeDate(dateString){
+  computeDate(dateString) {
     let date = (new Date(dateString)).toLocaleDateString(undefined, dateOptions);
     return date.charAt(0).toUpperCase() + date.slice(1);
   }

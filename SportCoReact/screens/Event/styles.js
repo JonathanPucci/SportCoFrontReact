@@ -6,7 +6,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fafafa',
     width: Layout.window.width,
-    
+
   },
   contentContainer: {
     margin: 15,
@@ -42,4 +42,16 @@ export const styles = StyleSheet.create({
   mapStyle: {
     height: 200,
   },
+  image: {
+    alignSelf: 'center',
+    height: 120,
+    width: 120,
+    borderWidth: 1,
+    borderRadius: 60,
+
+  },
+  imageContainer : {
+    alignSelf:'flex-start',
+    marginLeft:30
+  }
 });

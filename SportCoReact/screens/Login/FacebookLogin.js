@@ -51,23 +51,31 @@ class FacebookLogin extends React.Component {
 
     auth.onAuthStateChanged(user => {
       if (user != null) {
-        loginAction(user);
-        //     loginAction(user).then(() => {
-        //       let apiService = new SportCoApi();
-        //       let user = this.props.auth.user;
-        //       apiService
-        //         .getSingleEntity('homeinhabitants/user', user.user_id)
-        //         .then(data => {
-        //           let userHome = data.entities.data[0];
-        //           if (userHome != undefined) {
-        //             user.home_id = userHome.home_id;
-        //           } else {
-        //             user.home_id = 'NO_HOME_YET';
-        //           }
-        //           this.props.dispatch({ type: RETRIEVED_USER_INFO, payload: user });
-        //           this.props.navigation.navigate('Main');
-        //         });
-        //     });
+        // loginAction(user);
+        // loginAction(user).then(() => {
+        let apiService = new SportCoApi();
+        let userDB = {
+          user_name: user.displayName,
+          photo_url: user.photoURL,
+          email: user.email
+        }
+        apiService.getSingleEntity('users/email',userDB.email )
+          .then((data) => {
+            apiService
+              .editEntity('users/update', userDB)
+              .then(data => {
+                loginAction(user);
+              });
+          })
+          .catch((error)=>{
+            console.log("User unknown, creating");
+            apiService
+              .addEntity('users', userDB)
+              .then(data => {
+                loginAction(user);
+              });
+          })
+
       } else {
         // this.setState({ logInStatus: 'You are currently logged out.' });
       }
@@ -82,7 +90,7 @@ class FacebookLogin extends React.Component {
         type,
         token
       } = await Facebook.logInWithReadPermissionsAsync(FACEBOOK_APP_ID, {
-        permissions: ['public_profile', 'email','user_birthday']
+        permissions: ['public_profile', 'email', 'user_birthday']
       });
       if (type === 'success') {
         //Firebase credential is created with the Facebook access token.

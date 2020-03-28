@@ -260,7 +260,7 @@ class SearchScreen extends React.Component {
       });
       return { scale, opacity };
     });
-    this.interpolations = interpolations;
+    this.setState({interpolations : interpolations});
   }
 
   /*********************************************************************************
