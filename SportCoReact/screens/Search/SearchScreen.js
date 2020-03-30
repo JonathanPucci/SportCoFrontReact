@@ -5,6 +5,7 @@ import GoogleMapsAutoComplete from "../../components/GoogleMapsAutoComplete"
 import Fade from "../../components/Fade"
 import ActionButton from 'react-native-action-button';
 import Icon from 'react-native-vector-icons/Ionicons';
+import MCIIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import { styles, CARD_WIDTH } from './styles'
 import EventScrollList from './EventScrollList'
@@ -93,7 +94,8 @@ class SearchScreen extends React.Component {
       return (
         <View>
           <Text>Loading</Text>
-        </View>);
+        </View>
+        );
     }
     return (
       <View style={styles.container} contentContainerStyle={styles.contentContainer}>
@@ -111,7 +113,6 @@ class SearchScreen extends React.Component {
             addingEvent={this.state.addingEvent}
             addingDone={this.addingDone.bind(this)}
             navigation={this.props.navigation}
-
           />
           <Fade isVisible={this.state.moved} style={styles.searchButton} >
             <View>
@@ -153,7 +154,7 @@ class SearchScreen extends React.Component {
         >
           <ActionButton.Item
             buttonColor='#9b59b6'
-            offsetX={-30}
+            offsetX={60}
             onPress={() => {
               this.props.navigation.navigate('Event', {
                 event: {}
@@ -162,17 +163,12 @@ class SearchScreen extends React.Component {
             <Icon name="md-add" style={styles.actionButtonIcon} />
           </ActionButton.Item>
           <ActionButton.Item
-            offsetX={-30}
+            offsetX={60}
             buttonColor='#3498db'
             onPress={() => { }}>
-            <Icon name="md-notifications-off" style={styles.actionButtonIcon} />
+            <MCIIcon name="filter" style={styles.actionButtonIcon} />
           </ActionButton.Item>
-          <ActionButton.Item
-            offsetX={-30}
-            buttonColor='#1abc9c'
-            onPress={() => { }}>
-            <Icon name="md-done-all" style={styles.actionButtonIcon} />
-          </ActionButton.Item>
+
         </ActionButton>
       </View >
     );

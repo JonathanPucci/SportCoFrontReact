@@ -42,6 +42,7 @@ class EventScreen extends React.Component {
         },
         spot: {
           spot_id: '',
+          spot_name: '',
           spot_longitude: '',
           spot_latitude: '',
         },
@@ -415,7 +416,7 @@ class EventScreen extends React.Component {
 
   getData() {
     let event = !this.isEmpty(this.props.route.params.event) ? this.props.route.params.event : this.state.event;
-    let eventId = (event.event.event_id == "" ) ? -1 : event.event.event_id;
+    let eventId = (event.event.event_id == "") ? -1 : event.event.event_id;
     this.apiService.getSingleEntity("events", eventId)
       .then((eventData) => {
         this.apiService.getSingleEntity("users/email", this.props.auth.user.email)
@@ -539,6 +540,7 @@ class EventScreen extends React.Component {
       event: {
         ...this.state.event,
         spot: {
+          ...this.state.event.spot,
           spot_longitude: this.state.regionPicked.longitude,
           spot_latitude: this.state.regionPicked.latitude
         }
@@ -599,33 +601,52 @@ class EventScreen extends React.Component {
       // Then add spotId to event
       this.apiService.getEntities("spots/coordinates", this.state.regionPicked)
         .then((data) => {
-          let updatedEventWithSpot = {
-            event: {
-              ...this.state.event,
+          // console.log("************************");
+          // console.log(data.data.length);
+          // console.log("************************");
+          if (data.data.length != 0) {
+            let updatedEventWithSpot = {
               event: {
-                ...this.state.event.event,
-                spot_id: data.data[0].spot_id
-              },
-              spot: data.data[0]
-            }
-          }
-          this.apiService.addEntity('events', updatedEventWithSpot.event.event)
-            .then((res) => {
-              let newState = {
-                editing: false,
+                ...this.state.event,
                 event: {
-                  ...updatedEventWithSpot.event,
+                  ...this.state.event.event,
+                  spot_id: data.data[0].spot_id
+                },
+                spot: data.data[0]
+              }
+            }
+            this.apiService.addEntity('events', updatedEventWithSpot.event.event)
+              .then((res) => {
+                let newState = {
+                  editing: false,
                   event: {
-                    ...updatedEventWithSpot.event.event,
-                    event_id: res.data.data.event_id
+                    ...updatedEventWithSpot.event,
+                    event: {
+                      ...updatedEventWithSpot.event.event,
+                      event_id: res.data.data.event_id
+                    }
                   }
-                }
-              };
-              this.setState(newState, () => { this.getData() });
-            })
-            .catch((error) => {
-              console.log(error)
-            })
+                };
+                this.setState(newState, () => { this.getData() });
+              })
+              .catch((error) => {
+                console.log(error)
+              })
+          } else {
+            console.log("====================");
+            console.log("UNKNOWN SPOT");
+            console.log("====================");
+            //Spot is unknown yet, let's add it and retry
+            this.apiService.addEntity('spots', this.state.event.spot)
+              .then((data) => {
+                console.log("added new spot");
+                this.updateEvent();
+              })
+
+          }
+        })
+        .catch((error) => {
+
         })
 
     } else {
@@ -691,12 +712,12 @@ class EventScreen extends React.Component {
   }
 
   isEmpty(obj) {
-    for(var prop in obj) {
-      if(obj.hasOwnProperty(prop)) {
+    for (var prop in obj) {
+      if (obj.hasOwnProperty(prop)) {
         return false;
       }
     }
-  
+
     return JSON.stringify(obj) === JSON.stringify({});
   }
 

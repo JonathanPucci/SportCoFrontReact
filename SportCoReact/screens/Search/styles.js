@@ -58,7 +58,7 @@ export const styles = StyleSheet.create({
   }
 });
 
-export const CARD_HEIGHT = Layout.window.height / 6;
+export const CARD_HEIGHT = Layout.window.height / 7;
 export const CARD_WIDTH = CARD_HEIGHT - 40;
 
 export const markerStyles = StyleSheet.create({
