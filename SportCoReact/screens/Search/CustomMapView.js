@@ -109,17 +109,17 @@ export default class CustomMapView extends React.Component {
         if (mapEvent.nativeEvent.action === 'marker-press') {
             return;
         }
-        if (this.props.addingEvent) {
-            // console.log("Map pressed" + JSON.stringify(mapEvent.nativeEvent.coordinate));
-            const event = this.props.searchState.events[this.props.searchState.currentEventIndex];
-            let coordinateEvent = {
-                latitude: parseFloat(event.spot.spot_latitude),
-                longitude: parseFloat(event.spot.spot_longitude)
-            };
+        // if (this.props.addingEvent) {
+        //     // console.log("Map pressed" + JSON.stringify(mapEvent.nativeEvent.coordinate));
+        //     const event = this.props.searchState.events[this.props.searchState.currentEventIndex];
+        //     let coordinateEvent = {
+        //         latitude: parseFloat(event.spot.spot_latitude),
+        //         longitude: parseFloat(event.spot.spot_longitude)
+        //     };
 
-            console.log("TODO : Adding Process")
-            this.props.addingDone();
-        }
+        //     console.log("TODO : Adding Process")
+        //     this.props.addingDone();
+        // }
     }
 
 }

@@ -33,6 +33,11 @@ const MAP_SPORT_ICON = {
         image: require('../assets/images/workout.jpeg'),
         iconName: 'ios-fitness',
         iconFamily: 'Ionicons'
+    },
+    default : {
+        image: require('../assets/images/basketCourt.jpg'),
+        iconName: 'ios-basketball',
+        iconFamily: 'Ionicons'
     }
 }
 

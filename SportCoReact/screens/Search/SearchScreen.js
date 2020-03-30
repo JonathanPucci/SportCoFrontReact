@@ -151,7 +151,11 @@ class SearchScreen extends React.Component {
 
           }}
         >
-          <ActionButton.Item buttonColor='#9b59b6' onPress={() => { this.setState({ addingEvent: true }) }}>
+          <ActionButton.Item buttonColor='#9b59b6' onPress={() => {
+            this.props.navigation.navigate('Event', {
+              event: {}
+            });
+          }}>
             <Icon name="md-add" style={styles.actionButtonIcon} />
           </ActionButton.Item>
           <ActionButton.Item buttonColor='#3498db' onPress={() => { }}>

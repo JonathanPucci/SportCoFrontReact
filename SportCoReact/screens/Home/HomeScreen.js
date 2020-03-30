@@ -31,9 +31,15 @@ class HomeScreen extends React.Component {
       })
   }
 
-  navigate(){
-    console.log(this.props.navigation);
-    this.props.navigation.navigate('Search')
+  navigate() {
+    // console.log(this.props.navigation);
+    this.props.navigation.navigate('Event', {
+      event: {}
+    });
+  }
+
+  componentDidMount(){
+    this.navigate();
   }
 
   render() {
