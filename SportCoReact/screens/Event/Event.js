@@ -11,8 +11,20 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import GoogleMapsAutoComplete from "../../components/GoogleMapsAutoComplete"
 import SmoothPicker from "react-native-smooth-picker";
 import Bubble from './Bubble'
+import { RenderOverlayDateTimePicker, RenderOverlayMinMaxParticipants, RenderSaveButton, RenderMapViewPicker } from './OverlaysEventEdition'
 
 const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+const roadMapStyle = [
+  {
+    "featureType": "road",
+    "elementType": "labels",
+    "stylers": [
+      {
+        "visibility": "on"
+      }
+    ]
+  }
+];
 
 class EventScreen extends React.Component {
 
@@ -22,6 +34,7 @@ class EventScreen extends React.Component {
       editing: false,
       isEditingDate: false,
       isEditingParticipantNumbers: false,
+      isEditingMapMarker: false,
       event: {
         event: {
           date: new Date(),
@@ -66,9 +79,6 @@ class EventScreen extends React.Component {
 
   render() {
     let event = this.state.event;
-    // if (event == undefined || event.event.sport === undefined) {
-    //   return <View />
-    // }
     let photoUrl = this.state.event.host.photo_url;
     let eventIcon = mapSportIcon(event.event.sport.toLowerCase());
     let date = EventScreen.computeDate(event.event.date);
@@ -90,24 +100,31 @@ class EventScreen extends React.Component {
               {this.renderDescriptionText('Date', date)}
               {this.renderDescriptionText('Hôte', event.host.user_name.split(' ')[0])}
               {this.renderDescriptionText('Participants', event.event.participants_min + ' / ' + event.participants.length + ' / ' + event.event.participants_max)}
+              <RenderOverlayDateTimePicker
+                isEditingDate={this.state.isEditingDate}
+                stopEditingDate={() => { this.setState({ isEditingDate: false }) }}
+                event={this.state.event}
+                onDateChange={this.onDateChange.bind(this)}
+                onDateTimeChange={this.onDateTimeChange.bind(this)}
+                saveDate={this.saveDate.bind(this)}
+              />
+              <RenderOverlayMinMaxParticipants
+                isEditingParticipantNumbers={this.state.isEditingParticipantNumbers}
+                stopEditingParticipantNumbers={() => { this.setState({ isEditingParticipantNumbers: false }) }}
+                event={this.state.event}
+                onPMinChange={this.updateParticipantMin.bind(this)}
+                onPMaxChange={this.updateParticipantMax.bind(this)}
+                saveParticipants={this.saveParticipants.bind(this)}
+              />
             </View>
-
           </View>
           <View style={{ marginTop: 20, marginBottom: 20, flex: 1 }}>
             <Text>Vous trouverez ici toutes les informations concernant l'évènement ! L'adresse se trouve via le plan, ou en cliquant sur ce lien : LinkToMap</Text>
           </View>
           {this.renderMapView(event)}
-          {this.renderOptions(event)}
+          {this.renderOptions()}
         </View>
-        {this.state.editing && (
-          <View>
-            {this.renderOverlayDateTimePicker()}
-            {this.renderOverlayMinMaxParticipants()}
-          </View>
-        )}
-
         <View style={{ height: 75 }}></View>
-
       </ScrollView>
     );
   }
@@ -167,107 +184,7 @@ class EventScreen extends React.Component {
   }
 
 
-  renderOverlayDateTimePicker() {
-    return (
-      <Overlay
-        isVisible={this.state.isEditingDate}
-        onBackdropPress={() => this.setState({ isEditingDate: false })}
-      >
-        <View>
-          <Text style={{ alignSelf: 'center', fontSize: 20, fontWeight: 'bold' }}>Date</Text>
-          <DateTimePicker
-            testID="dateTimePicker"
-            value={this.state.event.event.date}
-            mode={'date'}
-            is24Hour={true}
-            onChange={this.onDateChange.bind(this)}
-          />
-          <Text style={{ alignSelf: 'center', fontSize: 20, fontWeight: 'bold' }}>Heure</Text>
-          <DateTimePicker
-            testID="dateTimePicker"
-            value={this.state.event.event.date}
-            mode={'time'}
-            is24Hour={true}
-            onChange={this.onDateTimeChange.bind(this)}
-          />
-          {this.renderSaveButton(`| Enregister?`, this.saveDate.bind(this))}
-        </View>
-      </Overlay>
-    )
-  }
-
-  renderOverlayMinMaxParticipants() {
-    let selectedMin = this.state.event.event.participants_min;
-    let selectedMax = this.state.event.event.participants_max;
-
-    return (
-      <Overlay
-        isVisible={this.state.isEditingParticipantNumbers}
-        onBackdropPress={() => this.setState({ isEditingParticipantNumbers: false })}
-      >
-        <View>
-          <View style={{ margin: 20 }}>
-            <Text style={{ alignSelf: 'center', fontSize: 20, fontWeight: 'bold' }}>Min</Text>
-            <View style={styles.wrapperPickerContainer}>
-              <View style={styles.wrapperHorizontal}>
-                <SmoothPicker
-                  onScrollToIndexFailed={() => { }}
-                  initialScrollToIndex={selectedMin}
-                  ref={ref => (this.refListMin = ref)}
-                  keyExtractor={(_, index) => index.toString()}
-                  horizontal={true}
-                  showsHorizontalScrollIndicator={false}
-                  onSelected={({ item, index }) => { this.updateParticipantMin(item, index) }}
-                  bounces={true}
-                  data={Array.from({ length: 15 }, (_, i) => 0 + i)}
-                  renderItem={({ item, index }) => (
-                    <Bubble horizontal selected={index === selectedMin} >
-                      {item}
-                    </Bubble>
-                  )}
-                />
-              </View>
-            </View>
-          </View>
-          <View style={{ margin: 20 }}>
-            <Text style={{ alignSelf: 'center', fontSize: 20, fontWeight: 'bold' }}>Max</Text>
-            <View style={styles.wrapperPickerContainer}>
-              <View style={styles.wrapperHorizontal}>
-                <SmoothPicker
-                  onScrollToIndexFailed={() => { }}
-                  initialScrollToIndex={selectedMax}
-                  ref={ref => (this.refListMax = ref)}
-                  keyExtractor={(_, index) => index.toString()}
-                  horizontal={true}
-                  showsHorizontalScrollIndicator={false}
-                  onSelected={({ item, index }) => { this.updateParticipantMax(item, index) }}
-                  bounces={true}
-                  data={Array.from({ length: 15 }, (_, i) => 0 + i)}
-                  renderItem={({ item, index }) => (
-                    <Bubble horizontal selected={index === selectedMax} >
-                      {item}
-                    </Bubble>
-                  )}
-                />
-              </View>
-            </View>
-          </View>
-          <View style={{ margin: 20 }}>
-            {this.renderSaveButton(`| Enregister?`, this.saveParticipants.bind(this))}
-          </View>
-        </View>
-      </Overlay>
-    )
-  }
-
   renderMapView(event) {
-    if (event.spot.spot_latitude == '') {
-      return (
-        <View>
-          {this.renderMapViewPicker(this.state.regionPicked)}
-        </View>
-      )
-    }
     let eventRegion = {
       latitude: parseFloat(event.spot.spot_latitude),
       longitude: parseFloat(event.spot.spot_longitude),
@@ -275,99 +192,58 @@ class EventScreen extends React.Component {
       longitudeDelta: 0.005
     }
     return (
-      <View>
-        {this.renderMapWithMarker(eventRegion)}
+      <View style={{flex :1}}>
+        <RenderMapViewPicker
+          isVisible={this.state.isEditingMapMarker}
+          stopEditingMapMarker={this.stopEditingMapMarker.bind(this)}
+          goToLocation={this.goToLocation.bind(this)}
+          regionPicked={!isNaN(eventRegion.latitude)? eventRegion : this.state.regionPicked}
+          onRegionChange={(region) => { this.setState({ regionPicked: region }) }}
+          saveLocation={this.saveLocation.bind(this)}
+        />
+        <View>
+          {this.renderDescriptionText('Localisation', '')}
+          {!isNaN(eventRegion.latitude) ? (
+            <MapView
+              style={styles.mapStyle}
+              pitchEnabled={false}
+              rotateEnabled={false}
+              zoomEnabled={true}
+              scrollEnabled={false}
+              initialRegion={eventRegion}
+              provider={"google"}
+              customMapStyle={roadMapStyle}>
+
+              <MapView.Marker
+                coordinate={eventRegion}
+                onPress={() => { }}
+              />
+            </MapView>
+          ) :
+            <Text>Choisissez une localisation</Text>}
+        </View>
       </View>
     )
   }
 
-  renderMapWithMarker(eventRegion) {
+  renderOptions() {
     return (
-      <MapView
-        style={styles.mapStyle}
-        pitchEnabled={false}
-        rotateEnabled={false}
-        zoomEnabled={true}
-        scrollEnabled={false}
-        initialRegion={eventRegion}
-        provider={"google"}
-        customMapStyle={[
-          {
-            "featureType": "road",
-            "elementType": "labels",
-            "stylers": [
-              {
-                "visibility": "on"
-              }
-            ]
-          }
-        ]}>
-
-        <MapView.Marker
-          coordinate={eventRegion}
-          onPress={() => { }}
-        />
-
-      </MapView>
-    )
-  }
-
-  renderMapViewPicker() {
-    return (
-      <Overlay isVisible={true} >
-
-        <View style={{ flex: 1 }} >
-          <GoogleMapsAutoComplete
-            handler={this.goToLocation.bind(this)}
-          />
-          <View style={{ flex: 1, marginTop: 100 }}>
-            <MapView
-              style={styles.mapStyle}
-              initialRegion={this.state.regionPicked}
-              zoomEnabled={true}
-              followUserLocation={true}
-              showsUserLocation={true}
-              onRegionChange={(region) => { this.setState({ regionPicked: region }) }}
-              ref={ref => { this.mapView = ref; }}
-            >
-              <MapView.Marker
-                coordinate={this.state.regionPicked}
-              >
-              </MapView.Marker>
-            </MapView>
-            <Text style={{ marginTop: 50, textAlign: 'center', fontSize: 20 }}>Choisis un bon spot pour ton évènement !</Text>
-
-          </View>
-          {this.renderSaveButton(`| Enregister?`, this.saveLocation.bind(this))}
-        </View>
-      </Overlay>
-    )
-  }
-
-  renderOptions(event) {
-    return (
-      <View style={{ flex: 1, flexDirection: 'row', marginTop: 20, alignSelf: 'center' }}>
-        <View style={{ top: 10, borderRadius: 10 }} >
+      <View style={{ flex: 1, flexDirection: 'row', marginTop: 10, alignSelf: 'center' }}>
+        <View style={{ borderRadius: 10 }} >
           {this.isOrganizedByMe() ? (
             <View>
+
               {this.state.editing ? (
                 <View>
-                  {this.renderSaveButton(`| Let's do it !`, this.updateEvent.bind(this))}
+                  <RenderSaveButton
+                    title={`| Let's do it !`}
+                    callback={this.updateEvent.bind(this)}
+                  />
                 </View>
               ) : (
                   <View style={{ flexDirection: 'row' }} >
-                    <Icon
-                      raised
-                      name='edit'
-                      type='font-awesome'
-                      color='orange'
-                      onPress={this.editEvent.bind(this)} />
-                    <Icon
-                      raised
-                      name='remove'
-                      type='font-awesome'
-                      color='red'
-                      onPress={this.cancelEvent.bind(this)} />
+                    <EventIcon name='edit' callback={this.editEvent.bind(this)}/>
+                    <EventIcon name='remove' color='red' callback={this.editEvent.bind(this)}/>
                   </View>
                 )}
             </View>
@@ -383,29 +259,12 @@ class EventScreen extends React.Component {
                     type='font-awesome'
                   />} title={`| Annuler?`} onPress={this.leaveEvent.bind(this)} />
             )}
-
         </View>
       </View>
     )
   }
 
-  renderSaveButton(title, callback) {
-    return (
-      <View>
-        <Button
-          buttonStyle={{ backgroundColor: 'green' }}
-          icon={
-            <Icon
-              name="check"
-              size={15}
-              color="white"
-              type='font-awesome'
-            />}
-          title={title}
-          onPress={callback} />
-      </View>
-    )
-  }
+
 
 
   /*********************************************************************************
@@ -487,7 +346,9 @@ class EventScreen extends React.Component {
       case 'Participants':
         this.setState({ isEditingParticipantNumbers: true })
         break;
-
+      case 'Localisation':
+        this.setState({ isEditingMapMarker: true })
+        break;
       default:
         break;
     }
@@ -502,7 +363,6 @@ class EventScreen extends React.Component {
   }
 
   onDateChange(e, date) {
-
     let newDate = new Date(date);
     let currentDate = new Date(this.state.event.event.date);
     newDate.setHours(currentDate.getHours());
@@ -535,9 +395,14 @@ class EventScreen extends React.Component {
     this.setState(newEvent);
   }
 
+  stopEditingMapMarker() {
+    this.setState({ isEditingMapMarker: false })
+  }
+
   saveLocation() {
     let updatedEventWithSpot = {
       ...this.state,
+      isEditingMapMarker: false,
       event: {
         ...this.state.event,
         spot: {
@@ -561,14 +426,7 @@ class EventScreen extends React.Component {
         }
       }
     }
-    this.setState(updatedEventWithParticipantMin,
-      () => {
-        this.refListMin.refs.smoothPicker.scrollToIndex({
-          animated: false,
-          index: index,
-          viewOffset: -30
-        });
-      });
+    this.setState(updatedEventWithParticipantMin);
   }
 
   updateParticipantMax(item, index) {
@@ -582,14 +440,7 @@ class EventScreen extends React.Component {
         }
       }
     }
-    this.setState(updatedEventWithParticipantMax,
-      () => {
-        this.refListMax.refs.smoothPicker.scrollToIndex({
-          animated: false,
-          index: index,
-          viewOffset: -30
-        });
-      });
+    this.setState(updatedEventWithParticipantMax);
   }
 
 
@@ -602,9 +453,6 @@ class EventScreen extends React.Component {
       // Then add spotId to event
       this.apiService.getEntities("spots/coordinates", this.state.regionPicked)
         .then((data) => {
-          // console.log("************************");
-          // console.log(data.data.length);
-          // console.log("************************");
           if (data.data.length != 0) {
             let updatedEventWithSpot = {
               event: {
@@ -634,13 +482,9 @@ class EventScreen extends React.Component {
                 console.log(error)
               })
           } else {
-            console.log("====================");
-            console.log("UNKNOWN SPOT");
-            console.log("====================");
             //Spot is unknown yet, let's add it and retry
             this.apiService.addEntity('spots', this.state.event.spot)
               .then((data) => {
-                console.log("added new spot");
                 this.updateEvent();
               })
 
@@ -685,7 +529,6 @@ class EventScreen extends React.Component {
           latitudeDelta: 0.01,
           longitudeDelta: 0.01,
         }
-        // console.log("animate To" + JSON.stringify());
         this.mapView.animateToRegion(coordinatesZommed, 1500);
 
       });
@@ -721,7 +564,19 @@ class EventScreen extends React.Component {
 
     return JSON.stringify(obj) === JSON.stringify({});
   }
+}
 
+class EventIcon extends React.Component {
+  render() {
+    return (
+      <Icon
+        raised
+        name={this.props.name}
+        type='font-awesome'
+        color={this.props.color || 'orange'}
+        onPress={this.props.callback} />
+        )
+  }
 }
 
 const mapDispatchToProps = (dispatch) => {

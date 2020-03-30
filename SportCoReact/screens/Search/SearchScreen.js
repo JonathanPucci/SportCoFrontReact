@@ -21,7 +21,6 @@ function FocusEffectComp({navigation,handler}) {
       return () => {};
     }, [])
   );
-
   return null;
 }
 
@@ -54,12 +53,6 @@ class SearchScreen extends React.Component {
   componentDidMount() {
     this.setAnimationForScrollView();
   }
-
-  componentDidUpdate(props) {
-    // console.log("isFirstRouteInParent");
-  }
-
- 
 
   /*********************************************************************************
    *************************                 ***************************************
@@ -157,7 +150,6 @@ class SearchScreen extends React.Component {
   renderActionButton() {
     return (
       <View style={styles.actionButton}>
-        {/* Rest of the app comes ABOVE the action button component !*/}
         <ActionButton
           buttonColor="rgba(231,76,60,1)"
           ref={(ref) => this.actionButton = ref}
@@ -225,9 +217,7 @@ class SearchScreen extends React.Component {
         }
       }
       , () => {
-        // console.log("animate To" + JSON.stringify(this.state.region));
         this.mapViewRef.mapView.animateToRegion(this.state.region, 1500);
-        // console.log("GoGetData" + JSON.stringify(this.state.regionAfterMove));
 
         this.getData(true);
       });
@@ -248,7 +238,6 @@ class SearchScreen extends React.Component {
     // We should just debounce the event listener here
     this.animation.addListener(({ value }) => {
       //TODO : Find a way to go less often this listener
-      // console.log("listener" + new Date())
       let index = Math.floor(value / CARD_WIDTH + 0.3); // animate 30% away from landing on the next item
       if (index >= this.state.events.length) {
         index = this.state.events.length - 1;
@@ -266,7 +255,6 @@ class SearchScreen extends React.Component {
           latitudeDelta: this.state.region.latitudeDelta,
           longitudeDelta: this.state.region.longitudeDelta
         };
-        // console.log("animate To" + JSON.stringify(coordinateEvent));
         this.setState({ currentEventIndex: index });
         this.mapViewRef.mapView.animateToRegion(coordinateEvent, 350);
         clearTimeout(this.calloutTimeout);
