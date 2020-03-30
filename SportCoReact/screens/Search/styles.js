@@ -44,7 +44,7 @@ export const styles = StyleSheet.create({
   },
   actionButton:{
     bottom: 40,
-    right: 90,
+    right: 120,
     paddingVertical: 10,
     backgroundColor:'white',
     borderRadius:10
@@ -54,6 +54,8 @@ export const styles = StyleSheet.create({
     height: 22,
     color: 'white',
   },
+  actionButtonItem:{
+  }
 });
 
 export const CARD_HEIGHT = Layout.window.height / 6;

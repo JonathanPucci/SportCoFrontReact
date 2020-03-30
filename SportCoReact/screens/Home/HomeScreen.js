@@ -25,7 +25,13 @@ class HomeScreen extends React.Component {
   }
 
   getData() {
-    this.api.getEntities("events/area", { longitude: 42, latitude: 43 })
+    this.api.getEntities("spots/coordinates", 
+    { 
+      latitude: 43.591317, 
+      longitude: 7.124781,
+      longitudeDelta : 0.01,
+      latitudeDelta : 0.01
+    })
       .then(data => {
         console.log(data)
       })
@@ -39,7 +45,7 @@ class HomeScreen extends React.Component {
   }
 
   componentDidMount(){
-    this.navigate();
+    // this.getData();
   }
 
   render() {

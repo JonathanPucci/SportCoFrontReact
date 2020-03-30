@@ -238,7 +238,7 @@ class EventScreen extends React.Component {
                   keyExtractor={(_, index) => index.toString()}
                   horizontal={true}
                   showsHorizontalScrollIndicator={false}
-                  onSelected={({ item, index }) => {this.updateParticipantMax(item, index) }}
+                  onSelected={({ item, index }) => { this.updateParticipantMax(item, index) }}
                   bounces={true}
                   data={Array.from({ length: 15 }, (_, i) => 0 + i)}
                   renderItem={({ item, index }) => (
@@ -346,21 +346,13 @@ class EventScreen extends React.Component {
     return (
       <View style={{ flex: 1, flexDirection: 'row', marginTop: 20, alignSelf: 'center' }}>
         <View style={{ top: 10, borderRadius: 10 }} >
-          {!this.state.editing ? (
+          {this.isOrganizedByMe() ? (
             <View>
-              {!this.isOrganizedByMe() ? (
-                !this.state.alreadyJoined ?
-                  <Button title={"Rejoindre l'évènement !"} onPress={this.joinEvent.bind(this)} />
-                  :
-                  <Button buttonStyle={{ backgroundColor: 'green' }} icon={
-                    <Icon
-                      name="check"
-                      size={15}
-                      color="white"
-                      type='font-awesome'
-                    />} title={`| Annuler?`} onPress={this.leaveEvent.bind(this)} />
-              )
-                : (
+              {this.state.editing ? (
+                <View>
+                  {this.renderSaveButton(`| Let's do it !`, this.updateEvent.bind(this))}
+                </View>
+              ) : (
                   <View style={{ flexDirection: 'row' }} >
                     <Icon
                       raised
@@ -375,17 +367,21 @@ class EventScreen extends React.Component {
                       color='red'
                       onPress={this.cancelEvent.bind(this)} />
                   </View>
-                )
-              }
+                )}
             </View>
-          )
-            :
-            (
-              <View>
-                {this.renderSaveButton(`| Let's do it !`, this.updateEvent.bind(this))}
-              </View>
-            )
-          }
+          ) : (
+              !this.state.alreadyJoined ?
+                <Button title={"Rejoindre l'évènement !"} onPress={this.joinEvent.bind(this)} />
+                :
+                <Button buttonStyle={{ backgroundColor: 'green' }} icon={
+                  <Icon
+                    name="check"
+                    size={15}
+                    color="white"
+                    type='font-awesome'
+                  />} title={`| Annuler?`} onPress={this.leaveEvent.bind(this)} />
+            )}
+
         </View>
       </View>
     )
@@ -418,8 +414,8 @@ class EventScreen extends React.Component {
 
 
   getData() {
-    let event = this.props.route.params.event;
-    let eventId = event.event == undefined ? -1 : event.event.event_id;
+    let event = !this.isEmpty(this.props.route.params.event) ? this.props.route.params.event : this.state.event;
+    let eventId = (event.event.event_id == "" ) ? -1 : event.event.event_id;
     this.apiService.getSingleEntity("events", eventId)
       .then((eventData) => {
         this.apiService.getSingleEntity("users/email", this.props.auth.user.email)
@@ -601,33 +597,34 @@ class EventScreen extends React.Component {
     if (this.state.event.event.event_id == '') {
       // Get Spot from region (create if not exist)
       // Then add spotId to event
-      this.apiService.getSingleEntity("spots/coordinates", this.state.regionPicked)
+      this.apiService.getEntities("spots/coordinates", this.state.regionPicked)
         .then((data) => {
           let updatedEventWithSpot = {
             event: {
               ...this.state.event,
               event: {
                 ...this.state.event.event,
-                spot_id: data.data.spot_id
+                spot_id: data.data[0].spot_id
               },
-              spot: data.data
+              spot: data.data[0]
             }
           }
-          this.apiService.addEntity('events', updatedEventWithSpot.event)
-            .then((data) => {
+          this.apiService.addEntity('events', updatedEventWithSpot.event.event)
+            .then((res) => {
               let newState = {
-                loggedUser_id: loggedUser_id,
-                editing: true,
+                editing: false,
                 event: {
-                  ...updatedEventWithSpot,
+                  ...updatedEventWithSpot.event,
                   event: {
-                    ...updatedEventWithSpot.event,
-                    event_id: data.data.event_id
+                    ...updatedEventWithSpot.event.event,
+                    event_id: res.data.data.event_id
                   }
                 }
               };
-              // console.log(newState);
               this.setState(newState, () => { this.getData() });
+            })
+            .catch((error) => {
+              console.log(error)
             })
         })
 
@@ -693,12 +690,14 @@ class EventScreen extends React.Component {
     return dateString.charAt(0).toUpperCase() + dateString.slice(1) + ' ' + hour;
   }
 
-  newArray(n) {
-    let numbers = [];
-    for (let index = 2; index < n; index++) {
-      numbers.push(index);
+  isEmpty(obj) {
+    for(var prop in obj) {
+      if(obj.hasOwnProperty(prop)) {
+        return false;
+      }
     }
-    return numbers;
+  
+    return JSON.stringify(obj) === JSON.stringify({});
   }
 
 }

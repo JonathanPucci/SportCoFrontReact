@@ -137,10 +137,11 @@ class SearchScreen extends React.Component {
     return (
       <View style={styles.actionButton}>
         {/* Rest of the app comes ABOVE the action button component !*/}
-        <ActionButton buttonColor="rgba(231,76,60,1)"
+        <ActionButton
+          buttonColor="rgba(231,76,60,1)"
           ref={(ref) => this.actionButton = ref}
           verticalOrientation="down"
-          position='right'
+          position='center'
           renderIcon={() => <Icon name="md-create" style={styles.actionButtonIcon} />}
           active={this.state.isActionButtonActive}
           onPress={() => {
@@ -148,20 +149,28 @@ class SearchScreen extends React.Component {
               () => {
                 setTimeout(() => { this.actionButton.animateButton() }, 2500)
               })
-
           }}
         >
-          <ActionButton.Item buttonColor='#9b59b6' onPress={() => {
-            this.props.navigation.navigate('Event', {
-              event: {}
-            });
-          }}>
+          <ActionButton.Item
+            buttonColor='#9b59b6'
+            offsetX={-30}
+            onPress={() => {
+              this.props.navigation.navigate('Event', {
+                event: {}
+              });
+            }}>
             <Icon name="md-add" style={styles.actionButtonIcon} />
           </ActionButton.Item>
-          <ActionButton.Item buttonColor='#3498db' onPress={() => { }}>
+          <ActionButton.Item
+            offsetX={-30}
+            buttonColor='#3498db'
+            onPress={() => { }}>
             <Icon name="md-notifications-off" style={styles.actionButtonIcon} />
           </ActionButton.Item>
-          <ActionButton.Item buttonColor='#1abc9c' onPress={() => { }}>
+          <ActionButton.Item
+            offsetX={-30}
+            buttonColor='#1abc9c'
+            onPress={() => { }}>
             <Icon name="md-done-all" style={styles.actionButtonIcon} />
           </ActionButton.Item>
         </ActionButton>
