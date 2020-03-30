@@ -6,11 +6,25 @@ import Fade from "../../components/Fade"
 import ActionButton from 'react-native-action-button';
 import Icon from 'react-native-vector-icons/Ionicons';
 import MCIIcon from 'react-native-vector-icons/MaterialCommunityIcons';
-
+import {  useFocusEffect} from '@react-navigation/native';
 import { styles, CARD_WIDTH } from './styles'
 import EventScrollList from './EventScrollList'
 import CustomMapView from './CustomMapView'
 import SportCoApi from '../../services/apiService';
+
+
+//Effect to get Events at focus (after coming back from events)
+function FocusEffectComp({navigation,handler}) {
+  useFocusEffect(
+    React.useCallback(() => {
+      handler();
+      return () => {};
+    }, [])
+  );
+
+  return null;
+}
+
 
 class SearchScreen extends React.Component {
 
@@ -31,7 +45,6 @@ class SearchScreen extends React.Component {
       regionAfterMove: {},
       addingEvent: true
     }
-
     this.index = 0;
     this.animation = new Animated.Value(0);
     this.sportCoApi = new SportCoApi();
@@ -41,6 +54,12 @@ class SearchScreen extends React.Component {
   componentDidMount() {
     this.setAnimationForScrollView();
   }
+
+  componentDidUpdate(props) {
+    // console.log("isFirstRouteInParent");
+  }
+
+ 
 
   /*********************************************************************************
    *************************                 ***************************************
@@ -95,10 +114,11 @@ class SearchScreen extends React.Component {
         <View>
           <Text>Loading</Text>
         </View>
-        );
+      );
     }
     return (
       <View style={styles.container} contentContainerStyle={styles.contentContainer}>
+        <FocusEffectComp navigation={this.props.navigation} handler={this.retrieveEventsInArea.bind(this)} />
         <GoogleMapsAutoComplete
           handler={this.goToLocation.bind(this)}
         />

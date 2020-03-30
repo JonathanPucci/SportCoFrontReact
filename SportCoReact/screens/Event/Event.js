@@ -63,6 +63,7 @@ class EventScreen extends React.Component {
     this.getData();
   }
 
+
   render() {
     let event = this.state.event;
     // if (event == undefined || event.event.sport === undefined) {
