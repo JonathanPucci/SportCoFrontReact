@@ -47,6 +47,7 @@ class SearchScreen extends React.Component {
       },
 
       moved: false,
+      optionsVisible: false,
       interpolations: [],
       regionAfterMove: {},
       addingEvent: true
@@ -75,11 +76,11 @@ class SearchScreen extends React.Component {
   }
 
   retrieveEventsInArea(afterMove = false) {
-    this.sportCoApi.getEntities("events/area", afterMove ? this.state.regionAfterMove : this.state.region)
+    this.sportCoApi.getEntities("events/area", this.state.region)
       .then((eventsdata) => {
         let events = eventsdata.data;
         if (events.length == 0) {
-          this.setState({ loading: false, moved: false })
+          this.setState({ loading: false, moved: false, optionsVisible: false })
           return
         }
         this.setState({ numberOfEventsToRetrieve: events.length }, () => {
@@ -115,7 +116,7 @@ class SearchScreen extends React.Component {
       }
     }
     if (complete) {
-      this.setState({ events: eventsFetchedSoFar, loading: false, moved: false })
+      this.setState({ events: eventsFetchedSoFar, loading: false, moved: false, optionsVisible: false })
     }
   }
 
@@ -125,8 +126,15 @@ class SearchScreen extends React.Component {
    *************************                 ***************************************
    ********************************************************************************/
 
-
   render() {
+    return (
+      <View style={styles.container} contentContainerStyle={styles.contentContainer}>
+        <FocusEffectComp navigation={this.props.navigation} handler={this.getData.bind(this)} />
+        {this.renderMain()}
+      </View>
+    )
+  }
+  renderMain() {
     if (this.state.loading) {
       return (
         <View>
@@ -136,7 +144,6 @@ class SearchScreen extends React.Component {
     }
     return (
       <View style={styles.container} contentContainerStyle={styles.contentContainer}>
-        <FocusEffectComp navigation={this.props.navigation} handler={this.retrieveEventsInArea.bind(this)} />
         <GoogleMapsAutoComplete
           handler={this.goToLocation.bind(this)}
         />
@@ -152,13 +159,14 @@ class SearchScreen extends React.Component {
             addingEvent={this.state.addingEvent}
             addingDone={this.addingDone.bind(this)}
             navigation={this.props.navigation}
+            pressedMap={this.pressedMap.bind(this)}
           />
-          <Fade isVisible={this.state.moved} style={styles.searchButton} >
+          <Fade isVisible={this.state.optionsVisible} style={styles.searchButton} >
             <View>
               <Button title={"SEARCH HERE"} onPress={this.pressedSearchHere.bind(this)} />
             </View>
           </Fade>
-          <Fade isVisible={this.state.moved} style={styles.searchButton} >
+          <Fade isVisible={this.state.optionsVisible} style={styles.searchButton} >
             {this.renderActionButton()}
           </Fade>
           <EventScrollList
@@ -169,7 +177,6 @@ class SearchScreen extends React.Component {
           />
         </View>
       </View>
-
     );
   }
 
@@ -220,17 +227,22 @@ class SearchScreen extends React.Component {
    ********************************************************************************/
 
   setRegionMoved(region) {
-    this.setState({ moved: true, regionAfterMove: region, region: region },
+    this.setState({ moved: true, regionAfterMove: region, region: region, optionsVisible: true },
       () => {
         setTimeout(() => {
-          this.setState({ moved: false })
-        }, 2000)
+          this.setState({ optionsVisible: false })
+        }, 2500)
       }
     );
   }
 
   pressedSearchHere() {
     this.getData(true);
+  }
+
+  pressedMap() {
+    this.setState({ optionsVisible: true });
+    setTimeout(() => { this.setState({ optionsVisible: true }) }, 2500);
   }
 
   goToLocation(lat, lon) {

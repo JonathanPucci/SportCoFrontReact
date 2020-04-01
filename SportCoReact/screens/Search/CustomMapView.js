@@ -137,6 +137,7 @@ export default class CustomMapView extends React.Component {
         if (mapEvent.nativeEvent.action === 'marker-press') {
             return;
         }
+        this.props.pressedMap();
     }
 
     /*********************************************************************************
