@@ -12,7 +12,6 @@ export default class CustomMapView extends React.Component {
     constructor() {
         super();
         this.state = {
-            reloadCallout: false
         }
     }
 
@@ -20,70 +19,78 @@ export default class CustomMapView extends React.Component {
         return (
             <MapView
                 style={styles.mapStyle}
-                initialRegion={this.props.searchState.region}
+                initialRegion={this.props.region}
                 zoomEnabled={true}
                 followUserLocation={true}
                 showsUserLocation={true}
                 ref={ref => { this.mapView = ref; }}
                 onRegionChangeComplete={(region) => { this.props.regionMoved(region); }}
                 onPress={this.onMapPress.bind(this)}
-                onMarkerPress={() => { this.setState({ reloadCallout: true }) }}
-                reloadCallout
             >
-                <View>
-                    {this.props.searchState.events.map((event, index) => {
-                        if (event == undefined || event.event == undefined) {
-                            return (<View key={index} />)
-                        }
-                        let coordinateEvent = {
-                            latitude: parseFloat(event.spot.spot_latitude),
-                            longitude: parseFloat(event.spot.spot_longitude)
-                        };
+                {this.props.events != undefined && this.props.events.length != 0 && (
+                    <View>
+                        {this.props.events.map((event, index) => {
+                            if (event == undefined || event.event == undefined) {
+                                return (<View key={index} />)
+                            }
+                            let coordinateEvent = {
+                                latitude: parseFloat(event.spot.spot_latitude),
+                                longitude: parseFloat(event.spot.spot_longitude)
+                            };
 
-                        let cluster = this.getCluster(event);
-                        return (
-                            <Marker
-                                key={index}
-                                coordinate={coordinateEvent}
-                                ref={(refCallout) => { this['callout' + index] = refCallout }}
-                                onPress={() => { this.pressedEvent(index) }}
-                            >
-                                <Animated.View style={[markerStyles.markerWrap, this.calculateOpacityStyle(index)]}>
-                                    <Animated.View style={[markerStyles.ring, this.calculateScaleStyle(index)]} />
-                                    {cluster.isInACluster ? (
-                                        <Image source={require('../../assets/images/multiPinIcon.png')}
-                                            style={{ height: 40, resizeMode: 'contain', bottom: 18, left: 0.5 }}
-                                        />
-                                    )
-                                        :
-                                        (
-                                            <Image source={require('../../assets/images/pinIcon.png')}
+                            let cluster = this.getCluster(event);
+                            if (cluster == undefined || cluster.isInACluster == undefined) {
+                                return (<Marker
+                                    key={'marker' + index}
+                                    coordinate={coordinateEvent}
+                                    ref={(refCallout) => { this['callout' + index] = refCallout }}
+                                    onPress={() => { this.pressedEvent(index) }}
+                                >
+                                    <Text>ERR</Text>
+                                </Marker>)
+                            }
+                            return (
+                                <Marker
+                                    key={'marker' + index}
+                                    coordinate={coordinateEvent}
+                                    ref={(refCallout) => { this['callout' + index] = refCallout }}
+                                    onPress={() => { this.pressedEvent(index) }}
+                                >
+                                    <Animated.View style={[markerStyles.markerWrap, this.calculateOpacityStyle(index)]}>
+                                        <Animated.View style={[markerStyles.ring, this.calculateScaleStyle(index)]} />
+                                        {cluster.isInACluster ? (
+                                            <Image source={require('../../assets/images/multiPinIcon.png')}
                                                 style={{ height: 40, resizeMode: 'contain', bottom: 18, left: 0.5 }}
                                             />
                                         )
-                                    }
-                                </Animated.View>
-                                {cluster.isInACluster ? (
-                                    <CalloutMultiEvent
-                                        reloadCallout={this.state.reloadCallout}
-                                        events={cluster.sameEvents}
-                                        doneReloadingCallout={() => { this.setState({ reloadCallout: false }) }}
-                                        navigation={this.props.navigation}
-                                        index={index} />
-                                )
-                                    :
-                                    (
-                                        <CalloutEvent
+                                            :
+                                            (
+                                                <Image source={require('../../assets/images/pinIcon.png')}
+                                                    style={{ height: 40, resizeMode: 'contain', bottom: 18, left: 0.5 }}
+                                                />
+                                            )
+                                        }
+                                    </Animated.View>
+                                    {cluster.isInACluster ? (
+                                        <CalloutMultiEvent
                                             reloadCallout={this.state.reloadCallout}
-                                            doneReloadingCallout={() => { this.setState({ reloadCallout: false }) }}
+                                            events={cluster.sameEvents}
                                             navigation={this.props.navigation}
-                                            event={event}
                                             index={index} />
-                                    )}
-                            </Marker>
-                        );
-                    })}
-                </View>
+                                    )
+                                        :
+                                        (
+                                            <CalloutEvent
+                                                reloadCallout={this.state.reloadCallout}
+                                                navigation={this.props.navigation}
+                                                event={event}
+                                                index={index} />
+                                        )}
+                                </Marker>
+                            );
+                        })}
+                    </View>
+                )}
 
             </MapView>
         )
@@ -140,8 +147,8 @@ export default class CustomMapView extends React.Component {
 
     getCluster(event) {
         let result = { isInACluster: false, sameEvents: [event] }
-        for (let index = 0; index < this.props.searchState.events.length; index++) {
-            const eventItem = this.props.searchState.events[index];
+        for (let index = 0; index < this.props.events.length; index++) {
+            const eventItem = this.props.events[index];
             if (eventItem != undefined &&
                 eventItem.event.event_id != event.event.event_id &&
                 eventItem.spot.spot_latitude == event.spot.spot_latitude &&

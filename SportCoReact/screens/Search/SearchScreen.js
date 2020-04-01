@@ -24,6 +24,11 @@ function FocusEffectComp({ navigation, handler }) {
   return null;
 }
 
+const initialZoom = {
+  latitudeDelta: 0.08,
+  longitudeDelta: 0.08
+};
+
 
 class SearchScreen extends React.Component {
 
@@ -32,13 +37,15 @@ class SearchScreen extends React.Component {
     this.state = {
       loading: true,
       events: [],
+      eventsFetchedSoFar: [],
       currentEventIndex: 0,
       region: {
         latitude: 43.59,
         longitude: 7.1,
-        latitudeDelta: 0.08,
-        longitudeDelta: 0.08
+        latitudeDelta: initialZoom.latitudeDelta,
+        longitudeDelta: initialZoom.longitudeDelta
       },
+
       moved: false,
       interpolations: [],
       regionAfterMove: {},
@@ -62,7 +69,7 @@ class SearchScreen extends React.Component {
 
 
   getData(afterMove = false) {
-    this.setState({ events: [] }, () => {
+    this.setState({ events: [], eventsFetchedSoFar: [], loading: true }, () => {
       this.retrieveEventsInArea(afterMove);
     })
   }
@@ -71,24 +78,45 @@ class SearchScreen extends React.Component {
     this.sportCoApi.getEntities("events/area", afterMove ? this.state.regionAfterMove : this.state.region)
       .then((eventsdata) => {
         let events = eventsdata.data;
-        if (eventsdata.data.length == 0)
+        if (events.length == 0) {
           this.setState({ loading: false, moved: false })
-        let newArray = [...this.state.events];
-
-        for (let index = 0; index < events.length; index++) {
-          const event = events[index];
-          this.sportCoApi.getSingleEntity("events", event.event_id)
-            .then(event => {
-              newArray[index] = event.data;
-              if (index == events.length - 1) {
-                this.calculateInterpolations();
-                this.setState({ events: newArray, loading: false, moved: false })
-              }
-            })
+          return
         }
+        this.setState({ numberOfEventsToRetrieve: events.length }, () => {
+          for (let index = 0; index < events.length; index++) {
+            const event = events[index];
+            this.sportCoApi.getSingleEntity("events", event.event_id)
+              .then(event => {
+                let newArray = [...this.state.eventsFetchedSoFar];
+                newArray[index] = event.data;
+                this.calculateInterpolations();
+                this.setState({ eventsFetchedSoFar: newArray })
+                this.checkAllDataFetchedBeforeSetState();
+              })
+          }
+        })
       })
+  }
 
+  checkAllDataFetchedBeforeSetState() {
+    //already done loading --> stop
+    if (!this.state.loading)
+      return
+    let eventsFetchedSoFar = this.state.eventsFetchedSoFar;
+    //not even retrieved all events --> stop
+    if (eventsFetchedSoFar.length != this.state.numberOfEventsToRetrieve)
+      return
+    let complete = true;
 
+    for (let index = 0; index < eventsFetchedSoFar.length; index++) {
+      const element = eventsFetchedSoFar[index];
+      if (element == undefined) {
+        complete = false;
+      }
+    }
+    if (complete) {
+      this.setState({ events: eventsFetchedSoFar, loading: false, moved: false })
+    }
   }
 
   /*********************************************************************************
@@ -115,7 +143,8 @@ class SearchScreen extends React.Component {
         <View style={styles.mapContainer}>
           <CustomMapView
             ref={(ref) => { this.mapViewRef = ref }}
-            searchState={this.state}
+            region={this.state.region}
+            events={this.state.events}
             interpolations={this.state.interpolations}
             animation={this.animation}
             myEventScrollList={(index) => { this.setState({ currentEventIndex: index, reloadCallout: true }) }}
@@ -191,7 +220,7 @@ class SearchScreen extends React.Component {
    ********************************************************************************/
 
   setRegionMoved(region) {
-    this.setState({ moved: true, regionAfterMove: region },
+    this.setState({ moved: true, regionAfterMove: region, region: region },
       () => {
         setTimeout(() => {
           this.setState({ moved: false })
@@ -209,12 +238,15 @@ class SearchScreen extends React.Component {
     this.setState(
       {
         region: {
-          ...this.state.region,
+          latitudeDelta: initialZoom.latitudeDelta,
+          longitudeDelta: initialZoom.longitudeDelta,
           latitude: lat,
           longitude: lon,
+
         },
         regionAfterMove: {
-          ...this.state.region,
+          latitudeDelta: initialZoom.latitudeDelta,
+          longitudeDelta: initialZoom.longitudeDelta,
           latitude: lat,
           longitude: lon,
         }
@@ -260,8 +292,7 @@ class SearchScreen extends React.Component {
         };
         this.setState({ currentEventIndex: index });
         this.mapViewRef.mapView.animateToRegion(coordinateEvent, 350);
-        clearTimeout(this.calloutTimeout);
-        this.calloutTimeout = setTimeout(() => { this.showCallout(index) }, 500);
+        this.showCallout(index);
       }, 300);
     });
   }

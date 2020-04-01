@@ -97,7 +97,8 @@ export default class EventMarkers extends Component {
         if (fromPress) {
             this.myScroll.getNode().scrollToOffset({ animated: fromPress, offset: (this.state.currentOffset + (i == 0 ? 0.1 : -0.1)) });
         }
-        setTimeout(() => { this.myScroll.getNode().scrollToIndex({ animated: fromPress, index: i }); }, 100);
+        if (this.props.markers.length != 0)
+            setTimeout(() => { this.myScroll.getNode().scrollToIndex({ animated: fromPress, index: i }); }, 100);
     }
 }
 

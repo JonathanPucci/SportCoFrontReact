@@ -19,20 +19,22 @@ class CalloutMultiEvent extends React.Component {
             <Callout onPress={this.goToEventLibrary.bind(this, this.props.events)} >
                 <View style={eventCalloutStyles.eventContainer}>
                     <Text h5 style={eventCalloutStyles.eventTitle}>Plusieurs évènements ici !</Text>
-                    <View style={eventCalloutStyles.eventSports}>
-                        {this.props.events.map((item, index) => {
-                            let icon = mapSportIcon(item.event.sport.toLowerCase());
-                            return <Icon
-                                key={'key' + index}
-                                name={icon.iconName}
-                                type={icon.iconFamily}
-                                size={30}
-                                style={eventCalloutStyles.eventSports}
-                                selected={false}
-                            />
-                        })
-                        }
-                    </View>
+                    {this.props.events != undefined &&
+                        (<View style={eventCalloutStyles.eventSports}>
+                            {this.props.events.map((item, index) => {
+                                let icon = mapSportIcon(item.event.sport.toLowerCase());
+                                return <Icon
+                                    key={'key' + index}
+                                    name={icon.iconName}
+                                    type={icon.iconFamily}
+                                    size={30}
+                                    style={eventCalloutStyles.eventSports}
+                                    selected={false}
+                                />
+                            })
+                            }
+                        </View>)
+                    }
                     <Text style={eventCalloutStyles.buttonStyle} >
                         Voir plus...
                     </Text>
@@ -61,7 +63,7 @@ export class MultiEventScreen extends React.Component {
 
     render() {
         return (
-            <ScrollView style={{flex : 1, flexDirection:'column'}}>
+            <ScrollView style={{ flex: 1, flexDirection: 'column' }}>
                 {this.renderGallery()}
             </ScrollView>
         )
