@@ -7,7 +7,7 @@ import MapView from 'react-native-maps';
 import { mapSportIcon } from '../../helpers/mapper';
 import CustomIcon from '../../components/Icon';
 import { Button, Icon } from 'react-native-elements'
-import { RenderOverlayDateTimePicker, RenderOverlayMinMaxParticipants, RenderSaveButton, RenderMapViewPicker } from './OverlaysEventEdition'
+import { RenderOverlayDateTimePicker, RenderOverlayMinMaxParticipants, RenderOverlayDescription, RenderSaveButton, RenderMapViewPicker } from './OverlaysEventEdition'
 
 const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
 const roadMapStyle = [
@@ -30,6 +30,7 @@ class EventScreen extends React.Component {
       editing: false,
       isEditingDate: false,
       isEditingParticipantNumbers: false,
+      isEditingDescription: false,
       isEditingMapMarker: false,
       event: {
         event: {
@@ -111,6 +112,13 @@ class EventScreen extends React.Component {
                 onPMinChange={this.updateParticipantMin.bind(this)}
                 onPMaxChange={this.updateParticipantMax.bind(this)}
                 saveParticipants={this.saveParticipants.bind(this)}
+              />
+              <RenderOverlayDescription
+                isEditingDescription={this.state.isEditingDescription}
+                stopEditingDescription={() => { this.setState({ isEditingDescription: false }) }}
+                description={this.state.event.event.description}
+                onDescriptionChange={this.updateDescription.bind(this)}
+                saveDescription={this.saveDescription.bind(this)}
               />
             </View>
           </View>
@@ -342,6 +350,9 @@ class EventScreen extends React.Component {
       case 'Participants':
         this.setState({ isEditingParticipantNumbers: true })
         break;
+      case 'Description':
+        this.setState({ isEditingDescription: true })
+        break;
       case 'Localisation':
         this.setState({ isEditingMapMarker: true })
         break;
@@ -356,6 +367,10 @@ class EventScreen extends React.Component {
 
   saveParticipants() {
     this.setState({ isEditingParticipantNumbers: false })
+  }
+
+  saveDescription() {
+    this.setState({ isEditingDescription: false })
   }
 
   onDateChange(e, date) {
@@ -437,6 +452,20 @@ class EventScreen extends React.Component {
       }
     }
     this.setState(updatedEventWithParticipantMax);
+  }
+
+  updateDescription(item, index) {
+    let updatedEventWithDescription = {
+      ...this.state,
+      event: {
+        ...this.state.event,
+        event: {
+          ...this.state.event.event,
+          description: item
+        }
+      }
+    }
+    this.setState(updatedEventWithDescription);
   }
 
 

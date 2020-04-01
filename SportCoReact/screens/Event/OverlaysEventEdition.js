@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Text, View } from 'react-native';
+import { Text, View, TextInput } from 'react-native';
 import { styles } from './styles'
 import MapView from 'react-native-maps';
 import { Button, Icon, Overlay } from 'react-native-elements'
@@ -36,6 +36,47 @@ export class RenderOverlayDateTimePicker extends React.Component {
                     <RenderSaveButton
                         title={`| Enregister?`}
                         callback={this.props.saveDate}
+                    />
+                </View>
+            </Overlay>
+        )
+    }
+}
+
+export class RenderOverlayDescription extends React.Component {
+    render() {
+        return (
+            <Overlay
+                isVisible={this.props.isEditingDescription}
+                onBackdropPress={() => { this.props.stopEditingDescription() }}
+            >
+                <View>
+                    <Text style={{ alignSelf: 'center', fontSize: 20, fontWeight: 'bold' }}>Description</Text>
+                    <View style={{
+                                width: "90%",
+                                borderColor: 'gray',
+                        borderWidth: 1,
+                        borderRadius: 20,
+                        marginVertical: 30,
+                        alignSelf: 'center'
+
+                    }}>
+                        <TextInput
+                            style={{
+                                width: "120%",
+                                alignItems: 'center',
+                                overflow: "hidden",
+                                alignSelf: 'center'
+
+                            }}
+                            onChangeText={this.props.onDescriptionChange}
+                            defaultValue={this.props.description}
+                            multiline
+                        />
+                    </View>
+                    <RenderSaveButton
+                        title={`| Enregister?`}
+                        callback={this.props.saveDescription}
                     />
                 </View>
             </Overlay>
