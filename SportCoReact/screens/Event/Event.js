@@ -188,12 +188,12 @@ class EventScreen extends React.Component {
       longitudeDelta: 0.005
     }
     return (
-      <View style={{flex :1}}>
+      <View style={{ flex: 1 }}>
         <RenderMapViewPicker
           isVisible={this.state.isEditingMapMarker}
           stopEditingMapMarker={this.stopEditingMapMarker.bind(this)}
           goToLocation={this.goToLocation.bind(this)}
-          regionPicked={!isNaN(eventRegion.latitude)? eventRegion : this.state.regionPicked}
+          regionPicked={!isNaN(eventRegion.latitude) ? eventRegion : this.state.regionPicked}
           onRegionChange={(region) => { this.setState({ regionPicked: region }) }}
           saveLocation={this.saveLocation.bind(this)}
         />
@@ -238,8 +238,8 @@ class EventScreen extends React.Component {
                 </View>
               ) : (
                   <View style={{ flexDirection: 'row' }} >
-                    <EventIcon name='edit' callback={this.editEvent.bind(this)}/>
-                    <EventIcon name='remove' color='red' callback={this.editEvent.bind(this)}/>
+                    <EventIcon name='edit' callback={this.editEvent.bind(this)} />
+                    <EventIcon name='remove' color='red' callback={this.cancelEvent.bind(this)} />
                   </View>
                 )}
             </View>
@@ -441,9 +441,6 @@ class EventScreen extends React.Component {
 
 
   updateEvent() {
-    //avoid setState as we just want to set in DB and then getData !
-    //TODO : check if there's not easier...
-    this.state.event.event.date.setMinutes(this.state.event.event.date.getMinutes() - this.state.event.event.date.getTimezoneOffset());
     if (this.state.event.event.event_id == '') {
       // Get Spot from region (create if not exist)
       // Then add spotId to event
@@ -491,6 +488,9 @@ class EventScreen extends React.Component {
         })
 
     } else {
+      //avoid setState as we just want to set in DB and then getData !
+      //TODO : check if there's not easier...
+      this.state.event.event.date.setMinutes(this.state.event.event.date.getMinutes() - this.state.event.event.date.getTimezoneOffset());
       this.apiService.editEntity('events', this.state.event.event)
         .then(() => {
           this.getData();
@@ -498,7 +498,12 @@ class EventScreen extends React.Component {
     }
   }
 
-  cancelEvent() { }
+  cancelEvent() {
+    this.apiService.deleteEntity('events', this.state.event.event)
+      .then((data) => {
+        this.props.navigation.goBack();
+      });
+  }
 
 
   /*********************************************************************************
@@ -571,7 +576,7 @@ class EventIcon extends React.Component {
         type='font-awesome'
         color={this.props.color || 'orange'}
         onPress={this.props.callback} />
-        )
+    )
   }
 }
 

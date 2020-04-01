@@ -49,10 +49,8 @@ class SearchScreen extends React.Component {
       moved: false,
       optionsVisible: false,
       interpolations: [],
-      regionAfterMove: {},
       addingEvent: true
     }
-    this.index = 0;
     this.animation = new Animated.Value(0);
     this.sportCoApi = new SportCoApi();
     this.retrieveEventsInArea();
@@ -70,7 +68,7 @@ class SearchScreen extends React.Component {
 
 
   getData(afterMove = false) {
-    this.setState({ events: [], eventsFetchedSoFar: [], loading: true }, () => {
+    this.setState({ events: [], eventsFetchedSoFar: [], currentEventIndex : 0, loading: true }, () => {
       this.retrieveEventsInArea(afterMove);
     })
   }
@@ -227,7 +225,7 @@ class SearchScreen extends React.Component {
    ********************************************************************************/
 
   setRegionMoved(region) {
-    this.setState({ moved: true, regionAfterMove: region, region: region, optionsVisible: true },
+    this.setState({ moved: true, region: region, optionsVisible: true },
       () => {
         setTimeout(() => {
           this.setState({ optionsVisible: false })
@@ -255,12 +253,6 @@ class SearchScreen extends React.Component {
           latitude: lat,
           longitude: lon,
 
-        },
-        regionAfterMove: {
-          latitudeDelta: initialZoom.latitudeDelta,
-          longitudeDelta: initialZoom.longitudeDelta,
-          latitude: lat,
-          longitude: lon,
         }
       }
       , () => {
@@ -294,13 +286,12 @@ class SearchScreen extends React.Component {
       }
       clearTimeout(this.regionTimeout);
       this.regionTimeout = setTimeout(() => {
-        this.index = index;
         const event = this.state.events[index];
         let coordinateEvent = {
           latitude: parseFloat(event.spot.spot_latitude),
           longitude: parseFloat(event.spot.spot_longitude),
-          latitudeDelta: Math.min(this.state.regionAfterMove.latitudeDelta, this.state.region.latitudeDelta),
-          longitudeDelta: Math.min(this.state.regionAfterMove.longitudeDelta, this.state.region.longitudeDelta),
+          latitudeDelta: this.state.region.latitudeDelta,
+          longitudeDelta:  this.state.region.longitudeDelta,
         };
         this.setState({ currentEventIndex: index });
         this.mapViewRef.mapView.animateToRegion(coordinateEvent, 350);
