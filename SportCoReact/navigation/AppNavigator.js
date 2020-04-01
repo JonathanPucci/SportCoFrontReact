@@ -5,6 +5,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import BottomTabNavigator from './BottomTabNavigator';
 import LoginScreen from '../screens/Login/LoginScreen';
 import EventScreen from '../screens/Event/Event';
+import {MultiEventScreen} from '../screens/Search/CalloutMultiEvent';
+
 import { connect } from 'react-redux';
 
 function LogoTitle() {
@@ -40,6 +42,7 @@ class AppNavigator extends React.Component {
                             : <Stack.Screen name="Back" component={BottomTabNavigator} />
                         }
                               <Stack.Screen name="Event" component={EventScreen} />
+                              <Stack.Screen name="Evenements" component={MultiEventScreen} />
                     </Stack.Navigator>
                 </NavigationContainer>
             </View>

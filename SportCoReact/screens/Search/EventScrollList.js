@@ -31,9 +31,9 @@ export default class EventMarkers extends Component {
         return (
             <Animated.FlatList
                 horizontal
-                scrollEventThrottle={1}
                 showsHorizontalScrollIndicator={false}
                 snapToInterval={CARD_WIDTH}
+                decelerationRate="fast"
                 ref={(ref) => this.myScroll = ref}
                 onScrollToIndexFailed={() => { }}
                 onScroll={Animated.event(
@@ -95,7 +95,7 @@ export default class EventMarkers extends Component {
 
     scrollToElement(i = this.props.currentIndex, fromPress = false) {
         if (fromPress) {
-            this.myScroll.getNode().scrollToOffset({ animated: fromPress, offset: (this.state.currentOffset + (i == 0 ? 10 : -10)) });
+            this.myScroll.getNode().scrollToOffset({ animated: fromPress, offset: (this.state.currentOffset + (i == 0 ? 0.1 : -0.1)) });
         }
         setTimeout(() => { this.myScroll.getNode().scrollToIndex({ animated: fromPress, index: i }); }, 100);
     }

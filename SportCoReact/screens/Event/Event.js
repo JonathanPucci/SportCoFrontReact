@@ -6,11 +6,7 @@ import SportCoApi from '../../services/apiService';
 import MapView from 'react-native-maps';
 import { mapSportIcon } from '../../helpers/mapper';
 import CustomIcon from '../../components/Icon';
-import { Button, Icon, Overlay } from 'react-native-elements'
-import DateTimePicker from '@react-native-community/datetimepicker';
-import GoogleMapsAutoComplete from "../../components/GoogleMapsAutoComplete"
-import SmoothPicker from "react-native-smooth-picker";
-import Bubble from './Bubble'
+import { Button, Icon } from 'react-native-elements'
 import { RenderOverlayDateTimePicker, RenderOverlayMinMaxParticipants, RenderSaveButton, RenderMapViewPicker } from './OverlaysEventEdition'
 
 const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };

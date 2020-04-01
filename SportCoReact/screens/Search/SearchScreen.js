@@ -6,19 +6,19 @@ import Fade from "../../components/Fade"
 import ActionButton from 'react-native-action-button';
 import Icon from 'react-native-vector-icons/Ionicons';
 import MCIIcon from 'react-native-vector-icons/MaterialCommunityIcons';
-import {  useFocusEffect} from '@react-navigation/native';
-import { styles, CARD_WIDTH } from './styles'
+import { useFocusEffect } from '@react-navigation/native';
+import { styles, CARD_WIDTH, CARD_HEIGHT } from './styles'
 import EventScrollList from './EventScrollList'
 import CustomMapView from './CustomMapView'
 import SportCoApi from '../../services/apiService';
 
 
 //Effect to get Events at focus (after coming back from events)
-function FocusEffectComp({navigation,handler}) {
+function FocusEffectComp({ navigation, handler }) {
   useFocusEffect(
     React.useCallback(() => {
       handler();
-      return () => {};
+      return () => { };
     }, [])
   );
   return null;
@@ -65,7 +65,6 @@ class SearchScreen extends React.Component {
     this.setState({ events: [] }, () => {
       this.retrieveEventsInArea(afterMove);
     })
-
   }
 
   retrieveEventsInArea(afterMove = false) {
@@ -74,19 +73,17 @@ class SearchScreen extends React.Component {
         let events = eventsdata.data;
         if (eventsdata.data.length == 0)
           this.setState({ loading: false, moved: false })
+        let newArray = [...this.state.events];
 
         for (let index = 0; index < events.length; index++) {
           const event = events[index];
           this.sportCoApi.getSingleEntity("events", event.event_id)
             .then(event => {
-              let newArray = [...this.state.events];
               newArray[index] = event.data;
-              this.setState({ events: newArray }, () => {
-                if (index == events.length - 1) {
-                  this.calculateInterpolations();
-                  this.setState({ loading: false, moved: false })
-                }
-              });
+              if (index == events.length - 1) {
+                this.calculateInterpolations();
+                this.setState({ events: newArray, loading: false, moved: false })
+              }
             })
         }
       })
@@ -160,7 +157,7 @@ class SearchScreen extends React.Component {
           onPress={() => {
             this.setState({ isActionButtonActive: true },
               () => {
-                setTimeout(() => { this.actionButton.animateButton() }, 2500)
+                setTimeout(() => { this.actionButton.reset() }, 2500)
               })
           }}
         >
@@ -194,7 +191,13 @@ class SearchScreen extends React.Component {
    ********************************************************************************/
 
   setRegionMoved(region) {
-    this.setState({ moved: true, regionAfterMove: region });
+    this.setState({ moved: true, regionAfterMove: region },
+      () => {
+        setTimeout(() => {
+          this.setState({ moved: false })
+        }, 2000)
+      }
+    );
   }
 
   pressedSearchHere() {
@@ -224,7 +227,7 @@ class SearchScreen extends React.Component {
   }
 
   showCallout(index) {
-    this.mapViewRef['callout-' + index].showCallout();
+    this.mapViewRef['callout' + index].showCallout();
   }
 
   /*********************************************************************************
@@ -252,14 +255,14 @@ class SearchScreen extends React.Component {
         let coordinateEvent = {
           latitude: parseFloat(event.spot.spot_latitude),
           longitude: parseFloat(event.spot.spot_longitude),
-          latitudeDelta: this.state.region.latitudeDelta,
-          longitudeDelta: this.state.region.longitudeDelta
+          latitudeDelta: Math.min(this.state.regionAfterMove.latitudeDelta, this.state.region.latitudeDelta),
+          longitudeDelta: Math.min(this.state.regionAfterMove.longitudeDelta, this.state.region.longitudeDelta),
         };
         this.setState({ currentEventIndex: index });
         this.mapViewRef.mapView.animateToRegion(coordinateEvent, 350);
         clearTimeout(this.calloutTimeout);
         this.calloutTimeout = setTimeout(() => { this.showCallout(index) }, 500);
-      }, 40);
+      }, 300);
     });
   }
 

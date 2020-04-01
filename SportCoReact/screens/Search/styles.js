@@ -58,8 +58,8 @@ export const styles = StyleSheet.create({
   }
 });
 
-export const CARD_HEIGHT = Layout.window.height / 7;
-export const CARD_WIDTH = CARD_HEIGHT - 40;
+export const CARD_HEIGHT = Layout.window.height / 4;
+export const CARD_WIDTH = CARD_HEIGHT - 50;
 
 export const markerStyles = StyleSheet.create({
   container: {
@@ -73,12 +73,12 @@ export const markerStyles = StyleSheet.create({
     paddingVertical: 10,
   },
   endPadding: {
-    paddingRight: Layout.window.width - 1.5 * CARD_WIDTH,
+    paddingRight: Layout.window.width - CARD_WIDTH,
   },
   card: {
     padding: 0,
     elevation: 2,
-    backgroundColor: "#FFF",
+    backgroundColor: "#BBB",
     marginHorizontal: 10,
     shadowColor: "#000",
     shadowRadius: 5,
@@ -90,8 +90,7 @@ export const markerStyles = StyleSheet.create({
     borderRadius: 5
   },
   borderActive: {
-    backgroundColor: '#DDD',
-    borderColor: '#AAA',
+    backgroundColor: '#FFF',
     borderWidth: 1
   },
   cardImage: {
@@ -134,6 +133,17 @@ export const markerStyles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(59, 118, 255, 0.5)",
   },
+  item: {
+    flex: 1,
+    flexDirection: 'row',
+    margin:20
+  },
+  galleryItem: {
+    flex: 0.5,
+  },
+  emptyGalleryItem: {
+    flex: 0.5,
+  },
 });
 
 
@@ -144,6 +154,15 @@ export const eventCalloutStyles = StyleSheet.create({
     flex: 1,
     width:250,
     height:150,
+  },
+  eventSports : {
+    flex:1,
+    alignItems:'center',
+    flexDirection:'row'
+  },
+  eventSport : {
+    flex:1,
+    margin:10,
   },
   eventTitle:{
     alignSelf: "center"
