@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ScrollView, View, Image, Text, Button } from 'react-native';
+import { ScrollView, View, Image, Text, Button, StyleSheet } from 'react-native';
 import { connect } from 'react-redux'
 
 import { Callout, CalloutSubview } from 'react-native-maps';
@@ -20,19 +20,13 @@ class CalloutEvent extends React.Component {
         if (this.props.reloadCallout)
             this.getData();
         let eventInfo = this.state.event == undefined ? this.props.event : this.state.event;
+        let photoUrl = eventInfo.host.photo_url;
+
         let icon = mapSportIcon(eventInfo.event.sport.toLowerCase());
         return (
             <Callout onPress={this.goToEvent.bind(this, eventInfo)} >
                 <View style={eventCalloutStyles.eventContainer}>
-                    <Text h5 style={eventCalloutStyles.eventTitle}>{eventInfo.event.sport.toUpperCase()}</Text>
-                    <View style={eventCalloutStyles.eventDescriptionRow}>
-                        <View style={eventCalloutStyles.eventDescriptionView}>
-                            <View style={eventCalloutStyles.eventDescription}>
-                                <Text h5 >{eventInfo.event.description}</Text>
-                                <Text h5 >Participants : {eventInfo.participants.length}/{eventInfo.event.participants_max}</Text>
-                                <Text h5 >{Event.computeDate(eventInfo.event.date)} 14h-16h </Text>
-                            </View>
-                        </View>
+                    <View style={{ flexDirection: 'row' }}>
                         <Icon
                             name={icon.iconName}
                             type={icon.iconFamily}
@@ -40,6 +34,25 @@ class CalloutEvent extends React.Component {
                             style={eventCalloutStyles.eventIcon}
                             selected={false}
                         />
+                        <Text h5 style={eventCalloutStyles.eventTitle}>{eventInfo.event.sport.toUpperCase()}</Text>
+                    </View>
+                    <View style={eventCalloutStyles.eventDescriptionRow}>
+                        <View style={eventCalloutStyles.eventDescriptionView}>
+                            <View style={eventCalloutStyles.eventDescription}>
+                                <Text h5 >Participants : {eventInfo.participants.length}/{eventInfo.event.participants_max}</Text>
+                                <Text h5 >{Event.computeDate(eventInfo.event.date)} 14h-16h </Text>
+                            </View>
+                        </View>
+                        <View style={{ alignItems: 'center', justifyContent:'center' }}>
+                            <Text style={{textAlign:'center'}}>{eventInfo.host.user_name}</Text>
+                            <View style={styles.imageContainer}>
+                                {photoUrl != undefined ? (
+                                    <Image source={{ uri: photoUrl + '?type=large&width=500&height=500' }} style={styles.image} />
+                                ) :
+                                    (<Image source={require('../../assets/images/robot-dev.png')} style={styles.image} />
+                                    )}
+                            </View>
+                        </View>
                     </View>
                     <Text style={eventCalloutStyles.buttonStyle} >
                         Voir plus...
@@ -68,6 +81,23 @@ class CalloutEvent extends React.Component {
     }
 
 }
+
+const styles = StyleSheet.create({
+
+    image: {
+        alignSelf: 'center',
+        height: 75,
+        width: 75,
+        borderWidth: 1,
+        borderRadius: 37,
+
+    },
+    imageContainer: {
+        alignSelf: 'flex-start',
+        marginLeft: 30
+    }
+
+});
 
 
 const mapStateToProps = (state) => {

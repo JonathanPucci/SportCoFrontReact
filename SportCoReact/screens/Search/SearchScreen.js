@@ -20,7 +20,9 @@ import SportsAvailable from '../../components/SportsAvailable';
 function FocusEffectComp({ navigation, handler }) {
   useFocusEffect(
     React.useCallback(() => {
-      handler();
+      if (!SearchScreen.firstTime)
+        handler();
+      SearchScreen.firstTime = false;
       return () => { };
     }, [])
   );
@@ -54,19 +56,31 @@ class SearchScreen extends React.Component {
       interpolations: [],
       addingEvent: true,
       isChoosingAFilter: false,
+      firstSearch: true,
       sportsAccepted: ['basket', 'soccer', 'futsal', 'workout', 'running', 'volley', 'beachvolley', 'tennis']
     }
     this.animation = new Animated.Value(0);
     this.sportCoApi = new SportCoApi();
-    navigator.geolocation.getCurrentPosition(this.retrieveEventsNearMe.bind(this));
+    navigator.geolocation.getCurrentPosition(
+      this.retrieveEventsNearMe.bind(this),
+      this.retrieveEventsInInitialArea.bind(this),
+      { timeout: 1000 }
+    );
   }
+
+  static firstTime = true;
+
 
   retrieveEventsNearMe(position) {
     this.setState(
       { ...this.state, region: { ...this.state.region, latitude: position.coords.latitude, longitude: position.coords.longitude } },
-      () => {
-        this.getData();
-      })
+      this.getData.bind(this, true));
+  }
+
+  retrieveEventsInInitialArea() {
+    this.setState(
+      { ...this.state, region: { ...this.state.region, latitude: 43.6, longitude: 7.1 } },
+      this.getData.bind(this, true));
   }
 
 
@@ -81,20 +95,22 @@ class SearchScreen extends React.Component {
    ********************************************************************************/
 
 
-  getData(afterMove = false) {
+  getData(fromFocus = false) {
     this.setState({ events: [], eventsRetrieved: [], eventsFetchedSoFar: [], currentEventIndex: 0, loading: true }, () => {
-      this.retrieveEventsInArea(afterMove);
+      this.retrieveEventsInArea();
     })
   }
 
-  retrieveEventsInArea(afterMove = false) {
+  retrieveEventsInArea() {
     this.sportCoApi.getEntities("events/area", this.state.region)
       .then((eventsdata) => {
         let events = eventsdata.data;
         if (events.length == 0) {
-          this.setState({ loading: false, moved: false, optionsVisible: false })
-          return
+          this.setState({ firstSearch: false, loading: false, moved: false, optionsVisible: false })
         }
+        if (events.length == 0)
+          return
+
         this.setState({ numberOfEventsToRetrieve: events.length }, () => {
           for (let index = 0; index < events.length; index++) {
             const event = events[index];
@@ -128,7 +144,7 @@ class SearchScreen extends React.Component {
       }
     }
     if (complete) {
-      this.setState({ eventsRetrieved: eventsFetchedSoFar, loading: false, moved: false, optionsVisible: false }, () => { this.filterBySport() })
+      this.setState({ eventsRetrieved: eventsFetchedSoFar, firstSearch: false, loading: false, moved: false, optionsVisible: false }, () => { this.filterBySport() })
     }
   }
 
@@ -141,7 +157,7 @@ class SearchScreen extends React.Component {
   render() {
     return (
       <View style={styles.container} contentContainerStyle={styles.contentContainer}>
-        <FocusEffectComp navigation={this.props.navigation} handler={this.getData.bind(this)} />
+        <FocusEffectComp navigation={this.props.navigation} handler={this.getData.bind(this, true)} />
         {this.renderMain()}
       </View>
     )

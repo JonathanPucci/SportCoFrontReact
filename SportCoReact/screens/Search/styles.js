@@ -163,7 +163,8 @@ export const eventCalloutStyles = StyleSheet.create({
     margin:10,
   },
   eventTitle:{
-    alignSelf: "center"
+    alignSelf: "center",
+    marginLeft : 50
   },
   eventDescriptionRow:{
     flexDirection:"row",
@@ -171,7 +172,7 @@ export const eventCalloutStyles = StyleSheet.create({
   },
   eventDescription:{
     flex:1,
-    paddingTop:15
+    paddingTop:5
   },
   eventDescriptionView:{
     flexDirection:"column",
