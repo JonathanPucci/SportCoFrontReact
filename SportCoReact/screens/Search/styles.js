@@ -41,7 +41,6 @@ export const styles = StyleSheet.create({
     top: 70,
     left: Layout.window.width/2 - 75,
     paddingVertical: 10,
-    backgroundColor:'white',
     borderRadius:10
   },
   actionButton:{

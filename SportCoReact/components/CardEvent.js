@@ -27,7 +27,7 @@ export default class CardEvent extends React.Component {
         let hour = time[0] + 'h' + time[1];
         return (
             <TouchableWithoutFeedback onPress={this.props.pressedCard}>
-                <View style={[markerStyles.card, this.props.markerActive ? markerStyles.borderActive : '']} >
+                <View style={[markerStyles.card, this.props.markerActive ? markerStyles.active : markerStyles.inactive]} >
                     <Image
                         source={mapSportIcon(item.event.sport).image}
                         style={markerStyles.cardImage}
@@ -77,9 +77,12 @@ const markerStyles = StyleSheet.create({
         overflow: "hidden",
         borderRadius: 5
     },
-    borderActive: {
+    active: {
         backgroundColor: '#FFF',
         borderWidth: 1
+    },
+    inactive: {
+        opacity: 0.6,
     },
     cardImage: {
         flex: 2,

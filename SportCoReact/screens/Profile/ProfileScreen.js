@@ -6,33 +6,34 @@ import { Social } from '../../components/social'
 import Icon from '../../components/Icon'
 import { ScrollView, TouchableWithoutFeedback } from 'react-native-gesture-handler';
 
-import {USER_LOGGED_OUT} from '../../Store/Actions'
+import { USER_LOGGED_OUT } from '../../Store/Actions'
 import { connect } from 'react-redux'
 
 import SportCoApi from '../../services/apiService';
 
 import { styles } from './styles'
+import SportsAvailable from '../../components/SportsAvailable';
 
 class ProfileScreen extends React.Component {
 
   state = {
     sportsSelected: ['Tennis'],
-    apiService : new SportCoApi(),
-    userPseudoName : 'Squatman'
+    apiService: new SportCoApi(),
+    userPseudoName: 'Squatman'
   }
 
-  componentDidMount(){
-    this.state.apiService.getSingleEntity('users',1)
-    .then(res => {
-      this.setState({userPseudoName : res.data.User_Name});
-    })
+  componentDidMount() {
+    this.state.apiService.getSingleEntity('users', 1)
+      .then(res => {
+        this.setState({ userPseudoName: res.data.User_Name });
+      })
   }
 
   render() {
     let photoURL = '';
     let displayName = '';
-    if(this.props.auth && this.props.auth.user != null && this.props.auth.user != {}){
-      photoURL= this.props.auth.user.photoURL + '?type=large&width=500&height=500';
+    if (this.props.auth && this.props.auth.user != null && this.props.auth.user != {}) {
+      photoURL = this.props.auth.user.photoURL + '?type=large&width=500&height=500';
       displayName = this.props.auth.user.displayName;
     }
     return (
@@ -45,13 +46,13 @@ class ProfileScreen extends React.Component {
                   {displayName}
                 </Text>
                 <Text h5 style={styles.name}>
-                25 ans
+                  25 ans
                 </Text>
                 <Text style={styles.desc}>Developer at DreamTeam & Co.</Text>
               </View>
               <View style={styles.imageContainer}>
-              {photoURL!= '' && <Image source={{uri: photoURL }} style={styles.image} />}
-              {photoURL== '' && <Image source={require('../../assets/images/robot-dev.png') } style={styles.image} />}
+                {photoURL != '' && <Image source={{ uri: photoURL }} style={styles.image} />}
+                {photoURL == '' && <Image source={require('../../assets/images/robot-dev.png')} style={styles.image} />}
               </View>
             </View>
             <Divider style={styles.divider} />
@@ -61,7 +62,9 @@ class ProfileScreen extends React.Component {
             </Text>
             <Divider style={styles.divider} />
             <View style={styles.sports}>
-              {this.renderSports()}
+              <SportsAvailable
+                sportsSelected={this.state.sportsSelected}
+                sportsSelectedChanged={(newsports) => { this.setState({ sportsSelected: newsports }) }} />
             </View>
             <Divider style={styles.divider} />
             <View style={styles.bottom}>
@@ -73,63 +76,13 @@ class ProfileScreen extends React.Component {
               </View>
             </View>
             <View style={{ marginVertical: 10, flex: 1 }}>
-            <Button title={'Logout'} onPress={() => this.Logout()} />
-          </View>
+              <Button title={'Logout'} onPress={() => this.Logout()} />
+            </View>
           </SafeAreaView>
 
         </ScrollView>
       </View>
     );
-  }
-
-  renderSports() {
-    return (
-      <View >
-        <Text h4 style={styles.name} >My Sports</Text>
-        <View style={styles.sportLine}>
-          {this.renderSport('Basketball', 'ios-basketball', 'Ionicons')}
-          {this.renderSport('Football', 'ios-football', 'Ionicons')}
-        </View>
-        <View style={styles.sportLine}>
-          {this.renderSport('Tennis', 'ios-tennisball', 'Ionicons')}
-          {this.renderSport('Running', 'run', 'MaterialCommunityIcons')}
-        </View>
-        <View style={styles.sportLine}>
-          {this.renderSport('Workout', 'ios-fitness', 'Ionicons')}
-          {this.renderSport('BeachVolley', 'volleyball', 'MaterialCommunityIcons')}
-        </View>
-      </View>
-    );
-  }
-
-  renderSport(sport, icon, type) {
-    return (
-      <View >
-        <TouchableWithoutFeedback onPress={() => this.toggleSport(sport)}>
-          <View style={styles.sport}>
-            <Text>{sport}</Text>
-            <Icon
-              name={icon}
-              type={type}
-              size={50}
-              selected={this.isSportSelected(sport)}
-            />
-          </View>
-        </TouchableWithoutFeedback>
-      </View>
-    );
-  }
-
-  isSportSelected(sport) {
-    return this.state.sportsSelected.includes(sport);
-  }
-
-  toggleSport(sport) {
-    let newsports = this.state.sportsSelected;
-    this.isSportSelected(sport) ?
-      newsports.splice(newsports.indexOf(sport), 1) :
-      newsports.push(sport);
-    this.setState({ sportsSelected: newsports });
   }
 
 

@@ -36,11 +36,7 @@ export const styles = StyleSheet.create({
         borderRadius: 60,
 
     },
-    name: {
-        color: '#5E5E5E',
-        alignSelf: 'flex-start',
-        marginLeft: 30,
-    },
+    
     desc: {
         color: '#5E5E5E',
         alignSelf: 'flex-start',
@@ -72,12 +68,5 @@ export const styles = StyleSheet.create({
         flex:1,
         flexDirection: 'column'
     },
-    sport: {
-        alignItems:'center'
-    },
-    sportLine: {
-        marginTop:20,
-        flexDirection: 'row',
-        justifyContent: 'space-around'
-    }
+  
 });

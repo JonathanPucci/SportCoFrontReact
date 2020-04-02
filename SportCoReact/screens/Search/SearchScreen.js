@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { View, Animated, Text, Button } from 'react-native';
+import { View, Animated, Text } from 'react-native';
+import { Overlay, Button } from 'react-native-elements'
 import { connect } from 'react-redux'
 import GoogleMapsAutoComplete from "../../components/GoogleMapsAutoComplete"
 import Fade from "../../components/Fade"
@@ -11,7 +12,8 @@ import { styles } from './styles'
 import EventScrollList from './EventScrollList'
 import CustomMapView from './CustomMapView'
 import SportCoApi from '../../services/apiService';
-import {CARD_HEIGHT, CARD_WIDTH} from '../../components/CardEvent'
+import { CARD_HEIGHT, CARD_WIDTH } from '../../components/CardEvent'
+import SportsAvailable from '../../components/SportsAvailable';
 
 
 //Effect to get Events at focus (after coming back from events)
@@ -38,24 +40,35 @@ class SearchScreen extends React.Component {
     this.state = {
       loading: true,
       events: [],
+      eventsRetrieved: [],
       eventsFetchedSoFar: [],
       currentEventIndex: 0,
       region: {
-        latitude: 43.59,
-        longitude: 7.1,
+        latitude: '',
+        longitude: '',
         latitudeDelta: initialZoom.latitudeDelta,
         longitudeDelta: initialZoom.longitudeDelta
       },
-
       moved: false,
       optionsVisible: false,
       interpolations: [],
-      addingEvent: true
+      addingEvent: true,
+      isChoosingAFilter: false,
+      sportsAccepted: ['basket', 'soccer', 'futsal', 'workout', 'running', 'volley', 'beachvolley', 'tennis']
     }
     this.animation = new Animated.Value(0);
     this.sportCoApi = new SportCoApi();
-    this.retrieveEventsInArea();
+    navigator.geolocation.getCurrentPosition(this.retrieveEventsNearMe.bind(this));
   }
+
+  retrieveEventsNearMe(position) {
+    this.setState(
+      { ...this.state, region: { ...this.state.region, latitude: position.coords.latitude, longitude: position.coords.longitude } },
+      () => {
+        this.getData();
+      })
+  }
+
 
   componentDidMount() {
     this.setAnimationForScrollView();
@@ -69,7 +82,7 @@ class SearchScreen extends React.Component {
 
 
   getData(afterMove = false) {
-    this.setState({ events: [], eventsFetchedSoFar: [], currentEventIndex : 0, loading: true }, () => {
+    this.setState({ events: [], eventsRetrieved: [], eventsFetchedSoFar: [], currentEventIndex: 0, loading: true }, () => {
       this.retrieveEventsInArea(afterMove);
     })
   }
@@ -115,7 +128,7 @@ class SearchScreen extends React.Component {
       }
     }
     if (complete) {
-      this.setState({ events: eventsFetchedSoFar, loading: false, moved: false, optionsVisible: false })
+      this.setState({ eventsRetrieved: eventsFetchedSoFar, loading: false, moved: false, optionsVisible: false }, () => { this.filterBySport() })
     }
   }
 
@@ -175,6 +188,23 @@ class SearchScreen extends React.Component {
             markers={this.state.events}
           />
         </View>
+        <Overlay
+          isVisible={this.state.isChoosingAFilter}
+          onBackdropPress={() => { this.setState({ isChoosingAFilter: false }) }}
+        >
+          <View style={styles.sports}>
+            <SportsAvailable
+              sportsSelected={this.state.sportsAccepted}
+              sportsSelectedChanged={(newsports) => { this.setState({ sportsAccepted: newsports }) }}
+            />
+            <Button
+              titleStyle={{ fontSize: 20 }}
+              buttonStyle={{ marginTop: 100 }}
+              title={'Filter'}
+              onPress={() => { this.filterBySport() }}
+            />
+          </View>
+        </Overlay>
       </View>
     );
   }
@@ -209,7 +239,7 @@ class SearchScreen extends React.Component {
           <ActionButton.Item
             offsetX={60}
             buttonColor='#3498db'
-            onPress={() => { }}>
+            onPress={() => { this.setState({ isChoosingAFilter: true }) }}>
             <MCIIcon name="filter" style={styles.actionButtonIcon} />
           </ActionButton.Item>
 
@@ -292,7 +322,7 @@ class SearchScreen extends React.Component {
           latitude: parseFloat(event.spot.spot_latitude),
           longitude: parseFloat(event.spot.spot_longitude),
           latitudeDelta: this.state.region.latitudeDelta,
-          longitudeDelta:  this.state.region.longitudeDelta,
+          longitudeDelta: this.state.region.longitudeDelta,
         };
 
         this.setState({ currentEventIndex: index });
@@ -334,6 +364,16 @@ class SearchScreen extends React.Component {
 
   addingDone() {
     this.setState({ addingEvent: false })
+  }
+
+  filterBySport() {
+    let newEvents = [];
+    for (let index = 0; index < this.state.eventsRetrieved.length; index++) {
+      const event = this.state.eventsRetrieved[index];
+      if (this.state.sportsAccepted.includes(event.event.sport))
+        newEvents.push(event);
+    }
+    this.setState({ events: [], isChoosingAFilter: false }, () => { this.setState({ events: newEvents }) });
   }
 
 }
