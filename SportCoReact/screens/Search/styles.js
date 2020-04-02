@@ -3,6 +3,8 @@ import {
   StyleSheet
 } from "react-native";
 
+import {CARD_HEIGHT, CARD_WIDTH} from '../../components/CardEvent'
+
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -57,9 +59,6 @@ export const styles = StyleSheet.create({
   actionButtonItem:{
   }
 });
-
-export const CARD_HEIGHT = Layout.window.height / 4;
-export const CARD_WIDTH = CARD_HEIGHT - 50;
 
 export const markerStyles = StyleSheet.create({
   container: {

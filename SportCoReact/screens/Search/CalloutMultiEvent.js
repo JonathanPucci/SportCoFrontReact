@@ -6,8 +6,7 @@ import { Callout, CalloutSubview } from 'react-native-maps';
 import { eventCalloutStyles, markerStyles, CARD_WIDTH } from './styles';
 import Icon from '../../components/Icon'
 import { mapSportIcon } from '../../helpers/mapper'
-import SportCoApi from '../../services/apiService';
-import Event from '../Event/Event';
+import CardEvent from '../../components/CardEvent'
 
 class CalloutMultiEvent extends React.Component {
 
@@ -71,22 +70,15 @@ export class MultiEventScreen extends React.Component {
 
     renderSportCard(item, index) {
         return (
-            <TouchableWithoutFeedback onPress={this.goToEvent.bind(this, item)}>
-                <View style={[markerStyles.card, markerStyles.borderActive]} >
-                    <Image
-                        source={mapSportIcon(item.event.sport).image}
-                        style={markerStyles.cardImage}
-                        resizeMode="cover"
-                    />
-                    <View style={markerStyles.textContent}>
-                        <Text numberOfLines={1} style={markerStyles.cardtitle}>{item.event.title}</Text>
-                        <Text numberOfLines={1} style={markerStyles.cardDescription}>
-                            {item.event.description}
-                        </Text>
-                    </View>
-                </View>
-            </TouchableWithoutFeedback>
+            <CardEvent pressedCard={this.goToEvent.bind(this, item)} item={item}/>
         )
+    }
+
+
+    goToEvent(event) {
+        this.props.navigation.navigate('Event', {
+            event: event
+        });
     }
 
     renderGallery() {
@@ -134,11 +126,7 @@ export class MultiEventScreen extends React.Component {
     }
 
 
-    goToEvent(event) {
-        this.props.navigation.navigate('Event', {
-            event: event
-        });
-    }
+   
 }
 
 

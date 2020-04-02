@@ -53,8 +53,8 @@ export class RenderOverlayDescription extends React.Component {
                 <View>
                     <Text style={{ alignSelf: 'center', fontSize: 20, fontWeight: 'bold' }}>Description</Text>
                     <View style={{
-                                width: "90%",
-                                borderColor: 'gray',
+                        width: "90%",
+                        borderColor: 'gray',
                         borderWidth: 1,
                         borderRadius: 20,
                         marginVertical: 30,
@@ -175,7 +175,7 @@ export class RenderMapViewPicker extends React.Component {
             <Overlay isVisible={this.props.isVisible} onBackdropPress={this.props.stopEditingMapMarker} >
                 <View style={{ flex: 1 }} >
                     <GoogleMapsAutoComplete
-                        handler={this.props.goToLocation.bind(this)}
+                        handler={this.goToLocation.bind(this)}
                     />
                     <View style={{ flex: 1, marginTop: 100 }}>
                         <MapView
@@ -202,6 +202,17 @@ export class RenderMapViewPicker extends React.Component {
                 </View>
             </Overlay>
         )
+    }
+
+    goToLocation(lat, lon) {
+        //Only coming from autoComplete
+        var coordinatesZommed = {
+            latitude: lat,
+            longitude: lon,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
+        }
+        this.mapView.animateToRegion(coordinatesZommed, 1500);
     }
 }
 

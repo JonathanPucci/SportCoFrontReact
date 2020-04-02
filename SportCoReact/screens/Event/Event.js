@@ -101,24 +101,24 @@ class EventScreen extends React.Component {
                 isEditingDate={this.state.isEditingDate}
                 stopEditingDate={() => { this.setState({ isEditingDate: false }) }}
                 event={this.state.event}
-                onDateChange={this.onDateChange.bind(this)}
-                onDateTimeChange={this.onDateTimeChange.bind(this)}
-                saveDate={this.saveDate.bind(this)}
+                onDateChange={this.setStateProperty.bind(this, 'event', 'date')}
+                onDateTimeChange={this.setStateProperty.bind(this, 'event', 'datetime')}
+                saveDate={this.setEditingProperty.bind(this, 'Date', false)}
               />
               <RenderOverlayMinMaxParticipants
                 isEditingParticipantNumbers={this.state.isEditingParticipantNumbers}
                 stopEditingParticipantNumbers={() => { this.setState({ isEditingParticipantNumbers: false }) }}
                 event={this.state.event}
-                onPMinChange={this.updateParticipantMin.bind(this)}
-                onPMaxChange={this.updateParticipantMax.bind(this)}
-                saveParticipants={this.saveParticipants.bind(this)}
+                onPMinChange={this.setStateProperty.bind(this, 'event', 'participants_min')}
+                onPMaxChange={this.setStateProperty.bind(this, 'event', 'participants_max')}
+                saveParticipants={this.setEditingProperty.bind(this, 'Participants', false)}
               />
               <RenderOverlayDescription
                 isEditingDescription={this.state.isEditingDescription}
                 stopEditingDescription={() => { this.setState({ isEditingDescription: false }) }}
                 description={this.state.event.event.description}
-                onDescriptionChange={this.updateDescription.bind(this)}
-                saveDescription={this.saveDescription.bind(this)}
+                onDescriptionChange={this.setStateProperty.bind(this, 'event', 'description')}
+                saveDescription={this.setEditingProperty.bind(this, 'Description', false)}
               />
             </View>
           </View>
@@ -177,7 +177,7 @@ class EventScreen extends React.Component {
               type='font-awesome'
               color='orange'
               size={15}
-              onPress={this.editProperty.bind(this, title)} />
+              onPress={this.setEditingProperty.bind(this, title, true)} />
           )}
           <Text style={[styles.titleDescription, this.state.editing ? { top: 15 } : {}]}>{title}</Text>
         </View>
@@ -197,14 +197,6 @@ class EventScreen extends React.Component {
     }
     return (
       <View style={{ flex: 1 }}>
-        <RenderMapViewPicker
-          isVisible={this.state.isEditingMapMarker}
-          stopEditingMapMarker={this.stopEditingMapMarker.bind(this)}
-          goToLocation={this.goToLocation.bind(this)}
-          regionPicked={!isNaN(eventRegion.latitude) ? eventRegion : this.state.regionPicked}
-          onRegionChange={(region) => { this.setState({ regionPicked: region }) }}
-          saveLocation={this.saveLocation.bind(this)}
-        />
         <View>
           {this.renderDescriptionText('Localisation', '')}
           {!isNaN(eventRegion.latitude) ? (
@@ -226,6 +218,13 @@ class EventScreen extends React.Component {
           ) :
             <Text>Choisissez une localisation</Text>}
         </View>
+        <RenderMapViewPicker
+          isVisible={this.state.isEditingMapMarker}
+          stopEditingMapMarker={this.setEditingProperty.bind(this, 'Localisation', false)}
+          regionPicked={!isNaN(eventRegion.latitude) ? eventRegion : this.state.regionPicked}
+          onRegionChange={(region) => { this.setState({ regionPicked: region }) }}
+          saveLocation={this.setStateProperty.bind(this,'spot','WHOLE',null)}
+        />
       </View>
     )
   }
@@ -342,130 +341,60 @@ class EventScreen extends React.Component {
     this.setState({ editing: true })
   }
 
-  editProperty(property) {
+  setEditingProperty(property, doneornot) {
     switch (property) {
       case 'Date':
-        this.setState({ isEditingDate: true })
+        this.setState({ isEditingDate: doneornot })
         break;
       case 'Participants':
-        this.setState({ isEditingParticipantNumbers: true })
+        this.setState({ isEditingParticipantNumbers: doneornot })
         break;
       case 'Description':
-        this.setState({ isEditingDescription: true })
+        this.setState({ isEditingDescription: doneornot })
         break;
       case 'Localisation':
-        this.setState({ isEditingMapMarker: true })
+        this.setState({ isEditingMapMarker: doneornot })
         break;
       default:
         break;
     }
   }
 
-  saveDate() {
-    this.setState({ isEditingDate: false })
-  }
-
-  saveParticipants() {
-    this.setState({ isEditingParticipantNumbers: false })
-  }
-
-  saveDescription() {
-    this.setState({ isEditingDescription: false })
-  }
-
-  onDateChange(e, date) {
-    let newDate = new Date(date);
+  setStateProperty(parentProperty, property, value, dateValueIfDate = null) {
+    let newEvent = this.state.event;
+    let newValue = value;
+    let newProperty = property;
+    let newDate = new Date(dateValueIfDate);
     let currentDate = new Date(this.state.event.event.date);
-    newDate.setHours(currentDate.getHours());
-    newDate.setMinutes(currentDate.getMinutes());
-    newDate.setSeconds(currentDate.getSeconds());
-    let newEvent = {
-      event: {
-        ...this.state.event,
-        event: {
-          ...this.state.event.event,
-          date: newDate
-        }
-      }
-    }
-    this.setState(newEvent);
-  }
-  onDateTimeChange(event, datetime) {
-    let newDate = new Date(datetime);
-    let currentDate = new Date(this.state.event.event.date);
-    newDate.setDate(currentDate.getDate());
-    let newEvent = {
-      event: {
-        ...this.state.event,
-        event: {
-          ...this.state.event.event,
-          date: newDate
-        }
-      }
-    }
-    this.setState(newEvent);
-  }
-
-  stopEditingMapMarker() {
-    this.setState({ isEditingMapMarker: false })
-  }
-
-  saveLocation() {
-    let updatedEventWithSpot = {
-      ...this.state,
-      isEditingMapMarker: false,
-      event: {
-        ...this.state.event,
-        spot: {
+    switch (property) {
+      case 'date':
+        newDate.setHours(currentDate.getHours());
+        newDate.setMinutes(currentDate.getMinutes());
+        newDate.setSeconds(currentDate.getSeconds());
+        newValue = newDate;
+        break;
+      case 'datetime':
+        newDate.setDate(currentDate.getDate());
+        newValue = newDate;
+        newProperty = 'date';
+        break;
+      case 'WHOLE':
+        //Only for map picking location so far
+        this.setEditingProperty('Localisation', false);
+        newValue = {
           ...this.state.event.spot,
           spot_longitude: this.state.regionPicked.longitude,
           spot_latitude: this.state.regionPicked.latitude
-        }
-      }
+        };
+        break;
+      default:
+        break;
     }
-    this.setState(updatedEventWithSpot);
-  }
-
-  updateParticipantMin(item, index) {
-    let updatedEventWithParticipantMin = {
-      ...this.state,
-      event: {
-        ...this.state.event,
-        event: {
-          ...this.state.event.event,
-          participants_min: item
-        }
-      }
-    }
-    this.setState(updatedEventWithParticipantMin);
-  }
-
-  updateParticipantMax(item, index) {
-    let updatedEventWithParticipantMax = {
-      ...this.state,
-      event: {
-        ...this.state.event,
-        event: {
-          ...this.state.event.event,
-          participants_max: item
-        }
-      }
-    }
-    this.setState(updatedEventWithParticipantMax);
-  }
-
-  updateDescription(item, index) {
-    let updatedEventWithDescription = {
-      ...this.state,
-      event: {
-        ...this.state.event,
-        event: {
-          ...this.state.event.event,
-          description: item
-        }
-      }
-    }
-    this.setState(updatedEventWithDescription);
+    if (newProperty == 'WHOLE')
+      newEvent[parentProperty] = newValue;
+    else
+      newEvent[parentProperty][newProperty] = newValue;
+    this.setState({ event: newEvent });
   }
 
 
@@ -542,28 +471,6 @@ class EventScreen extends React.Component {
    ********************************************************************************/
 
 
-  goToLocation(lat, lon) {
-    //Only coming from autoComplete
-    this.setState(
-      {
-        regionPicked: {
-          ...this.state.regionPicked,
-          latitude: lat,
-          longitude: lon,
-        },
-      }
-      , () => {
-        var coordinatesZommed = {
-          latitude: lat,
-          longitude: lon,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
-        }
-        this.mapView.animateToRegion(coordinatesZommed, 1500);
-
-      });
-  }
-
   isOrganizedByMe() {
     return this.state.loggedUser_id == this.state.event.event.host_id;
   }
@@ -591,7 +498,6 @@ class EventScreen extends React.Component {
         return false;
       }
     }
-
     return JSON.stringify(obj) === JSON.stringify({});
   }
 }

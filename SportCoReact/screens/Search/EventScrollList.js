@@ -8,7 +8,7 @@ import {
 import { markerStyles, CARD_WIDTH } from './styles'
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import { mapSportIcon } from "../../helpers/mapper";
-
+import CardEvent from '../../components/CardEvent'
 
 
 export default class EventMarkers extends Component {
@@ -74,31 +74,21 @@ export default class EventMarkers extends Component {
             return (<View />)
         }
         return (
-            <TouchableWithoutFeedback onPress={this.scrollToElement.bind(this, index, true)}>
-                <View style={[markerStyles.card, this.props.currentIndex == index ? markerStyles.borderActive : '']} >
-                    <Image
-                        source={mapSportIcon(item.event.sport).image}
-                        style={markerStyles.cardImage}
-                        resizeMode="cover"
-                    />
-                    <View style={markerStyles.textContent}>
-                        <Text numberOfLines={1} style={markerStyles.cardtitle}>{item.event.title}</Text>
-                        <Text numberOfLines={1} style={markerStyles.cardDescription}>
-                            {item.event.description}
-                        </Text>
-                    </View>
-                </View>
-            </TouchableWithoutFeedback>
+            <CardEvent
+                pressedCard={this.scrollToElement.bind(this, index, true)}
+                item={item}
+                markerActive={this.props.currentIndex == index}
+            />
         )
     }
 
 
     scrollToElement(i = this.props.currentIndex, fromPress = false) {
-        if (fromPress) {
-            this.myScroll.getNode().scrollToOffset({ animated: fromPress, offset: (this.state.currentOffset + (i == 0 ? 0.1 : -0.1)) });
+        if (fromPress && i==this.props.currentIndex) {
+            this.myScroll.getNode().scrollToOffset({ animated: false, offset: (this.state.currentOffset + (i == 0 ? 1 : -1)) });
         }
         if (this.props.markers.length != 0)
-            setTimeout(() => { this.myScroll.getNode().scrollToIndex({ animated: fromPress, index: i }); }, 100);
+            this.myScroll.getNode().scrollToIndex({ animated: fromPress, index: i });
     }
 }
 

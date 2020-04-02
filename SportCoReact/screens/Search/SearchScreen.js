@@ -7,10 +7,11 @@ import ActionButton from 'react-native-action-button';
 import Icon from 'react-native-vector-icons/Ionicons';
 import MCIIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useFocusEffect } from '@react-navigation/native';
-import { styles, CARD_WIDTH, CARD_HEIGHT } from './styles'
+import { styles } from './styles'
 import EventScrollList from './EventScrollList'
 import CustomMapView from './CustomMapView'
 import SportCoApi from '../../services/apiService';
+import {CARD_HEIGHT, CARD_WIDTH} from '../../components/CardEvent'
 
 
 //Effect to get Events at focus (after coming back from events)
@@ -293,6 +294,7 @@ class SearchScreen extends React.Component {
           latitudeDelta: this.state.region.latitudeDelta,
           longitudeDelta:  this.state.region.longitudeDelta,
         };
+
         this.setState({ currentEventIndex: index });
         this.mapViewRef.mapView.animateToRegion(coordinateEvent, 350);
         this.showCallout(index);
