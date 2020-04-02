@@ -3,6 +3,8 @@ import { StyleSheet, View, TouchableWithoutFeedback, Image, Text } from 'react-n
 import { mapSportIcon } from '../helpers/mapper'
 import Layout from '../constants/Layout'
 
+const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+
 
 export const CARD_HEIGHT = Layout.window.height / 4;
 export const CARD_WIDTH = CARD_HEIGHT - 50;
@@ -11,19 +13,34 @@ export default class CardEvent extends React.Component {
 
     render() {
         let item = this.props.item;
+        let date = new Date(item.event.date);
+        var dd = date.getDate();
+        var mm = date.getMonth() + 1;
+        if (dd < 10) {
+            dd = '0' + dd;
+        }
+        if (mm < 10) {
+            mm = '0' + mm;
+        }
+        let dateString = dd + '/' + mm;
+        let time = date.toLocaleTimeString().split(':');
+        let hour = time[0] + 'h' + time[1];
         return (
             <TouchableWithoutFeedback onPress={this.props.pressedCard}>
-                <View style={[markerStyles.card, this.props.markerActive? markerStyles.borderActive : '']} >
+                <View style={[markerStyles.card, this.props.markerActive ? markerStyles.borderActive : '']} >
                     <Image
                         source={mapSportIcon(item.event.sport).image}
                         style={markerStyles.cardImage}
                         resizeMode="cover"
                     />
                     <View style={markerStyles.textContent}>
-                        <Text numberOfLines={1} style={markerStyles.cardtitle}>{item.event.title}</Text>
-                        <Text numberOfLines={1} style={markerStyles.cardDescription}>
-                            {item.event.description}
+                        <Text numberOfLines={1} style={markerStyles.cardtitle}>
+                            {item.event.sport.toUpperCase() + '  ' + dateString + '  ' + hour}
                         </Text>
+                        <Text numberOfLines={1} style={markerStyles.cardDescription}></Text>
+                        <Text numberOfLines={1} style={markerStyles.cardDescription}>{item.event.description}</Text>
+                        <Text numberOfLines={1} style={markerStyles.cardDescription}>
+                            {'Min.' + item.event.participants_min + ', Current. ' + item.participants.length + '/' + item.event.participants_min}</Text>
                     </View>
                 </View>
             </TouchableWithoutFeedback>
@@ -65,7 +82,7 @@ const markerStyles = StyleSheet.create({
         borderWidth: 1
     },
     cardImage: {
-        flex: 3,
+        flex: 2,
         width: "100%",
         height: "100%",
         alignSelf: "center",
