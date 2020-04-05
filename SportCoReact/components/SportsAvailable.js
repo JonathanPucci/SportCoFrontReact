@@ -16,7 +16,7 @@ export default class SportsAvailable extends Component {
     render() {
         return (
             <View >
-                <Text h4 style={styles.name} >Sports</Text>
+                <Text h4 style={styles.name} >Sports {this.props.showStats ? 'Stats' : ''}</Text>
                 <View style={styles.sportLine}>
                     {this.renderSport('basket', 'ios-basketball', 'Ionicons')}
                     {this.renderSport('tennis', 'ios-tennisball', 'Ionicons')}
@@ -41,31 +41,45 @@ export default class SportsAvailable extends Component {
     renderSport(sport, icon, type) {
         return (
             <View >
-                <TouchableWithoutFeedback onPress={() => this.toggleSport(sport)}>
-                    <View style={styles.sport}>
-                        <Text>{sport.charAt(0).toUpperCase() + sport.slice(1)}</Text>
-                        <Icon
-                            name={icon}
-                            type={type}
-                            size={50}
-                            selected={this.isSportSelected(sport)}
-                        />
-                    </View>
-                </TouchableWithoutFeedback>
+                <View style={{ flexDirection: 'row' }}>
+                    <TouchableWithoutFeedback onPress={() => this.toggleSport(sport)}>
+                        <View style={styles.sport}>
+                            <Text>{sport.charAt(0).toUpperCase() + sport.slice(1)}</Text>
+                            <Icon
+                                name={icon}
+                                type={type}
+                                size={50}
+                                selected={this.isSportSelected(sport)}
+                            />
+                        </View>
+                    </TouchableWithoutFeedback>
+                    {this.props.showStats && (
+                        <View style={{ marginLeft: 20, flexDirection: 'column' }}>
+                            <Text>Stats </Text>
+                            <Text>Created : {this.props.stats[sport].created}</Text>
+                            <Text>Joined : {this.props.stats[sport].joined} </Text>
+                            <Text>Level : Not yet... </Text>
+                        </View>
+                    )}
+                </View>
             </View>
         );
     }
 
     isSportSelected(sport) {
-        return this.props.sportsSelected.includes(sport);
+        return this.props.showStats ?
+            (this.props.stats[sport].created != 0 || this.props.stats[sport].joined != 0) :
+            this.props.sportsSelected.includes(sport);
     }
 
     toggleSport(sport) {
-        let newsports = this.props.sportsSelected;
-        this.isSportSelected(sport) ?
-            newsports.splice(newsports.indexOf(sport), 1) :
-            newsports.push(sport);
-        this.props.sportsSelectedChanged(newsports);
+        if (!this.props.showStats) {
+            let newsports = this.props.sportsSelected;
+            this.isSportSelected(sport) ?
+                newsports.splice(newsports.indexOf(sport), 1) :
+                newsports.push(sport);
+            this.props.sportsSelectedChanged(newsports);
+        }
     }
 }
 
@@ -78,10 +92,10 @@ export const styles = StyleSheet.create({
         marginLeft: 30,
     },
     sport: {
-        alignItems:'center'
+        alignItems: 'center'
     },
     sportLine: {
-        marginTop:20,
+        marginTop: 20,
         flexDirection: 'row',
         justifyContent: 'space-around'
     }

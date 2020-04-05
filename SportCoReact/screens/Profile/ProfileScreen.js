@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as firebase from 'firebase';
-import { Image, SafeAreaView, View } from 'react-native';
+import { Image, SafeAreaView, View, RefreshControl } from 'react-native';
 import { Divider, Text, Button } from 'react-native-elements'
 import { Social } from '../../components/social'
 import Icon from '../../components/Icon'
@@ -17,30 +17,46 @@ import SportsAvailable from '../../components/SportsAvailable';
 class ProfileScreen extends React.Component {
 
   state = {
-    user: {},
+    user: undefined,
     sportsSelected: ['Tennis'],
     apiService: new SportCoApi(),
+    refreshing: false
   }
 
   componentDidMount() {
-    let email = this.props.auth.user.email;
-    if (this.props.route.params != undefined)
-      email = this.props.route.params.email;
+    this.getData();
+  }
 
-    this.state.apiService.getSingleEntity('users/email', email)
-      .then(res => {
-        this.setState({
-          user: res.data
-        });
-      })
+  getData() {
+    this.setState({ refreshing: true }, () => {
+      let email = this.props.auth.user.email;
+
+      if (this.props.route.params != undefined)
+        email = this.props.route.params.email;
+
+      this.state.apiService.getSingleEntity('users/email', email)
+        .then(res => {
+          this.state.apiService.getSingleEntity('userstats', res.data.user_id)
+            .then(stats => {
+              this.setState({
+                user: res.data,
+                userstats: stats.data,
+                refreshing: false
+              });
+            });
+        })
+    })
   }
 
   render() {
-    if (this.state.user == {})
+    if (this.state.user == undefined)
       return <View />
     return (
       <View style={styles.container}>
-        <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+        <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}
+          refreshControl={
+            <RefreshControl refreshing={this.state.refreshing} onRefresh={this.getData.bind(this)} />
+          }>
           <SafeAreaView style={styles.container}>
             <View style={styles.basicInfoContainer}>
               <View style={styles.basicInfo}>
@@ -70,6 +86,8 @@ class ProfileScreen extends React.Component {
             <Divider style={styles.divider} />
             <View style={styles.sports}>
               <SportsAvailable
+                showStats={true}
+                stats={this.state.userstats}
                 sportsSelected={this.state.sportsSelected}
                 sportsSelectedChanged={(newsports) => { this.setState({ sportsSelected: newsports }) }} />
             </View>

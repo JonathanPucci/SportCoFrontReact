@@ -42,7 +42,7 @@ class EventScreen extends React.Component {
           participants_max: 2,
           participants_min: 2,
           photo: '',
-          sport: 'default',
+          sport: 'basket',
           spot_id: ''
         },
         host: {
@@ -327,6 +327,11 @@ class EventScreen extends React.Component {
       .then((data) => {
         this.getData();
       })
+    this.apiService.editEntity('userstats',
+      {
+        user_id: this.state.loggedUser_id,
+        statToUpdate: this.state.event.event.sport + '_joined'
+      });
   }
 
   leaveEvent() {
@@ -430,6 +435,11 @@ class EventScreen extends React.Component {
                     }
                   }
                 };
+                this.apiService.editEntity('userstats',
+                  {
+                    user_id: this.state.event.host.user_id,
+                    statToUpdate: this.state.event.event.sport + '_created',
+                  });
                 this.setState(newState, () => { this.getData() });
               })
               .catch((error) => {
