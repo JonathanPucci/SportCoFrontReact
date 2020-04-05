@@ -17,25 +17,27 @@ import SportsAvailable from '../../components/SportsAvailable';
 class ProfileScreen extends React.Component {
 
   state = {
+    user: {},
     sportsSelected: ['Tennis'],
     apiService: new SportCoApi(),
-    userPseudoName: 'Squatman'
   }
 
   componentDidMount() {
-    this.state.apiService.getSingleEntity('users', 1)
+    let email = this.props.auth.user.email;
+    if (this.props.route.params != undefined)
+      email = this.props.route.params.email;
+
+    this.state.apiService.getSingleEntity('users/email', email)
       .then(res => {
-        this.setState({ userPseudoName: res.data.User_Name });
+        this.setState({
+          user: res.data
+        });
       })
   }
 
   render() {
-    let photoURL = '';
-    let displayName = '';
-    if (this.props.auth && this.props.auth.user != null && this.props.auth.user != {}) {
-      photoURL = this.props.auth.user.photoURL + '?type=large&width=500&height=500';
-      displayName = this.props.auth.user.displayName;
-    }
+    if (this.state.user == {})
+      return <View />
     return (
       <View style={styles.container}>
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
@@ -43,7 +45,7 @@ class ProfileScreen extends React.Component {
             <View style={styles.basicInfoContainer}>
               <View style={styles.basicInfo}>
                 <Text h4 style={styles.name}>
-                  {displayName}
+                  {this.state.user.user_name}
                 </Text>
                 <Text h5 style={styles.name}>
                   25 ans
@@ -51,13 +53,18 @@ class ProfileScreen extends React.Component {
                 <Text style={styles.desc}>Developer at DreamTeam & Co.</Text>
               </View>
               <View style={styles.imageContainer}>
-                {photoURL != '' && <Image source={{ uri: photoURL }} style={styles.image} />}
-                {photoURL == '' && <Image source={require('../../assets/images/robot-dev.png')} style={styles.image} />}
+                {this.state.user.photo_url != null ?
+                  (
+                    <Image source={{ uri: this.state.user.photo_url + '?type=large&width=500&height=500' }} style={styles.image} />
+                  ) : (
+                    <Image source={require('../../assets/images/robot-dev.png')} style={styles.image} />
+                  )
+                }
               </View>
             </View>
             <Divider style={styles.divider} />
             <Text style={styles.desc}>
-              {this.state.userPseudoName + ` : As everyone else, need to get out of this containment, let's play a basketball game once it's all over.
+              {`Me : As everyone else, need to get out of this containment, let's play a basketball game once it's all over.
               \rPure squatteur.`}
             </Text>
             <Divider style={styles.divider} />

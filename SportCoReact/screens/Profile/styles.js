@@ -22,6 +22,9 @@ export const styles = StyleSheet.create({
         flexDirection: 'column',
         marginTop: 20
     },
+    name:{
+        marginLeft : 30
+    },
     text: {
         fontSize: 17,
         color: 'rgba(96,100,109, 1)',

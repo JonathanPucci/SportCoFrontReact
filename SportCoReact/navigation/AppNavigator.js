@@ -6,6 +6,7 @@ import BottomTabNavigator from './BottomTabNavigator';
 import LoginScreen from '../screens/Login/LoginScreen';
 import EventScreen from '../screens/Event/Event';
 import {MultiEventScreen} from '../screens/Search/CalloutMultiEvent';
+import ProfileScreen from '../screens/Profile/ProfileScreen';
 
 import { connect } from 'react-redux';
 
@@ -43,6 +44,7 @@ class AppNavigator extends React.Component {
                         }
                               <Stack.Screen name="Event" component={EventScreen} />
                               <Stack.Screen name="Evenements" component={MultiEventScreen} />
+                              <Stack.Screen name="Profile" component={ProfileScreen} />
                     </Stack.Navigator>
                 </NavigationContainer>
             </View>

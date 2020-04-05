@@ -8,6 +8,7 @@ import { mapSportIcon } from '../../helpers/mapper';
 import CustomIcon from '../../components/Icon';
 import { Button, Icon } from 'react-native-elements'
 import { RenderOverlayDateTimePicker, RenderOverlayMinMaxParticipants, RenderOverlayDescription, RenderSaveButton, RenderMapViewPicker } from './OverlaysEventEdition'
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 
 const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
 const roadMapStyle = [
@@ -144,10 +145,12 @@ class EventScreen extends React.Component {
   renderHostHeader(event, photoUrl, eventIcon) {
     return (
       <View style={{ flex: 1, flexDirection: 'row' }}>
-        <View style={styles.imageContainer}>
-          {photoUrl != undefined && <Image source={{ uri: photoUrl + '?type=large&width=500&height=500' }} style={styles.image} />}
-          {photoUrl == undefined && <Image source={require('../../assets/images/robot-dev.png')} style={styles.image} />}
-        </View>
+        <TouchableWithoutFeedback onPress={this.seeHostProfile.bind(this)}>
+          <View style={styles.imageContainer}>
+            {photoUrl != undefined && <Image source={{ uri: photoUrl + '?type=large&width=500&height=500' }} style={styles.image} />}
+            {photoUrl == undefined && <Image source={require('../../assets/images/robot-dev.png')} style={styles.image} />}
+          </View>
+        </TouchableWithoutFeedback>
 
         <View style={{ flex: 1, justifyContent: 'center', marginLeft: 15, flexDirection: 'row' }}>
           <Text style={{ fontSize: 18, flex: 3 }}>Salut ! Moi c'est {event.host.user_name.split(' ')[0]}, on va faire un {event.event.sport}, n'hésite pas à nous rejoindre !</Text>
@@ -223,7 +226,7 @@ class EventScreen extends React.Component {
           stopEditingMapMarker={this.setEditingProperty.bind(this, 'Localisation', false)}
           regionPicked={!isNaN(eventRegion.latitude) ? eventRegion : this.state.regionPicked}
           onRegionChange={(region) => { this.setState({ regionPicked: region }) }}
-          saveLocation={this.setStateProperty.bind(this,'spot','WHOLE',null)}
+          saveLocation={this.setStateProperty.bind(this, 'spot', 'WHOLE', null)}
         />
       </View>
     )
@@ -461,6 +464,10 @@ class EventScreen extends React.Component {
       .then((data) => {
         this.props.navigation.goBack();
       });
+  }
+
+  seeHostProfile() {
+    this.props.navigation.navigate('Profile', { email: this.state.event.host.email });
   }
 
 
