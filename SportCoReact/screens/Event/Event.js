@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ScrollView, Text, View, Image } from 'react-native';
+import { ScrollView, Text, View, Image, RefreshControl } from 'react-native';
 import { connect } from 'react-redux'
 import { styles } from './styles'
 import SportCoApi from '../../services/apiService';
@@ -28,6 +28,7 @@ class EventScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      refreshing: false,
       editing: false,
       isEditingDate: false,
       isEditingParticipantNumbers: false,
@@ -67,7 +68,7 @@ class EventScreen extends React.Component {
       }
     };
     this.apiService = new SportCoApi();
-    this.getData();
+    //this.getData();
   }
 
   componentDidMount() {
@@ -85,7 +86,10 @@ class EventScreen extends React.Component {
         style={styles.container}
         contentContainerStyle={styles.contentContainer}
         keyboardShouldPersistTaps="always"
-      >
+        refreshControl={
+          <RefreshControl refreshing={this.state.refreshing} onRefresh={this.getData.bind(this)} />
+        }>
+
         {this.renderHostHeader(event, photoUrl, eventIcon)}
         <View style={{ flex: 1, alignSelf: 'center', marginTop: 20 }}>
           <View style={styles.descriptionView}>
@@ -281,41 +285,45 @@ class EventScreen extends React.Component {
 
 
   getData() {
-    let event = !this.isEmpty(this.props.route.params.event) ? this.props.route.params.event : this.state.event;
-    let eventId = (event.event.event_id == "") ? -1 : event.event.event_id;
-    this.apiService.getSingleEntity("events", eventId)
-      .then((eventData) => {
-        this.apiService.getSingleEntity("users/email", this.props.auth.user.email)
-          .then((data) => {
-            this.setState({
-              event: eventData.data,
-              loggedUser_id: data.data.user_id,
-              alreadyJoined: this.computeAlreadyJoined(data.data.user_id, eventData.data.participants),
-              editing: false
+    this.setState({ refreshing: true }, () => {
+      let event = !this.isEmpty(this.props.route.params.event) ? this.props.route.params.event : this.state.event;
+      let eventId = (event.event.event_id == "") ? -1 : event.event.event_id;
+      this.apiService.getSingleEntity("events", eventId)
+        .then((eventData) => {
+          this.apiService.getSingleEntity("users/email", this.props.auth.user.email)
+            .then((data) => {
+              this.setState({
+                refreshing: false,
+                event: eventData.data,
+                loggedUser_id: data.data.user_id,
+                alreadyJoined: this.computeAlreadyJoined(data.data.user_id, eventData.data.participants),
+                editing: false
+              });
             });
-          });
-      })
-      .catch((error) => {
-        //Creation flow ongoing
-        this.apiService.getSingleEntity("users/email", this.props.auth.user.email)
-          .then((data) => {
-            let loggedUser_id = data.data.user_id;
-            let newState = {
-              loggedUser_id: loggedUser_id,
-              editing: true,
-              event: {
-                ...this.state.event,
+        })
+        .catch((error) => {
+          //Creation flow ongoing
+          this.apiService.getSingleEntity("users/email", this.props.auth.user.email)
+            .then((data) => {
+              let loggedUser_id = data.data.user_id;
+              let newState = {
+                refreshing: false,
+                loggedUser_id: loggedUser_id,
+                editing: true,
                 event: {
-                  ...this.state.event.event,
-                  host_id: loggedUser_id
-                },
-                host: data.data
+                  ...this.state.event,
+                  event: {
+                    ...this.state.event.event,
+                    host_id: loggedUser_id
+                  },
+                  host: data.data
 
-              }
-            };
-            this.setState(newState);
-          });
-      })
+                }
+              };
+              this.setState(newState);
+            });
+        })
+    });
   }
 
   joinEvent() {
