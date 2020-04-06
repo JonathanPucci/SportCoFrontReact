@@ -56,9 +56,10 @@ export default class SportsAvailable extends Component {
                     {this.props.showStats && (
                         <View style={{ marginLeft: 20, flexDirection: 'column' }}>
                             <Text>Stats </Text>
-                            <Text>Created : {this.props.stats[sport].created}</Text>
-                            <Text>Joined : {this.props.stats[sport].joined} </Text>
-                            <Text>Level : Not yet... </Text>
+                            <View style={{ marginTop: 10, flexDirection: 'column' }}>
+                                <Text>Created : {this.props.stats[sport].created}</Text>
+                                <Text>Joined : {this.props.stats[sport].joined} </Text>
+                            </View>
                         </View>
                     )}
                 </View>

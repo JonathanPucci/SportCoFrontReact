@@ -1,15 +1,17 @@
 import { StyleSheet } from 'react-native';
 import Layout from '../../constants/Layout'
 
+const NotificationHeight = 80;
+
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fafafa',
     width: Layout.window.width,
-    
+
   },
   contentContainer: {
-    margin: 15,
+    // marginTop: 15,
     // borderColor:'green',
     // borderWidth:1
   },
@@ -39,7 +41,15 @@ export const styles = StyleSheet.create({
     alignSelf: 'center',
     marginTop: 1,
   },
-  mapStyle: {
-    height: 200,
+  notificationView: {
+    height: NotificationHeight,
+    width: Layout.window.width,
+    borderBottomWidth:0.5,
+    borderBottomColor:  '#C0C0C0'
+  },
+  divider: {
+    marginTop:1,
+    backgroundColor: '#C0C0C0',
+    width: Layout.window.width,
   },
 });

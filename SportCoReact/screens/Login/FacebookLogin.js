@@ -59,7 +59,7 @@ class FacebookLogin extends React.Component {
           photo_url: user.photoURL,
           email: user.email
         }
-        apiService.getSingleEntity('users/email',userDB.email )
+        apiService.getSingleEntity('users/email', userDB.email)
           .then((data) => {
             apiService
               .editEntity('users/update', userDB)
@@ -68,12 +68,16 @@ class FacebookLogin extends React.Component {
                 loginAction(user);
               });
           })
-          .catch((error)=>{
+          .catch((error) => {
             console.log("User unknown, creating");
             apiService
               .addEntity('users', userDB)
-              .then(data => {
-                loginAction(user);
+              .then((data) => {
+                apiService
+                  .addEntity('userstats', data.data.data)
+                  .then(data => {
+                    loginAction(user);
+                  });
               });
           })
 

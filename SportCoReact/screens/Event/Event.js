@@ -299,12 +299,18 @@ class EventScreen extends React.Component {
                 alreadyJoined: this.computeAlreadyJoined(data.data.user_id, eventData.data.participants),
                 editing: false
               });
+            })
+            .catch((error) => {
+              this.setState({
+                refreshing: false
+              });
             });
         })
         .catch((error) => {
           //Creation flow ongoing
           this.apiService.getSingleEntity("users/email", this.props.auth.user.email)
             .then((data) => {
+
               let loggedUser_id = data.data.user_id;
               let newState = {
                 refreshing: false,
@@ -317,11 +323,15 @@ class EventScreen extends React.Component {
                     host_id: loggedUser_id
                   },
                   host: data.data
-
                 }
               };
               this.setState(newState);
-            });
+            })
+            .catch((error) => {
+              this.setState({
+                refreshing: false
+              });
+            });;
         })
     });
   }
@@ -459,7 +469,6 @@ class EventScreen extends React.Component {
               .then((data) => {
                 this.updateEvent();
               })
-
           }
         })
         .catch((error) => {
@@ -469,7 +478,7 @@ class EventScreen extends React.Component {
     } else {
       //avoid setState as we just want to set in DB and then getData !
       //TODO : check if there's not easier...
-      this.state.event.event.date.setMinutes(this.state.event.event.date.getMinutes() - this.state.event.event.date.getTimezoneOffset());
+      //this.state.event.event.date.setMinutes(this.state.event.event.date.getMinutes() - this.state.event.event.date.getTimezoneOffset());
       this.apiService.editEntity('events', this.state.event.event)
         .then(() => {
           this.getData();
@@ -501,7 +510,7 @@ class EventScreen extends React.Component {
   }
 
   computeAlreadyJoined(userId, participants) {
-    for (let index = 0; index < participants.length;) {
+    for (let index = 0; index < participants.length; index++) {
       const participant = participants[index];
       if (participant.user_id == userId)
         return true;
