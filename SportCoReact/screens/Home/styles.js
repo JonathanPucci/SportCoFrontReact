@@ -30,5 +30,13 @@ export const styles = StyleSheet.create({
     image:{
       height:200,
       width:200
-    }
+    },
+    buttonView:{
+      paddingVertical: 10,
+      backgroundColor: '#2089dc',
+      borderRadius: 10,
+      alignSelf: 'center',
+      width: 150
+    },
+    
   });

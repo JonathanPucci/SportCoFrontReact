@@ -1,11 +1,10 @@
 import * as React from 'react';
-import { Image, Platform, StyleSheet, Text, TouchableOpacity, View, Button } from 'react-native';
+import { Image, Text, View } from 'react-native';
+import { Button, Icon } from 'react-native-elements';
 import { ScrollView } from 'react-native-gesture-handler';
 import { connect } from 'react-redux'
-import { styles, eventCalloutStyles } from './styles'
+import { styles } from './styles'
 
-import Icon from '../../components/Icon'
-import Fade from '../../components/Fade'
 import SportCoApi from '../../services/apiService';
 
 class HomeScreen extends React.Component {
@@ -25,26 +24,27 @@ class HomeScreen extends React.Component {
   }
 
   getData() {
-    this.api.getEntities("spots/coordinates", 
-    { 
-      latitude: 43.591317, 
-      longitude: 7.124781,
-      longitudeDelta : 0.01,
-      latitudeDelta : 0.01
-    })
+    this.api.getEntities("spots/coordinates",
+      {
+        latitude: 43.591317,
+        longitude: 7.124781,
+        longitudeDelta: 0.01,
+        latitudeDelta: 0.01
+      })
       .then(data => {
         console.log(data)
       })
   }
 
-  navigate() {
-    // console.log(this.props.navigation);
-    this.props.navigation.navigate('Event', {
-      event: {}
-    });
+  navigateToSearch() {
+    this.props.navigation.navigate('Search');
   }
 
-  componentDidMount(){
+  navigateToSpotManager(){
+    this.props.navigation.navigate('Profile');
+  }
+
+  componentDidMount() {
     // this.getData();
   }
 
@@ -52,39 +52,51 @@ class HomeScreen extends React.Component {
     return (
       <View style={styles.container}>
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-          <View style={styles.welcomeContainer}>
-            <Text style={styles.text}>HomePage</Text>
-          </View>
+
           <View style={styles.imageContainer}>
             <Image source={require('../../assets/images/logomultisports.png')} style={styles.image} />
           </View>
 
           <View style={styles.welcomeContainer}>
-            <Text style={styles.text}>Test Redux with user info : </Text>
-            {this.props.auth != undefined && this.props.auth.user != undefined && (
-              <View >
-                <Text style={styles.text}>{this.props.auth.user.displayName}</Text>
-              </View>
-            )
-            }
+            <Text style={styles.text}>Welcome to SportCoNow </Text>
+            <Text style={[styles.text, { textDecorationLine: 'underline' }]}>Amazing sport sessions ahead !</Text>
+            <Text style={styles.text}>{`\nFrom this tab, you can help the community \nby adding your favorite spots \nto the database via this button`} </Text>
           </View>
 
-          <Button title={"TestData"} onPress={this.getData.bind(this)} />
-          <Button title={"TestNavigate"} onPress={this.navigate.bind(this)} />
-          <Button title={"Fade"} onPress={() => { this.setState({ isVisible: !this.state.isVisible }) }} />
+          <View style={styles.buttonView}>
+            <Button
+              title={`  Add Spot`}
+              color='white'
+              icon={
+                <Icon
+                  name="map-marker-plus"
+                  type='material-community'
+                  size={20}
+                  color="white"
+                />
+              }
+              onPress={this.navigateToSpotManager.bind(this)}
+            />
+          </View>
 
-          <Fade isVisible={this.state.isVisible}>
-            <View style={{
-              position: "absolute",
-              top: 70,
-              left: 150,
-              paddingVertical: 10,
-              backgroundColor: '#DDD',
-              borderRadius: 10
-            }}>
-              <Button title={"SEARCH HERE"} onPress={() => { }} />
-            </View>
-          </Fade>
+          <View style={styles.welcomeContainer}>
+            <Text style={styles.text}>{`\nThrough this one \nyou can start searching sessions `} </Text>
+          </View>
+
+          <View style={styles.buttonView}>
+            <Button
+              title={"Search"}
+              color='white'
+              icon={
+                <Icon
+                  name="search"
+                  size={20}
+                  color="white"
+                />
+              }
+              onPress={this.navigateToSearch.bind(this)} />
+          </View>
+
         </ScrollView>
       </View>
     );
