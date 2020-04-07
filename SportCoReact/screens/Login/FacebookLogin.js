@@ -38,10 +38,11 @@ class FacebookLogin extends React.Component {
     };
   }
 
-  loginAction(user) {
+  loginAction(user,id) {
     const action = {
       type: USER_LOGGED,
-      value: user
+      value: user,
+      additionalInfo : id
     };
     this.props.dispatch(action);
   }
@@ -60,23 +61,22 @@ class FacebookLogin extends React.Component {
           email: user.email
         }
         apiService.getSingleEntity('users/email', userDB.email)
-          .then((data) => {
+          .then((datauser) => {
             apiService
               .editEntity('users/update', userDB)
               .then(data => {
-                user['user_id'] = data.data.user_id;
-                loginAction(user);
+                loginAction(user,datauser.data.user_id);
               });
           })
           .catch((error) => {
             console.log("User unknown, creating");
             apiService
               .addEntity('users', userDB)
-              .then((data) => {
+              .then((datauser) => {
                 apiService
                   .addEntity('userstats', data.data.data)
                   .then(data => {
-                    loginAction(user);
+                    loginAction(user,datauser.data.user_id);
                   });
               });
           })

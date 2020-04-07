@@ -7,6 +7,35 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import GoogleMapsAutoComplete from "../../components/GoogleMapsAutoComplete"
 import SmoothPicker from "react-native-smooth-picker";
 import Bubble from './Bubble'
+import SportsAvailable from '../../components/SportsAvailable';
+
+export class RenderOverlaySport extends React.Component {
+
+    render() {
+        return (
+            <Overlay
+                isVisible={this.props.isEditingSport}
+                onBackdropPress={this.props.stopEditingSport}
+            >
+                <View style={styles.sports}>
+                    <SportsAvailable
+                        maxOne={true}
+                        sportsSelected={[this.props.sport]}
+                        sportsSelectedChanged={this.onSportChange.bind(this)}
+                    />
+                    <RenderSaveButton
+                        title={`| That's better?`}
+                        callback={this.props.saveSport}
+                    />
+                </View>
+            </Overlay>
+        )
+    }
+
+    onSportChange(newsports){
+        this.props.onSportChange(newsports[0]);
+    }
+}
 
 export class RenderOverlayDateTimePicker extends React.Component {
 

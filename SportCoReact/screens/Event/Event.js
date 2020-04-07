@@ -7,7 +7,7 @@ import MapView from 'react-native-maps';
 import { mapSportIcon } from '../../helpers/mapper';
 import CustomIcon from '../../components/Icon';
 import { Button, Icon } from 'react-native-elements'
-import { RenderOverlayDateTimePicker, RenderOverlayMinMaxParticipants, RenderOverlayDescription, RenderSaveButton, RenderMapViewPicker } from './OverlaysEventEdition'
+import { RenderOverlayDateTimePicker, RenderOverlayMinMaxParticipants, RenderOverlayDescription, RenderSaveButton, RenderMapViewPicker, RenderOverlaySport } from './OverlaysEventEdition'
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 
 const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -30,6 +30,7 @@ class EventScreen extends React.Component {
     this.state = {
       refreshing: false,
       editing: false,
+      isEditingSport: false,
       isEditingDate: false,
       isEditingParticipantNumbers: false,
       isEditingDescription: false,
@@ -158,7 +159,7 @@ class EventScreen extends React.Component {
 
         <View style={{ flex: 1, justifyContent: 'center', marginLeft: 15, flexDirection: 'row' }}>
           <Text style={{ fontSize: 18, flex: 3 }}>Salut ! Moi c'est {event.host.user_name.split(' ')[0]}, on va faire un {event.event.sport}, n'hésite pas à nous rejoindre !</Text>
-          <View style={{ flex: 1, flexDirection: 'row', marginLeft: 20 }}>
+          <View style={{ flex: 1, flexDirection: 'column' }}>
             <CustomIcon
               name={eventIcon.iconName}
               type={eventIcon.iconFamily}
@@ -166,6 +167,23 @@ class EventScreen extends React.Component {
               style={{ alignSelf: 'center', flex: 1 }}
               selected={true}
             />
+            {this.state.editing && (
+              <Icon
+                raised
+                name='edit'
+                type='font-awesome'
+                color='orange'
+                size={15}
+                style={{ bottom: -20, right: -20 }}
+                onPress={this.setEditingProperty.bind(this, 'Sport', true)} />
+            )}
+           <RenderOverlaySport
+                isEditingSport={this.state.isEditingSport}
+                stopEditingSport={() => { this.setState({ isEditingSport: false }) }}
+                sport={this.state.event.event.sport}
+                onSportChange={this.setStateProperty.bind(this, 'event', 'sport')}
+                saveSport={this.setEditingProperty.bind(this, 'Sport', false)}
+              />
           </View>
         </View>
 
@@ -213,6 +231,7 @@ class EventScreen extends React.Component {
               rotateEnabled={false}
               zoomEnabled={true}
               scrollEnabled={false}
+              showsUserLocation={true}
               initialRegion={eventRegion}
               provider={"google"}
               customMapStyle={roadMapStyle}>
@@ -369,6 +388,9 @@ class EventScreen extends React.Component {
 
   setEditingProperty(property, doneornot) {
     switch (property) {
+      case 'Sport':
+        this.setState({ isEditingSport: doneornot })
+        break;
       case 'Date':
         this.setState({ isEditingDate: doneornot })
         break;
@@ -479,6 +501,10 @@ class EventScreen extends React.Component {
       //avoid setState as we just want to set in DB and then getData !
       //TODO : check if there's not easier...
       //this.state.event.event.date.setMinutes(this.state.event.event.date.getMinutes() - this.state.event.event.date.getTimezoneOffset());
+
+      this.state.event.event['reason_for_update'] = 'EVENT_CHANGED';
+      this.state.event.event['data_name'] = 'event_id';
+
       this.apiService.editEntity('events', this.state.event.event)
         .then(() => {
           this.getData();

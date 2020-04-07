@@ -74,7 +74,10 @@ export default class SportsAvailable extends Component {
     }
 
     toggleSport(sport) {
-        if (!this.props.showStats) {
+        if(this.props.maxOne){
+            this.props.sportsSelectedChanged([sport]);
+        }
+        else  if (!this.props.showStats) {
             let newsports = this.props.sportsSelected;
             this.isSportSelected(sport) ?
                 newsports.splice(newsports.indexOf(sport), 1) :

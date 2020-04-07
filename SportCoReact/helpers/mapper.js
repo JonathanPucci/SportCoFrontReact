@@ -19,6 +19,11 @@ const MAP_SPORT_ICON = {
         iconName: 'volleyball',
         iconFamily: 'MaterialCommunityIcons'
     },
+    beachvolley: {
+        image: require('../assets/images/volley.jpg'),
+        iconName: 'volleyball',
+        iconFamily: 'MaterialCommunityIcons'
+    },
     tennis: {
         image: require('../assets/images/tennis.jpg'),
         iconName: 'ios-tennisball',
@@ -26,7 +31,7 @@ const MAP_SPORT_ICON = {
     },
     running: {
         image: require('../assets/images/running.jpg'),
-        iconName: 'ios-run',
+        iconName: 'run',
         iconFamily: 'MaterialCommunityIcons'
     },
     workout: {

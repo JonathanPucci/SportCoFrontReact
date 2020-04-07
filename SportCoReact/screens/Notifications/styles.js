@@ -2,6 +2,8 @@ import { StyleSheet } from 'react-native';
 import Layout from '../../constants/Layout'
 
 const NotificationHeight = 80;
+const marginLeftFromIcon = 30;
+export const iconSize = 40;
 
 export const styles = StyleSheet.create({
   container: {
@@ -44,11 +46,47 @@ export const styles = StyleSheet.create({
   notificationView: {
     height: NotificationHeight,
     width: Layout.window.width,
-    borderBottomWidth:0.5,
-    borderBottomColor:  '#C0C0C0'
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#C0C0C0',
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  notifDescription: {
+    flexDirection: 'column',
+    marginLeft: marginLeftFromIcon,
+    justifyContent: 'center'
+  },
+  descriptionText: {
+    flexDirection: 'row',
+    width: Layout.window.width -150
+  },
+  notifDate:{ 
+    position: 'absolute', 
+    top : NotificationHeight -20,
+    left : marginLeftFromIcon + iconSize + 10
+  },
+  notifDateText:{
+    fontSize:11
+  },
+  eventInfo:{ 
+    position : 'absolute', 
+    right : 30,
+    flexDirection: 'column', 
+    alignItems: 'center' 
+  },
+  image: {
+    alignSelf: 'center',
+    height: 30,
+    width: 30,
+    borderWidth: 1,
+    borderRadius: 10,
+
+  },
+  imageContainer : {
+    alignSelf:'flex-start',
   },
   divider: {
-    marginTop:1,
+    marginTop: 1,
     backgroundColor: '#C0C0C0',
     width: Layout.window.width,
   },
