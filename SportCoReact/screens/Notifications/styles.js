@@ -49,12 +49,11 @@ export const styles = StyleSheet.create({
     borderBottomWidth: 0.5,
     borderBottomColor: '#C0C0C0',
     flexDirection: 'row',
-    alignItems: 'center'
   },
   notifDescription: {
     flexDirection: 'column',
     marginLeft: marginLeftFromIcon,
-    justifyContent: 'center'
+    marginTop:10
   },
   descriptionText: {
     flexDirection: 'row',

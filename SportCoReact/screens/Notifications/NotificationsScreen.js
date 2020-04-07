@@ -113,7 +113,7 @@ class NotificationsScreen extends React.Component {
                 <View
                   style={styles.notificationView}>
 
-                  <View style={{ marginLeft: 10, }}>
+                  <View style={{ alignSelf: 'center',marginLeft:10 }}>
                     {this.renderIcon(item)}
                   </View>
                   <View style={styles.notifDescription}>
