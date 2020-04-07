@@ -177,13 +177,13 @@ class EventScreen extends React.Component {
                 style={{ bottom: -20, right: -20 }}
                 onPress={this.setEditingProperty.bind(this, 'Sport', true)} />
             )}
-           <RenderOverlaySport
-                isEditingSport={this.state.isEditingSport}
-                stopEditingSport={() => { this.setState({ isEditingSport: false }) }}
-                sport={this.state.event.event.sport}
-                onSportChange={this.setStateProperty.bind(this, 'event', 'sport')}
-                saveSport={this.setEditingProperty.bind(this, 'Sport', false)}
-              />
+            <RenderOverlaySport
+              isEditingSport={this.state.isEditingSport}
+              stopEditingSport={() => { this.setState({ isEditingSport: false }) }}
+              sport={this.state.event.event.sport}
+              onSportChange={this.setStateProperty.bind(this, 'event', 'sport')}
+              saveSport={this.setEditingProperty.bind(this, 'Sport', false)}
+            />
           </View>
         </View>
 
@@ -513,6 +513,9 @@ class EventScreen extends React.Component {
   }
 
   cancelEvent() {
+    this.state.event.event['reason_for_update'] = 'EVENT_CANCELED';
+    this.state.event.event['data_name'] = 'event_id';
+
     this.apiService.deleteEntity('events', this.state.event.event)
       .then((data) => {
         this.props.navigation.goBack();

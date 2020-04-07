@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Text, View, Image, TouchableWithoutFeedback } from 'react-native';
+import { Text, View, Image, TouchableWithoutFeedback, RefreshControl, Button } from 'react-native';
 import { Divider } from 'react-native-elements'
 
 import { ScrollView } from 'react-native-gesture-handler';
@@ -16,6 +16,7 @@ class NotificationsScreen extends React.Component {
   constructor() {
     super()
     this.state = {
+      refreshing: false,
       loading: true,
       notificationHistory: [],
       eventsInNotifications: [],
@@ -25,24 +26,47 @@ class NotificationsScreen extends React.Component {
   }
 
   componentDidMount() {
+    this.getData();
+  }
+
+  getData() {
+    this.setState({ loading: true, refreshing: true, notificationHistory: [], eventsInNotificationsSoFar: [] },
+      this.doGetData.bind(this));
+  }
+
+  doGetData() {
     this.apiService.getSingleEntity('users/notifications', this.props.auth.user_id)
       .then((notifData) => {
         if (notifData.data.length == 0)
-          this.setState({ notificationHistory: [{ message_type: 'EMPTY_NOTIFS' }], loading: false });
+          this.setState({ loading: false });
         else
           for (let index = 0; index < notifData.data.length; index++) {
             const notif = notifData.data[index];
-            this.apiService.getSingleEntity('events', notif.data_value)
-              .then((eventData) => {
-                let event = eventData.data;
-                let events = this.state.eventsInNotificationsSoFar;
-                events.push(event);
-                this.setState({ eventsInNotificationsSoFar: events }, this.checkIfAllEventsRetrieved.bind(this, notifData.data));
-              })
+            if (notif.message_type === 'EVENT_CANCELED') {
+              let events = this.state.eventsInNotificationsSoFar;
+              let event = { isCanceled: true, event: notif.data_value };
+              events.push(event);
+              this.setState({ eventsInNotificationsSoFar: events }, this.checkIfAllEventsRetrieved.bind(this, notifData.data));
+            } else {
+              this.apiService.getSingleEntity('events', notif.data_value)
+                .then((eventData) => {
+                  let event = eventData.data;
+                  event.isCanceled = false;
+                  let events = this.state.eventsInNotificationsSoFar;
+                  events.push(event);
+                  this.setState({ eventsInNotificationsSoFar: events }, this.checkIfAllEventsRetrieved.bind(this, notifData.data));
+                })
+                .catch((err) => {
+                  let event = { isCanceled: true, event: {} };
+                  let events = this.state.eventsInNotificationsSoFar;
+                  events.push(event);
+                  this.setState({ eventsInNotificationsSoFar: events }, this.checkIfAllEventsRetrieved.bind(this, notifData.data));
+                });
+            }
           }
       })
       .catch((err) => {
-        this.setState({ loading: false });
+        this.setState({ loading: false, refreshing: false });
       });
   }
 
@@ -50,6 +74,7 @@ class NotificationsScreen extends React.Component {
     if (this.state.eventsInNotificationsSoFar.length == notifData.length) {
       this.setState({
         loading: false,
+        refreshing: false,
         eventsInNotifications: this.state.eventsInNotificationsSoFar,
         notificationHistory: notifData
       });
@@ -63,21 +88,26 @@ class NotificationsScreen extends React.Component {
           <Text>Loading...</Text>
         </View>
       )
-    if (this.state.notificationHistory[0].message_type == 'EMPTY_NOTIFS')
+    if (this.state.notificationHistory.length == 0)
       return (
         <View style={{ marginTop: 100, alignSelf: 'center', justifyContent: 'center', alignItems: 'center' }}>
           <Text>No Notifications yet...</Text>
           <Text>Join an event or create one !</Text>
+          <Button onPress={this.getData.bind(this)} title='Refresh' />
         </View>
       )
     return (
-      <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+      <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}
+        refreshControl={
+          <RefreshControl refreshing={this.state.refreshing} onRefresh={this.getData.bind(this)} />
+        }>
         <Divider style={styles.divider} />
         {
           this.state.notificationHistory.map((item, index) => {
             let event = this.getEventFromNotif(item);
+            let isCanceled = event == null;
             return (
-              <TouchableWithoutFeedback onPress={this.goToEvent.bind(this, event)}
+              <TouchableWithoutFeedback onPress={this.goToEvent.bind(this, event, isCanceled)}
                 key={'keyHistory-' + index}
                 style={styles.notificationView}>
                 <View
@@ -89,7 +119,7 @@ class NotificationsScreen extends React.Component {
                   <View style={styles.notifDescription}>
                     {this.renderDescriptionText(item, event)}
                   </View>
-                  {this.renderEventInfo(item, event)}
+                  {this.renderEventInfo(event, isCanceled)}
 
                   <View style={styles.notifDate}>
                     <Text style={styles.notifDateText}>{this.timeSince(new Date(item.date))}</Text>
@@ -103,14 +133,14 @@ class NotificationsScreen extends React.Component {
     );
   }
 
-  renderIcon(notif) {
+  renderIcon(notif, size = undefined) {
     switch (notif.message_type) {
       case 'EVENT_CHANGED':
         return (
           <CustomIcon
             type='Entypo'
             name='new-message'
-            size={iconSize}
+            size={size == undefined ? iconSize : size}
           />
         )
       case 'NEW_EVENT':
@@ -118,7 +148,7 @@ class NotificationsScreen extends React.Component {
           <CustomIcon
             type='Entypo'
             name='new'
-            size={iconSize}
+            size={size == undefined ? iconSize : size}
           />
         )
       case 'EVENT_CANCELED':
@@ -126,7 +156,7 @@ class NotificationsScreen extends React.Component {
           <CustomIcon
             type='Entypo'
             name='circle-with-cross'
-            size={iconSize}
+            size={size == undefined ? iconSize : size}
           />
         )
       default:
@@ -136,10 +166,12 @@ class NotificationsScreen extends React.Component {
 
   renderDescriptionText(notif, event) {
     let messageBody = '';
-    let emojiName = ''
+    let emojiName = '';
+    let additionalInfo = '';
+
     switch (notif.message_type) {
       case 'EVENT_CHANGED':
-        messageBody = '  Event has changed, check it out !';
+        messageBody = ` Event has changed, check it out !`;
         emojiName = 'man-raising-hand';
         break
       case 'NEW_EVENT':
@@ -147,23 +179,44 @@ class NotificationsScreen extends React.Component {
         emojiName = 'man-bowing';
         break
       case 'EVENT_CANCELED':
-        messageBody = '  Event has been canceled, sorry !';
+        let eventData = JSON.parse(notif.data_value);
+        let dateString = (new Date(eventData.date).toLocaleDateString()); 
+        // let sport = eventData.sport.charAt(0).toUpperCase() + eventData.sport.slice(1)
+        messageBody = `  Event has been canceled, sorry !`;
+        additionalInfo =  dateString + ' : ' + eventData.description + `\n`+  eventData.sport.toUpperCase() ;
         emojiName = 'man-shrugging';
         break
       default:
         break;
     }
     return (
-      <View style={styles.descriptionText}>
-        <Emoji name={emojiName} style={{ fontSize: 15 }} />
-        <Text >{messageBody}</Text>
+      <View style={{ flexDirection: 'column' }}>
+        <View style={styles.descriptionText}>
+          <Emoji name={emojiName} style={{ fontSize: 15 }} />
+          <Text numberOfLines={1} style={{ flex: 1 }}>{messageBody}</Text>
+        </View>
+        {additionalInfo != '' &&
+          <Text numberOfLines={2} style={{ fontSize: 11 }}>{additionalInfo}</Text>
+        }
       </View>
+
     )
   }
 
-  renderEventInfo(item, event) {
+  renderEventInfo(event, isCanceled) {
+    if (isCanceled)
+      return (
+        <View style={[styles.eventInfo, { right: 10 }]}>
+          {this.renderIcon({ message_type: 'EVENT_CANCELED' }, iconSize / 2)}
+          <Text style={{ fontSize: 10, textAlign: 'center', justifyContent: 'center' }}>
+            {`Event has been \ncanceled\nor does not\nexist anymore`}
+          </Text>
+        </View>
+      )
+
     let iconSport = mapSportIcon(event.event.sport);
     let photoUrl = event.host.photo_url;
+
     return (
       <View style={styles.eventInfo}>
         <View style={styles.imageContainer}>
@@ -180,24 +233,26 @@ class NotificationsScreen extends React.Component {
           style={{ alignSelf: 'center' }}
           selected={false}
         />
-
       </View>
     )
   }
 
   getEventFromNotif(notif) {
+    if (notif.message_type == 'EVENT_CANCELED')
+      return null;
     for (let index = 0; index < this.state.eventsInNotifications.length; index++) {
       const event = this.state.eventsInNotifications[index];
-      if (event.event.event_id == notif.data_value)
+      if (!event.isCanceled && event.event.event_id == notif.data_value)
         return event;
     }
     return null;
   }
 
   goToEvent(event) {
-    this.props.navigation.navigate('Event', {
-      event: event
-    });
+    if (event != null)
+      this.props.navigation.navigate('Event', {
+        event: event
+      });
   }
 
 
