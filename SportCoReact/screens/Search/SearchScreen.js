@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { View, Animated, Text } from 'react-native';
-import { Overlay, Button } from 'react-native-elements'
+import { Overlay, Button, Icon } from 'react-native-elements'
 import { connect } from 'react-redux'
 import GoogleMapsAutoComplete from "../../components/GoogleMapsAutoComplete"
 import Fade from "../../components/Fade"
 import ActionButton from 'react-native-action-button';
-import Icon from 'react-native-vector-icons/Ionicons';
+import IonIcon from 'react-native-vector-icons/Ionicons';
 import MCIIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useFocusEffect } from '@react-navigation/native';
 import { styles } from './styles'
@@ -179,6 +179,7 @@ class SearchScreen extends React.Component {
         <GoogleMapsAutoComplete
           handler={this.goToLocation.bind(this)}
         />
+
         <View style={styles.mapContainer}>
           <CustomMapView
             ref={(ref) => { this.mapViewRef = ref }}
@@ -193,14 +194,25 @@ class SearchScreen extends React.Component {
             navigation={this.props.navigation}
             pressedMap={this.pressedMap.bind(this)}
           />
-          <Fade isVisible={this.state.optionsVisible} style={styles.searchButton} >
-            <View>
-              <Button title={"SEARCH HERE"} onPress={this.pressedSearchHere.bind(this)} />
-            </View>
-          </Fade>
-          <Fade isVisible={this.state.optionsVisible} style={styles.searchButton} >
+          <Fade isVisible={this.state.optionsVisible} style={styles.actionButton} >
             {this.renderActionButton()}
           </Fade>
+          <Fade isVisible={this.state.optionsVisible} style={styles.searchButton} >
+            <View>
+              <Button
+                title={"  Search Here  "}
+                color='white'
+                icon={
+                  <Icon
+                    name="search"
+                    size={20}
+                    color="white"
+                  />
+                }
+                onPress={this.pressedSearchHere.bind(this)} />
+            </View>
+          </Fade>
+
           <EventScrollList
             ref={(ref) => this.myEventScrollList = ref}
             animation={this.animation}
@@ -231,40 +243,38 @@ class SearchScreen extends React.Component {
 
   renderActionButton() {
     return (
-      <View style={styles.actionButton}>
-        <ActionButton
-          buttonColor="rgba(231,76,60,1)"
-          ref={(ref) => this.actionButton = ref}
-          verticalOrientation="down"
-          position='center'
-          renderIcon={() => <Icon name="md-create" style={styles.actionButtonIcon} />}
-          active={this.state.isActionButtonActive}
+      <ActionButton
+        buttonColor="#2089dc"
+        ref={(ref) => this.actionButton = ref}
+        verticalOrientation="up"
+        position='center'
+        renderIcon={() => <IonIcon name="md-create" style={styles.actionButtonIcon} />}
+        active={this.state.isActionButtonActive}
+        onPress={() => {
+          this.setState({ isActionButtonActive: true },
+            () => {
+              setTimeout(() => { this.actionButton.reset() }, 2500)
+            })
+        }}
+      >
+        <ActionButton.Item
+          buttonColor='#43bcff'
+          offsetX={0}
           onPress={() => {
-            this.setState({ isActionButtonActive: true },
-              () => {
-                setTimeout(() => { this.actionButton.reset() }, 2500)
-              })
-          }}
-        >
-          <ActionButton.Item
-            buttonColor='#9b59b6'
-            offsetX={60}
-            onPress={() => {
-              this.props.navigation.navigate('Event', {
-                event: {}
-              });
-            }}>
-            <Icon name="md-add" style={styles.actionButtonIcon} />
-          </ActionButton.Item>
-          <ActionButton.Item
-            offsetX={60}
-            buttonColor='#3498db'
-            onPress={() => { this.setState({ isChoosingAFilter: true }) }}>
-            <MCIIcon name="filter" style={styles.actionButtonIcon} />
-          </ActionButton.Item>
+            this.props.navigation.navigate('Event', {
+              event: {}
+            });
+          }}>
+          <IonIcon name="md-add" style={styles.actionButtonIcon} />
+        </ActionButton.Item>
+        <ActionButton.Item
+          offsetX={0}
+          buttonColor='#43bcff'
+          onPress={() => { this.setState({ isChoosingAFilter: true }) }}>
+          <MCIIcon name="filter" style={styles.actionButtonIcon} />
+        </ActionButton.Item>
 
-        </ActionButton>
-      </View >
+      </ActionButton>
     );
 
   }

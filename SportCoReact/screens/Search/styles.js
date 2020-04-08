@@ -40,15 +40,16 @@ export const styles = StyleSheet.create({
     position: "absolute",
     top: 70,
     left: Layout.window.width/2 - 75,
-    paddingVertical: 10,
-    borderRadius:10
+    borderRadius:10,
+    marginTop:10
   },
   actionButton:{
-    bottom: 40,
-    right: 120,
-    paddingVertical: 10,
+    position: "absolute",
+    bottom: CARD_HEIGHT + 130,
+    left: 20,
     backgroundColor:'white',
-    borderRadius:10
+    borderRadius:10,
+    marginTop:10,
   },
   actionButtonIcon: {
     fontSize: 20,
@@ -123,9 +124,9 @@ export const markerStyles = StyleSheet.create({
     borderRadius: 5,
   },
   ring: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
     backgroundColor: "rgba(59, 118, 255 , 0.3)",
     position: "absolute",
     borderWidth: 1,

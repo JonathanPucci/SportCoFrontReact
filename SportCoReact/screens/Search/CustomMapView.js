@@ -46,7 +46,7 @@ export default class CustomMapView extends React.Component {
                                     ref={(refCallout) => { this['callout' + index] = refCallout }}
                                     onPress={() => { this.pressedEvent(index) }}
                                 >
-                                    <Text>ERR</Text>
+                                    <Text>ERROR SORRY</Text>
                                 </Marker>)
                             }
                             return (
@@ -59,14 +59,14 @@ export default class CustomMapView extends React.Component {
                                     <Animated.View style={[markerStyles.markerWrap, this.calculateOpacityStyle(index)]}>
                                         <Animated.View style={[markerStyles.ring, this.calculateScaleStyle(index)]} />
                                         {cluster.isInACluster ? (
-                                            <Image source={require('../../assets/images/multiPinIcon.png')}
-                                                style={{ height: 40, resizeMode: 'contain', bottom: 18, left: 0.5 }}
+                                            <Image source={require('../../assets/images/map-multiEvent.gif')}
+                                                style={{ width: 33, resizeMode: 'contain', bottom: 18, left: 0.5 }}
                                             />
                                         )
                                             :
                                             (
-                                                <Image source={require('../../assets/images/pinIcon.png')}
-                                                    style={{ height: 40, resizeMode: 'contain', bottom: 18, left: 0.5 }}
+                                                <Image source={require('../../assets/images/map-pointer.gif')}
+                                                    style={{ width: 30, resizeMode: 'contain', bottom: 18, left: 0.5 }}
                                                 />
                                             )
                                         }
