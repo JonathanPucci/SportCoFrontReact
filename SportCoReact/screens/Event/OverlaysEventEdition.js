@@ -8,6 +8,7 @@ import GoogleMapsAutoComplete from "../../components/GoogleMapsAutoComplete"
 import SmoothPicker from "react-native-smooth-picker";
 import Bubble from './Bubble'
 import SportsAvailable from '../../components/SportsAvailable';
+import SportCoApi from '../../services/apiService';
 
 export class RenderOverlaySport extends React.Component {
 
@@ -197,7 +198,35 @@ export class RenderOverlayMinMaxParticipants extends React.Component {
     }
 }
 
-export class RenderMapViewPicker extends React.Component {
+export class RenderMapViewSpotPicker extends React.Component {
+
+    constructor() {
+        super();
+        this.state = {
+            spots: []
+        }
+        this.apiService = new SportCoApi();
+    }
+
+
+    componentDidMount() {
+        this.getData();
+    }
+
+    getData() {
+        this.setState({ loading: true, refreshing: true, spots: [] },
+            this.doGetData.bind(this));
+    }
+
+    doGetData() {
+        this.apiService.getAllEntities('spots')
+            .then((spotsData) => {
+                this.setState({ loading: false, refreshing: false, spots: spotsData.data });
+            })
+            .catch((err) => {
+                this.setState({ loading: false, refreshing: false });
+            });
+    }
 
     render() {
         return (
@@ -216,17 +245,45 @@ export class RenderMapViewPicker extends React.Component {
                                     zoomEnabled={true}
                                     followUserLocation={true}
                                     showsUserLocation={true}
-                                    onRegionChange={this.props.onRegionChange}
+                                    onRegionChange={(region) => {
+                                        this.props.onRegionChange(region);
+                                        this.setState({ markerRegion: region });
+                                    }}
                                     ref={ref => { this.mapView = ref; }}
                                 >
-
                                     <MapView.Marker
-                                        coordinate={this.props.regionPicked}
+                                        coordinate={this.state.markerRegion == undefined ?
+                                            this.props.regionPicked : this.state.markerRegion}
                                     >
                                     </MapView.Marker>
+                                    {this.state.spots.map((spot, index) => {
+                                        let spotCoords = {
+                                            latitude: parseFloat(spot.spot_latitude),
+                                            longitude: parseFloat(spot.spot_longitude),
+                                        }
+                                        if (spotCoords.latitude == undefined || isNaN(spotCoords.latitude))
+                                            return <View key={'markerKey' + index} />
+                                        return (
+                                            <MapView.Marker
+                                                key={'markerKey' + index}
+                                                coordinate={spotCoords}
+                                                pinColor={'blue'}
+                                                onPress={() => {
+                                                    let newRegion =  {
+                                                        longitude: spot.spot_longitude,
+                                                        latitude: spot.spot_latitude
+                                                    };
+                                                    this.props.onRegionChange(newRegion);
+                                                    this.setState({ markerRegion: newRegion });
+                                                }}
+                                            />
+                                        )
+                                    })
+
+                                    }
                                 </MapView>
                             )}
-                        <Text style={{ marginTop: 50, textAlign: 'center', fontSize: 20 }}>Choisis un bon spot pour ton évènement !</Text>
+                        <Text style={{ marginTop: 50, textAlign: 'center', fontSize: 20 }}>Choose a spot or drag to create a new one !</Text>
 
                     </View>
                     <RenderSaveButton

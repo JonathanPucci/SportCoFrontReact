@@ -37,7 +37,7 @@ export const styles = StyleSheet.create({
     marginTop: 1,
   },
   mapStyle: {
-    height: 200,
+    height: 400,
   },
   image: {
     alignSelf: 'center',

@@ -6,7 +6,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { styles } from './styles'
 import MapView from 'react-native-maps';
 import GoogleMapsAutoComplete from "../../components/GoogleMapsAutoComplete"
-import { RenderMapViewPicker } from '../Event/OverlaysEventEdition'
+import { RenderMapViewSpotPicker } from '../Event/OverlaysEventEdition'
 import { ScrollView } from 'react-native-gesture-handler';
 import SportCoApi from '../../services/apiService';
 import { connect } from 'react-redux'
@@ -81,7 +81,7 @@ class SpotManager extends React.Component {
     }
 
     getData() {
-        this.setState({ loading: true, refreshing: true, notificationHistory: [] },
+        this.setState({ loading: true, refreshing: true, spots: [] },
             this.doGetData.bind(this));
     }
 
@@ -94,9 +94,6 @@ class SpotManager extends React.Component {
                 this.setState({ loading: false, refreshing: false });
             });
     }
-
-
-
 
     getFieldsOfSpot() {
         this.apiService.getSingleEntity('fieldspot', this.state.selectedSpot.spot_id)
@@ -134,12 +131,13 @@ class SpotManager extends React.Component {
                             region={this.state.region}
                             spots={this.state.spots}
                         />
-                        <RenderMapViewPicker
+                        <RenderMapViewSpotPicker
                             isVisible={this.state.isPickingPlace}
                             stopEditingMapMarker={() => this.setState({ isPickingPlace: false })}
                             regionPicked={this.state.region}
                             onRegionChange={(region) => { this.setState({ region: region }) }}
                             saveLocation={this.pickedSpotCoords.bind(this)}
+                            selectedSpot={this.pickedSpotCoords.bind(this)}
                         />
                         <View style={{ position: 'absolute', top: 70, left: 10 }}>
                             <EventIcon name='plus' color='purple' callback={this.addNewSpot.bind(this)} />
@@ -218,13 +216,24 @@ class SpotManager extends React.Component {
     }
 
 
-    pickedSpotCoords() {
+    pickedSpotCoords(spotSelected = undefined) {
         let region = this.state.region;
         let selectedSpot = {
             ...this.state.selectedSpot,
             spot_latitude: region.latitude,
             spot_longitude: region.longitude,
         };
+        console.log(spotSelected);
+        if (spotSelected != undefined) {
+            this.setState({
+                selectedIndex: - 1,
+                isPickingPlace: false
+            });
+        }
+        if (spotSelected != undefined)
+            return;
+
+
         let spots = this.state.spots;
         spots[this.state.spots.length - 1] = selectedSpot;
         this.setState({

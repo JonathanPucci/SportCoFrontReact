@@ -7,7 +7,7 @@ import MapView from 'react-native-maps';
 import { mapSportIcon } from '../../helpers/mapper';
 import CustomIcon from '../../components/Icon';
 import { Button, Icon } from 'react-native-elements'
-import { RenderOverlayDateTimePicker, RenderOverlayMinMaxParticipants, RenderOverlayDescription, RenderSaveButton, RenderMapViewPicker, RenderOverlaySport } from './OverlaysEventEdition'
+import { RenderOverlayDateTimePicker, RenderOverlayMinMaxParticipants, RenderOverlayDescription, RenderSaveButton, RenderMapViewSpotPicker, RenderOverlaySport } from './OverlaysEventEdition'
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 
 const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -34,7 +34,7 @@ class EventScreen extends React.Component {
       isEditingDate: false,
       isEditingParticipantNumbers: false,
       isEditingDescription: false,
-      isEditingMapMarker: false,
+      isEditingMapMarker: true,
       event: {
         event: {
           date: new Date(),
@@ -62,18 +62,43 @@ class EventScreen extends React.Component {
         participants: []
       },
       regionPicked: {
-        latitude: 43.59,
-        longitude: 7.1,
-        latitudeDelta: 0.08,
-        longitudeDelta: 0.08
-      }
+       
+      },
+      initialRegion: {}
     };
     this.apiService = new SportCoApi();
     //this.getData();
   }
 
   componentDidMount() {
-    this.getData();
+    this.watchId = navigator.geolocation.watchPosition(
+      this.setCurrentPosition.bind(this),
+      () => { console.log('setPosError') },
+      {
+        enableHighAccuracy: true,
+        timeout: 1000,
+        maximumAge: 0
+      }
+
+    );
+  }
+
+  setCurrentPosition(position) {
+    navigator.geolocation.clearWatch(this.watchId);
+    let region = {
+      latitude: position.coords.latitude,
+      longitude: position.coords.longitude,
+      latitudeDelta: 0.08,
+      longitudeDelta: 0.08
+    };
+    this.setState(
+      {
+        ...this.state,
+        initialRegion: region,
+        regionPicked: region
+      }, () => {
+        this.getData()
+      });
   }
 
 
@@ -244,12 +269,13 @@ class EventScreen extends React.Component {
           ) :
             <Text>Choisissez une localisation</Text>}
         </View>
-        <RenderMapViewPicker
+        <RenderMapViewSpotPicker
           isVisible={this.state.isEditingMapMarker}
           stopEditingMapMarker={this.setEditingProperty.bind(this, 'Localisation', false)}
           regionPicked={!isNaN(eventRegion.latitude) ? eventRegion : this.state.regionPicked}
           onRegionChange={(region) => { this.setState({ regionPicked: region }) }}
           saveLocation={this.setStateProperty.bind(this, 'spot', 'WHOLE', null)}
+          selectedSpot={this.setStateProperty.bind(this, 'spot', 'WHOLE', null)}
         />
       </View>
     )
@@ -401,7 +427,7 @@ class EventScreen extends React.Component {
         this.setState({ isEditingDescription: doneornot })
         break;
       case 'Localisation':
-        this.setState({ isEditingMapMarker: doneornot })
+        this.setState({ isEditingMapMarker: doneornot, regionPicked: this.state.initialRegion })
         break;
       default:
         break;

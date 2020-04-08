@@ -6,7 +6,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { styles } from './styles'
 import MapView from 'react-native-maps';
 import GoogleMapsAutoComplete from "../../components/GoogleMapsAutoComplete"
-import { RenderMapViewPicker } from '../Event/OverlaysEventEdition'
+import { RenderMapViewSpotPicker } from '../Event/OverlaysEventEdition'
 import { ScrollView } from 'react-native-gesture-handler';
 import SportCoApi from '../../services/apiService';
 import { connect } from 'react-redux'
@@ -58,7 +58,6 @@ class SpotMap extends React.Component {
                                 />
                             )
                         })
-
                         }
                     </MapView>
                 ) : (<View />)
