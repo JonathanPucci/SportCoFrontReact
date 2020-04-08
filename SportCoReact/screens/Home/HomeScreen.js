@@ -46,6 +46,7 @@ class HomeScreen extends React.Component {
 
   componentDidMount() {
     // this.getData();
+    this.navigateToSpotManager();
   }
 
   render() {

@@ -32,7 +32,7 @@ export class RenderOverlaySport extends React.Component {
         )
     }
 
-    onSportChange(newsports){
+    onSportChange(newsports) {
         this.props.onSportChange(newsports[0]);
     }
 }
@@ -207,20 +207,25 @@ export class RenderMapViewPicker extends React.Component {
                         handler={this.goToLocation.bind(this)}
                     />
                     <View style={{ flex: 1, marginTop: 100 }}>
-                        <MapView
-                            style={styles.mapStyle}
-                            initialRegion={this.props.regionPicked}
-                            zoomEnabled={true}
-                            followUserLocation={true}
-                            showsUserLocation={true}
-                            onRegionChange={this.props.onRegionChange}
-                            ref={ref => { this.mapView = ref; }}
-                        >
-                            <MapView.Marker
-                                coordinate={this.props.regionPicked}
-                            >
-                            </MapView.Marker>
-                        </MapView>
+
+                        {this.props.regionPicked.latitude == undefined ||
+                            this.props.regionPicked.longitude == undefined ? (<View />) : (
+                                <MapView
+                                    style={styles.mapStyle}
+                                    initialRegion={this.props.regionPicked}
+                                    zoomEnabled={true}
+                                    followUserLocation={true}
+                                    showsUserLocation={true}
+                                    onRegionChange={this.props.onRegionChange}
+                                    ref={ref => { this.mapView = ref; }}
+                                >
+
+                                    <MapView.Marker
+                                        coordinate={this.props.regionPicked}
+                                    >
+                                    </MapView.Marker>
+                                </MapView>
+                            )}
                         <Text style={{ marginTop: 50, textAlign: 'center', fontSize: 20 }}>Choisis un bon spot pour ton évènement !</Text>
 
                     </View>

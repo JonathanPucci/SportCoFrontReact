@@ -61,7 +61,7 @@ class SearchScreen extends React.Component {
     }
     this.animation = new Animated.Value(0);
     this.sportCoApi = new SportCoApi();
-    navigator.geolocation.watchPosition(
+    this.watchId = navigator.geolocation.watchPosition(
       this.retrieveEventsNearMe.bind(this),
       this.retrieveEventsInInitialArea.bind(this),
       { timeout: 1000 }
@@ -72,9 +72,13 @@ class SearchScreen extends React.Component {
 
 
   retrieveEventsNearMe(position) {
+    navigator.geolocation.clearWatch(this.watchId);
+
     this.setState(
       { ...this.state, region: { ...this.state.region, latitude: position.coords.latitude, longitude: position.coords.longitude } },
-      this.getData.bind(this, true));
+      () => {
+        this.getData(true)
+      });
   }
 
   retrieveEventsInInitialArea() {

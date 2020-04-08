@@ -1,18 +1,18 @@
 import * as React from 'react';
-import { View, RefreshControl, TextInput } from 'react-native';
+import { View, RefreshControl } from 'react-native';
 import { Text, CheckBox, Input } from 'react-native-elements';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 import { styles } from './styles'
 import MapView from 'react-native-maps';
 import GoogleMapsAutoComplete from "../../components/GoogleMapsAutoComplete"
-import SportsAvailable from '../../components/SportsAvailable';
-import { RenderSaveButton, RenderMapViewPicker, RenderOverlaySport } from '../Event/OverlaysEventEdition'
+import { RenderMapViewPicker } from '../Event/OverlaysEventEdition'
 import { ScrollView } from 'react-native-gesture-handler';
 import SportCoApi from '../../services/apiService';
 import { connect } from 'react-redux'
 import { initialZoom } from '../../screens/Search/SearchScreen';
 import { EventIcon } from '../../screens/Event/Event';
+import SpotMap from './SpotMap';
 
 const roadMapStyle = [
     {
@@ -52,12 +52,12 @@ class SpotManager extends React.Component {
     }
 
     componentDidMount() {
-        navigator.geolocation.watchPosition(
+        this.watchId = navigator.geolocation.watchPosition(
             this.setCurrentPosition.bind(this),
-            () => { },
+            () => { console.log('setPosError') },
             {
                 enableHighAccuracy: true,
-                timeout: 5000,
+                timeout: 1000,
                 maximumAge: 0
             }
 
@@ -65,14 +65,19 @@ class SpotManager extends React.Component {
     }
 
     setCurrentPosition(position) {
+        navigator.geolocation.clearWatch(this.watchId);
         this.setState(
             {
                 ...this.state,
                 region: {
-                    ...this.state.region, latitude: position.coords.latitude, longitude: position.coords.longitude
+                    ...this.state.region,
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude
                 }
-            },
-            this.getData.bind(this, true));
+            }, () => {
+
+                this.getData()
+            });
     }
 
     getData() {
@@ -89,6 +94,9 @@ class SpotManager extends React.Component {
                 this.setState({ loading: false, refreshing: false });
             });
     }
+
+
+
 
     getFieldsOfSpot() {
         this.apiService.getSingleEntity('fieldspot', this.state.selectedSpot.spot_id)
@@ -107,125 +115,43 @@ class SpotManager extends React.Component {
     }
 
     render() {
-        let region = this.state.region;
         return (
-            <KeyboardAwareScrollView>
+            <KeyboardAwareScrollView keyboardShouldPersistTaps='always'
+                refreshControl={
+                    <RefreshControl refreshing={this.state.refreshing} onRefresh={this.getData.bind(this)} />
+                }
+            >
                 <ScrollView
-                    refreshControl={
-                        <RefreshControl refreshing={this.state.refreshing} onRefresh={this.getData.bind(this)} />
-                    }
+                    keyboardShouldPersistTaps='always'
                 >
                     <View>
                         <GoogleMapsAutoComplete
                             handler={this.goToLocation.bind(this)}
                         />
-                        {!isNaN(region.latitude) ? (
-                            <MapView
-                                style={styles.mapStyle}
-                                showsUserLocation={true}
-                                followUserLocation={true}
-                                initialRegion={region}
-                                provider={"google"}
-                                customMapStyle={roadMapStyle}>
-                                {this.state.spots.map((spot, index) => {
-                                    let spotCoords = {
-                                        latitude: parseFloat(spot.spot_latitude),
-                                        longitude: parseFloat(spot.spot_longitude),
-                                    }
-                                    return (
-                                        <MapView.Marker
-                                            key={'markerKey' + index}
-                                            coordinate={spotCoords}
-                                            pinColor={this.state.selectedIndex == index ? 'blue' : 'white'}
-                                            onPress={this.selectedSpot.bind(this, index)
-                                            }
-                                        />
-                                    )
-                                })
-
-                                }
-                            </MapView>
-                        ) :
-                            <Text>Choisissez une localisation</Text>
-                        }
+                        <SpotMap
+                            selectedSpot={this.selectedSpot.bind(this)}
+                            selectedIndex={this.state.selectedIndex}
+                            region={this.state.region}
+                            spots={this.state.spots}
+                        />
+                        <RenderMapViewPicker
+                            isVisible={this.state.isPickingPlace}
+                            stopEditingMapMarker={() => this.setState({ isPickingPlace: false })}
+                            regionPicked={this.state.region}
+                            onRegionChange={(region) => { this.setState({ region: region }) }}
+                            saveLocation={this.pickedSpotCoords.bind(this)}
+                        />
+                        <View style={{ position: 'absolute', top: 70, left: 10 }}>
+                            <EventIcon name='plus' color='purple' callback={this.addNewSpot.bind(this)} />
+                        </View>
                     </View>
-                    <RenderMapViewPicker
-                        isVisible={this.state.isPickingPlace} />
+
                     <View>
                         {this.renderSpotSelectedInfo()}
                     </View>
-
                 </ScrollView>
             </KeyboardAwareScrollView>)
     }
-
-    selectedSpot(index) {
-        this.setState({
-            selectedSpot: this.state.spots[index],
-            selectedIndex: index,
-        }, this.getFieldsOfSpot.bind(this))
-
-    }
-
-    renderSpotSelectedInfo() {
-        let spot = this.state.selectedSpot;
-        if (spot == null)
-            return <View />;
-        return (
-            <View>
-                <Text style={styles.selectedTitle}>Selected Spot Informations</Text>
-                {this.renderOptions()}
-
-                {this.state.isEditing ? (
-                    <Input
-                        value={spot.spot_name}
-                        onChangeText={this.changeName.bind(this)}
-                    />
-                ) : (
-                        <Text h4 style={styles.spotName}>Spot Name : {spot.spot_name} </Text>
-                    )}
-                {this.state.sportsAvailable.map((sport, index) => {
-                    return (
-                        <View key={'spotfield' + index}>
-                            {this.renderSportFieldAvailability(sport)}
-                        </View>
-                    )
-                })}
-                <View style={{ height: 100 }} />
-            </View>
-        )
-    }
-
-    changeName(text) {
-        this.setState({ selectedSpot: { ...this.state.selectedSpot, spot_name: text } })
-    }
-
-    renderSportFieldAvailability(sport) {
-        return (
-            <View style={{ justifyContent: 'center', marginLeft: 20, flexDirection: 'row' }}>
-                <Text style={{ alignSelf: 'center', textAlign: 'center' }}>{sport}</Text>
-                <CheckBox
-                    center
-                    title='Available'
-                    checked={this.state.sportsInSpotSelected.includes(sport)}
-                    onPress={this.pressedSport.bind(this, sport)}
-                />
-
-            </View>
-        )
-    }
-
-    pressedSport(sport) {
-        if (this.state.isEditing) {
-            let newsSports = this.state.sportsInSpotSelected;
-            newsSports.includes(sport) ?
-                newsSports.splice(newsSports.indexOf(sport), 1) :
-                newsSports.push(sport);
-            this.setState({ sportsInSpotSelected: newsSports });
-        }
-    }
-
-
 
     renderOptions() {
         return (
@@ -246,6 +172,112 @@ class SpotManager extends React.Component {
         )
     }
 
+    renderSpotSelectedInfo() {
+        let spot = this.state.selectedSpot;
+        if (spot == null)
+            return <View />;
+        return (
+            <View>
+                <Text style={styles.selectedTitle}>Selected Spot Informations</Text>
+                {this.renderOptions()}
+
+                {this.state.isEditing ? (
+                    <Input
+                        placeholder='Spot Name Here ...'
+                        value={spot.spot_name}
+                        onChangeText={this.changeName.bind(this)}
+                    />
+                ) : (
+                        <Text h4 style={styles.spotName}>Spot Name : {spot.spot_name} </Text>
+                    )}
+                {this.state.sportsAvailable.map((sport, index) => {
+                    return (
+                        <View key={'spotfield' + index}>
+                            {this.renderSportFieldAvailability(sport)}
+                        </View>
+                    )
+                })}
+                <View style={{ height: 100 }} />
+            </View>
+        )
+    }
+
+    renderSportFieldAvailability(sport) {
+        return (
+            <View style={{ justifyContent: 'center', marginLeft: 20, flexDirection: 'row' }}>
+                <Text style={{ alignSelf: 'center', textAlign: 'center' }}>{sport}</Text>
+                <CheckBox
+                    center
+                    title='Available'
+                    checked={this.state.sportsInSpotSelected.includes(sport)}
+                    onPress={this.pressedSport.bind(this, sport)}
+                />
+
+            </View>
+        )
+    }
+
+
+    pickedSpotCoords() {
+        let region = this.state.region;
+        let selectedSpot = {
+            ...this.state.selectedSpot,
+            spot_latitude: region.latitude,
+            spot_longitude: region.longitude,
+        };
+        let spots = this.state.spots;
+        spots[this.state.spots.length - 1] = selectedSpot;
+        this.setState({
+            selectedIndex: this.state.spots.length - 1,
+            selectedSpot: selectedSpot,
+            spots: spots,
+            isPickingPlace: false
+        }, () =>
+            this.goToLocation(this.state.region.latitude, this.state.region.longitude))
+    }
+
+    selectedSpot(index) {
+        this.setState({
+            selectedSpot: this.state.spots[index],
+            selectedIndex: index,
+        }, this.getFieldsOfSpot.bind(this))
+
+    }
+
+    addNewSpot() {
+        let newSpot = {
+            spot_id: -1,
+            spot_name: '',
+            spot_longitude: '',
+            spot_latitude: ''
+        };
+        let spots = this.state.spots;
+        spots.push(newSpot);
+        this.setState({
+            spots: spots,
+            selectedSpot: newSpot,
+            isEditing: true,
+            isPickingPlace: true,
+        });
+    }
+
+    changeName(text) {
+        this.setState({ selectedSpot: { ...this.state.selectedSpot, spot_name: text } })
+    }
+
+
+    pressedSport(sport) {
+        if (this.state.isEditing) {
+            let newsSports = this.state.sportsInSpotSelected;
+            newsSports.includes(sport) ?
+                newsSports.splice(newsSports.indexOf(sport), 1) :
+                newsSports.push(sport);
+            this.setState({ sportsInSpotSelected: newsSports });
+        }
+    }
+
+
+
     editSpot() {
         this.setState({ isEditing: true })
     }
@@ -255,36 +287,37 @@ class SpotManager extends React.Component {
     }
 
     saveSpotInfo() {
-        this.apiService.editEntity('spots', this.state.selectedSpot)
-            .then(() => {
-                for (let index = 0; index < this.state.sportsAvailable.length; index++) {
-                    const field = this.state.sportsAvailable[index];
-                    if (this.state.sportsInSpotSelected.includes(field)) {
-                        this.apiService.addEntity('fieldspot', { spot_id: this.state.selectedSpot.spot_id, field: field })
-                        // .then(() => {
-                        //     console.log(field + ' added to ' + this.state.selectedSpot.spot_id );
-                        // })
-                        // .catch(() => {
-                        //     console.log(field + ' was already in '+ this.state.selectedSpot.spot_id );
-                        // })
-                    } else {
-                        this.apiService.deleteEntity('fieldspot', { spot_id: this.state.selectedSpot.spot_id, field: field })
-                        // .then(() => {
-                        //     console.log(field + ' removed from '+ this.state.selectedSpot.spot_id );
-                        // })
-                        // .catch(() => {
-                        //     console.log(field + ' was already out of'+ this.state.selectedSpot.spot_id );
-                        // })
-                    }
-                }
-                this.getData();
-                this.setState({ isEditing: false });
-            })
+        if (this.state.selectedSpot.spot_id != -1) {
+            this.apiService.editEntity('spots', this.state.selectedSpot)
+                .then(() => {
+                    this.saveSpotFieldInfos(this.state.selectedSpot.spot_id);
+                })
+        } else {
+            //Creating new spot
+            this.apiService.addEntity('spots', this.state.selectedSpot)
+                .then((data) => {
+                    let spot_id = data.data.data.spot_id;
+                    console.log(spot_id);
+                    this.saveSpotFieldInfos(spot_id);
+                });
+        }
+    }
+
+    saveSpotFieldInfos(spot_id) {
+        for (let index = 0; index < this.state.sportsAvailable.length; index++) {
+            const field = this.state.sportsAvailable[index];
+            if (this.state.sportsInSpotSelected.includes(field)) {
+                this.apiService.addEntity('fieldspot', { spot_id: spot_id, field: field })
+            } else {
+                this.apiService.deleteEntity('fieldspot', { spot_id: spot_id, field: field })
+            }
+        }
+        this.setState({ isEditing: false }, () => { this.getData(); });
+
     }
 
 
     goToLocation(lat, lon) {
-        //Only coming from autoComplete
         var coordinatesZommed = {
             latitude: lat,
             longitude: lon,
