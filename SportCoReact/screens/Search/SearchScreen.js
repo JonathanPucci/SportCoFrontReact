@@ -29,7 +29,7 @@ function FocusEffectComp({ navigation, handler }) {
   return null;
 }
 
-const initialZoom = {
+export const initialZoom = {
   latitudeDelta: 0.08,
   longitudeDelta: 0.08
 };
@@ -61,7 +61,7 @@ class SearchScreen extends React.Component {
     }
     this.animation = new Animated.Value(0);
     this.sportCoApi = new SportCoApi();
-    navigator.geolocation.getCurrentPosition(
+    navigator.geolocation.watchPosition(
       this.retrieveEventsNearMe.bind(this),
       this.retrieveEventsInInitialArea.bind(this),
       { timeout: 1000 }

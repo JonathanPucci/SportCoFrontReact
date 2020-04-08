@@ -9,6 +9,7 @@ import {MultiEventScreen} from '../screens/Search/CalloutMultiEvent';
 import ProfileScreen from '../screens/Profile/ProfileScreen';
 
 import { connect } from 'react-redux';
+import SpotManager from '../screens/SpotManager/SpotManager';
 
 function LogoTitle() {
     return (
@@ -45,6 +46,7 @@ class AppNavigator extends React.Component {
                               <Stack.Screen name="Event" component={EventScreen} />
                               <Stack.Screen name="Evenements" component={MultiEventScreen} />
                               <Stack.Screen name="Profile" component={ProfileScreen} />
+                              <Stack.Screen name="SpotManager" component={SpotManager} />
                     </Stack.Navigator>
                 </NavigationContainer>
             </View>

@@ -565,7 +565,7 @@ class EventScreen extends React.Component {
   }
 }
 
-class EventIcon extends React.Component {
+export class EventIcon extends React.Component {
   render() {
     return (
       <Icon

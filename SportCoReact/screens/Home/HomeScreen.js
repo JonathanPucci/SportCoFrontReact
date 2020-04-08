@@ -41,7 +41,7 @@ class HomeScreen extends React.Component {
   }
 
   navigateToSpotManager(){
-    this.props.navigation.navigate('Profile');
+    this.props.navigation.navigate('SpotManager');
   }
 
   componentDidMount() {
