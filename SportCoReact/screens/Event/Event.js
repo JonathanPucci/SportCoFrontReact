@@ -34,7 +34,7 @@ class EventScreen extends React.Component {
       isEditingDate: false,
       isEditingParticipantNumbers: false,
       isEditingDescription: false,
-      isEditingMapMarker: true,
+      isEditingMapMarker: false,
       event: {
         event: {
           date: new Date(),

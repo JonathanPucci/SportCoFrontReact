@@ -269,10 +269,12 @@ export class RenderMapViewSpotPicker extends React.Component {
                                                 coordinate={spotCoords}
                                                 pinColor={'blue'}
                                                 onPress={() => {
-                                                    let newRegion =  {
+                                                    let newRegion = {
                                                         longitude: spot.spot_longitude,
                                                         latitude: spot.spot_latitude
                                                     };
+                                                    if (this.props.selectedSpot != undefined)
+                                                        this.props.selectedSpot(index)
                                                     this.props.onRegionChange(newRegion);
                                                     this.setState({ markerRegion: newRegion });
                                                 }}

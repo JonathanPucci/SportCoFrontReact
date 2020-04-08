@@ -6,9 +6,10 @@ import HomeScreen from '../screens/Home/HomeScreen';
 import ProfileScreen from '../screens/Profile/ProfileScreen';
 import NotificationsScreen from '../screens/Notifications/NotificationsScreen';
 import SearchScreen from '../screens/Search/SearchScreen';
+import EventCalendar from '../screens/EventCalendar/EventCalendar';
 
 const BottomTab = createBottomTabNavigator();
-const INITIAL_ROUTE_NAME = 'Home';
+const INITIAL_ROUTE_NAME = 'Calendar';
 
 export default function BottomTabNavigator({ navigation, route }) {
   // Set the header title on the parent stack navigator depending on the
@@ -22,7 +23,7 @@ export default function BottomTabNavigator({ navigation, route }) {
         name="Home"
         component={HomeScreen}
         options={{
-          title: 'Home',
+          title: '',
           tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-home" />,
         }}
       />
@@ -30,7 +31,7 @@ export default function BottomTabNavigator({ navigation, route }) {
         name="Notifications"
         component={NotificationsScreen}
         options={{
-          title: 'Notifications',
+          title: '',
           tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="ios-information-circle-outline" />,
         }}
       />
@@ -38,15 +39,23 @@ export default function BottomTabNavigator({ navigation, route }) {
         name="Search"
         component={SearchScreen}
         options={{
-          title: 'Search',
+          title: '',
           tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-search" />,
+        }}
+      />
+      <BottomTab.Screen
+        name="Calendar"
+        component={EventCalendar}
+        options={{
+          title: '',
+          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="ios-calendar" />,
         }}
       />
       <BottomTab.Screen
         name="Profile"
         component={ProfileScreen}
         options={{
-          title: 'Profile',
+          title: '',
           tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="ios-body" />,
         }}
       />

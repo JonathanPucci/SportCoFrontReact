@@ -135,9 +135,19 @@ class SpotManager extends React.Component {
                             isVisible={this.state.isPickingPlace}
                             stopEditingMapMarker={() => this.setState({ isPickingPlace: false })}
                             regionPicked={this.state.region}
-                            onRegionChange={(region) => { this.setState({ region: region }) }}
+                            onRegionChange={(region) => {
+                                this.setState({
+                                    region: {
+                                        ...this.state.region,
+                                        latitude: region.latitude,
+                                        longitude: region.longitude
+                                    }
+                                });
+                            }}
                             saveLocation={this.pickedSpotCoords.bind(this)}
-                            selectedSpot={this.pickedSpotCoords.bind(this)}
+                            selectedSpot={(index) => {
+                                this.setState({ isPickingPlace: false }, this.selectedSpot.bind(this, index));
+                            }}
                         />
                         <View style={{ position: 'absolute', top: 70, left: 10 }}>
                             <EventIcon name='plus' color='purple' callback={this.addNewSpot.bind(this)} />
@@ -173,7 +183,11 @@ class SpotManager extends React.Component {
     renderSpotSelectedInfo() {
         let spot = this.state.selectedSpot;
         if (spot == null)
-            return <View />;
+            return(
+                <View style={{alignSelf: 'center', marginTop : 30}}>
+                    <Text style={{fontSize : 18}}>Select a spot or create a new one !</Text>
+                </View>
+            );
         return (
             <View>
                 <Text style={styles.selectedTitle}>Selected Spot Informations</Text>
@@ -223,7 +237,6 @@ class SpotManager extends React.Component {
             spot_latitude: region.latitude,
             spot_longitude: region.longitude,
         };
-        console.log(spotSelected);
         if (spotSelected != undefined) {
             this.setState({
                 selectedIndex: - 1,
@@ -265,6 +278,7 @@ class SpotManager extends React.Component {
         this.setState({
             spots: spots,
             selectedSpot: newSpot,
+            selectedIndex: spots.length - 1,
             isEditing: true,
             isPickingPlace: true,
         });
@@ -306,7 +320,6 @@ class SpotManager extends React.Component {
             this.apiService.addEntity('spots', this.state.selectedSpot)
                 .then((data) => {
                     let spot_id = data.data.data.spot_id;
-                    console.log(spot_id);
                     this.saveSpotFieldInfos(spot_id);
                 });
         }

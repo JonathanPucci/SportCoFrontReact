@@ -66,7 +66,7 @@ export default class App extends React.Component {
 
   _handleNotification = notification => {
     Vibration.vibrate();
-    console.log(notification);
+    // console.log(notification);
     this.setState({ notification: notification });
   };
 
