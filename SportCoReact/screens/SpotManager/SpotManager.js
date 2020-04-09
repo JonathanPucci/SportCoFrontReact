@@ -128,6 +128,7 @@ class SpotManager extends React.Component {
                         <SpotMap
                             selectedSpot={this.selectedSpot.bind(this)}
                             selectedIndex={this.state.selectedIndex}
+                            ref={(ref) => { this.spotMap = ref; }}
                             region={this.state.region}
                             spots={this.state.spots}
                         />
@@ -141,7 +142,7 @@ class SpotManager extends React.Component {
                                         ...this.state.region,
                                         latitude: region.latitude,
                                         longitude: region.longitude
-                                    }
+                                    },
                                 });
                             }}
                             saveLocation={this.pickedSpotCoords.bind(this)}
@@ -183,9 +184,9 @@ class SpotManager extends React.Component {
     renderSpotSelectedInfo() {
         let spot = this.state.selectedSpot;
         if (spot == null)
-            return(
-                <View style={{alignSelf: 'center', marginTop : 30}}>
-                    <Text style={{fontSize : 18}}>Select a spot or create a new one !</Text>
+            return (
+                <View style={{ alignSelf: 'center', marginTop: 30 }}>
+                    <Text style={{ fontSize: 18 }}>Select a spot or create a new one !</Text>
                 </View>
             );
         return (
@@ -237,13 +238,13 @@ class SpotManager extends React.Component {
             spot_latitude: region.latitude,
             spot_longitude: region.longitude,
         };
-        if (spotSelected != undefined) {
+        if (spotSelected.spot_name != undefined) {
             this.setState({
                 selectedIndex: - 1,
                 isPickingPlace: false
             });
         }
-        if (spotSelected != undefined)
+        if (spotSelected.spot_name != undefined)
             return;
 
 
@@ -254,8 +255,8 @@ class SpotManager extends React.Component {
             selectedSpot: selectedSpot,
             spots: spots,
             isPickingPlace: false
-        }, () =>
-            this.goToLocation(this.state.region.latitude, this.state.region.longitude))
+        },
+            this.goToLocation.bind(this, this.state.region.latitude, this.state.region.longitude))
     }
 
     selectedSpot(index) {
@@ -346,7 +347,7 @@ class SpotManager extends React.Component {
             latitudeDelta: 0.01,
             longitudeDelta: 0.01,
         }
-        this.mapView.animateToRegion(coordinatesZommed, 1500);
+        this.spotMap.mapView.animateToRegion(coordinatesZommed, 1500);
     }
 }
 

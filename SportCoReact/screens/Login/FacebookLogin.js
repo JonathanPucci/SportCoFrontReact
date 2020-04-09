@@ -74,7 +74,7 @@ class FacebookLogin extends React.Component {
               .addEntity('users', userDB)
               .then((datauser) => {
                 apiService
-                  .addEntity('userstats', data.data.data)
+                  .addEntity('userstats', datauser.data.data)
                   .then(data => {
                     loginAction(user,datauser.data.user_id);
                   });

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {View, Image} from 'react-native';
+import { View, Image,Platform } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import TabBarIcon from '../components/TabBarIcon';
 import HomeScreen from '../screens/Home/HomeScreen';
@@ -9,7 +9,7 @@ import SearchScreen from '../screens/Search/SearchScreen';
 import EventCalendar from '../screens/EventCalendar/EventCalendar';
 
 const BottomTab = createBottomTabNavigator();
-const INITIAL_ROUTE_NAME = 'Calendar';
+const INITIAL_ROUTE_NAME = 'Home';
 
 export default function BottomTabNavigator({ navigation, route }) {
   // Set the header title on the parent stack navigator depending on the
@@ -18,7 +18,10 @@ export default function BottomTabNavigator({ navigation, route }) {
   navigation.setOptions({ headerTitle: props => <LogoTitle {...props} /> });
 
   return (
-    <BottomTab.Navigator initialRouteName={INITIAL_ROUTE_NAME}>
+    <BottomTab.Navigator
+      initialRouteName={INITIAL_ROUTE_NAME}
+      tabBarOptions={{ style: { height: Platform.OS == 'android'?70 : 80 } }}
+    >
       <BottomTab.Screen
         name="Home"
         component={HomeScreen}
@@ -63,28 +66,14 @@ export default function BottomTabNavigator({ navigation, route }) {
   );
 }
 
-// function getHeaderTitle(route) {
-//   const routeName = route.state?.routes[route.state.index]?.name ?? INITIAL_ROUTE_NAME;
-
-//   switch (routeName) {
-//     case 'Home':
-//       return 'Home Page Title Here';
-//     case 'Notifications':
-//       return 'Notifications Page Title Here';
-//     case 'Profile':
-//       return 'Profile Page';
-//     case 'Search':
-//       return 'Search Page Title Here';
-//   }
-// }
 
 function LogoTitle() {
   return (
     <View >
-       <Image
-      style={{width:120,height: 30 }}
-      source={require('../assets/images/BakeryFontLogo.png')}
-    />
-     </View>
+      <Image
+        style={{ width: 120, height: 30 }}
+        source={require('../assets/images/BakeryFontLogo.png')}
+      />
+    </View>
   );
 }

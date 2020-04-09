@@ -4,7 +4,6 @@ import { Overlay, Button, Icon } from 'react-native-elements'
 import { connect } from 'react-redux'
 import GoogleMapsAutoComplete from "../../components/GoogleMapsAutoComplete"
 import Fade from "../../components/Fade"
-import ActionButton from 'react-native-action-button';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import MCIIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useFocusEffect } from '@react-navigation/native';
@@ -14,6 +13,8 @@ import CustomMapView from './CustomMapView'
 import SportCoApi from '../../services/apiService';
 import { CARD_HEIGHT, CARD_WIDTH } from '../../components/CardEvent'
 import SportsAvailable from '../../components/SportsAvailable';
+import { FloatingAction } from "react-native-floating-action";
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 
 
 //Effect to get Events at focus (after coming back from events)
@@ -89,7 +90,7 @@ class SearchScreen extends React.Component {
 
 
   componentDidMount() {
-    this.setAnimationForScrollView();
+
   }
 
   /*********************************************************************************
@@ -148,7 +149,18 @@ class SearchScreen extends React.Component {
       }
     }
     if (complete) {
-      this.setState({ eventsRetrieved: eventsFetchedSoFar, firstSearch: false, loading: false, moved: false, optionsVisible: false }, () => { this.filterBySport() })
+      this.setState({
+        eventsRetrieved: eventsFetchedSoFar,
+        events: eventsFetchedSoFar,
+        firstSearch: false,
+        loading: false,
+        moved: false,
+        optionsVisible: false
+      },
+        () => {
+          this.filterBySport();
+          this.setAnimationForScrollView();
+        })
     }
   }
 
@@ -194,9 +206,7 @@ class SearchScreen extends React.Component {
             navigation={this.props.navigation}
             pressedMap={this.pressedMap.bind(this)}
           />
-          <Fade isVisible={this.state.optionsVisible} style={styles.actionButton} >
-            {this.renderActionButton()}
-          </Fade>
+
           <Fade isVisible={this.state.optionsVisible} style={styles.searchButton} >
             <View>
               <Button
@@ -212,7 +222,6 @@ class SearchScreen extends React.Component {
                 onPress={this.pressedSearchHere.bind(this)} />
             </View>
           </Fade>
-
           <EventScrollList
             ref={(ref) => this.myEventScrollList = ref}
             animation={this.animation}
@@ -237,48 +246,60 @@ class SearchScreen extends React.Component {
             />
           </View>
         </Overlay>
+        {this.renderActionButton()}
+
       </View>
     );
   }
 
   renderActionButton() {
+    let actions = [
+      {
+        text: "",
+        icon: (<IonIcon name="md-add" style={styles.actionButtonIcon} />),
+        name: "ADD",
+        position: 1
+      },
+      {
+        text: "",
+        icon: (<MCIIcon name="filter" style={styles.actionButtonIcon} />),
+        name: "FILTER",
+        position: 2
+      }];
+
     return (
-      <ActionButton
-        buttonColor="#2089dc"
-        ref={(ref) => this.actionButton = ref}
-        verticalOrientation="up"
-        position='center'
-        renderIcon={() => <IonIcon name="md-create" style={styles.actionButtonIcon} />}
-        active={this.state.isActionButtonActive}
-        onPress={() => {
-          this.setState({ isActionButtonActive: true },
-            () => {
-              setTimeout(() => { this.actionButton.reset() }, 2500)
-            })
-        }}
-      >
-        <ActionButton.Item
-          buttonColor='#43bcff'
-          offsetX={0}
-          onPress={() => {
-            this.props.navigation.navigate('Event', {
-              event: {}
-            });
-          }}>
-          <IonIcon name="md-add" style={styles.actionButtonIcon} />
-        </ActionButton.Item>
-        <ActionButton.Item
-          offsetX={0}
-          buttonColor='#43bcff'
-          onPress={() => { this.setState({ isChoosingAFilter: true }) }}>
-          <MCIIcon name="filter" style={styles.actionButtonIcon} />
-        </ActionButton.Item>
 
-      </ActionButton>
-    );
-
+      <View style={styles.actionButton}>
+          <FloatingAction
+            position={'left'}
+            color="#2089dc"
+            visible={this.state.optionsVisible}
+            showBackground={false}
+            distanceToEdge={{ vertical: 0, horizontal: 0 }}
+            actions={actions}
+            buttonSize={60}
+            floatingIcon={(<IonIcon name="md-create" style={styles.actionButtonIcon} />)}
+            onPressItem={this.hitActionButton.bind(this)}
+          />
+        </View>
+    )
   }
 
+  hitActionButton(name) {
+    switch (name) {
+      case 'FILTER':
+        this.setState({ isChoosingAFilter: true })
+        break;
+      case 'ADD':
+        this.props.navigation.navigate('Event', {
+          event: {}
+        });
+        break;
+      default:
+        break;
+    }
+  }
+  
   /*********************************************************************************
    *************************                 ***************************************
    ********************      REGION MOVE STUFF    **********************************

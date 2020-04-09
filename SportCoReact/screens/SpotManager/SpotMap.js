@@ -27,7 +27,7 @@ const roadMapStyle = [
 
 
 
-class SpotMap extends React.Component {
+export default class SpotMap extends React.Component {
 
     render() {
         let region = this.props.region;
@@ -69,8 +69,3 @@ class SpotMap extends React.Component {
 }
 
 
-const mapStateToProps = (state) => {
-    return state
-}
-
-export default connect(mapStateToProps)(SpotMap)

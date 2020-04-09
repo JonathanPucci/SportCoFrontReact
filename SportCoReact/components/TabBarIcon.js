@@ -8,7 +8,7 @@ export default function TabBarIcon(props) {
     <Ionicons
       name={props.name}
       size={30}
-      style={{ top: 15 }}
+      style={{ top: Platform.OS == 'android'?5:15 }}
       color={props.focused ? Colors.tabIconSelected : Colors.tabIconDefault}
     />
   );

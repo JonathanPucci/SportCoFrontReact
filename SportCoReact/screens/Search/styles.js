@@ -3,7 +3,7 @@ import {
   StyleSheet
 } from "react-native";
 
-import {CARD_HEIGHT, CARD_WIDTH} from '../../components/CardEvent'
+import { CARD_HEIGHT, CARD_WIDTH } from '../../components/CardEvent'
 
 export const styles = StyleSheet.create({
   container: {
@@ -36,27 +36,29 @@ export const styles = StyleSheet.create({
     width: Layout.window.width,
     height: Layout.window.height,
   },
-  searchButton:{
+  searchButton: {
     position: "absolute",
     top: 70,
-    left: Layout.window.width/2 - 75,
-    borderRadius:10,
-    marginTop:10
+    left: Layout.window.width / 2 - 75,
+    borderRadius: 10,
+    marginTop: 10
   },
-  actionButton:{
+  actionButton: {
     position: "absolute",
-    bottom: CARD_HEIGHT + 130,
+    bottom: CARD_HEIGHT + 30,
     left: 20,
-    backgroundColor:'white',
-    borderRadius:10,
-    marginTop:10,
+    height:60,
+    width:60,
+    borderRadius: 50,
+    marginTop: 10,
+    flex: 1,
   },
   actionButtonIcon: {
     fontSize: 20,
     height: 22,
     color: 'white',
   },
-  actionButtonItem:{
+  actionButtonItem: {
   }
 });
 
@@ -135,7 +137,7 @@ export const markerStyles = StyleSheet.create({
   item: {
     flex: 1,
     flexDirection: 'row',
-    margin:20
+    margin: 20
   },
   galleryItem: {
     flex: 0.5,
@@ -151,42 +153,42 @@ export const markerStyles = StyleSheet.create({
 export const eventCalloutStyles = StyleSheet.create({
   eventContainer: {
     flex: 1,
-    width:250,
-    height:150,
+    width: 250,
+    height: 150,
   },
-  eventSports : {
-    flex:1,
-    alignItems:'center',
-    flexDirection:'row'
+  eventSports: {
+    flex: 1,
+    alignItems: 'center',
+    flexDirection: 'row'
   },
-  eventSport : {
-    flex:1,
-    margin:10,
+  eventSport: {
+    flex: 1,
+    margin: 10,
   },
-  eventTitle:{
+  eventTitle: {
     alignSelf: "center",
-    marginLeft : 50
+    marginLeft: 50
   },
-  eventDescriptionRow:{
-    flexDirection:"row",
-    flex:1,
+  eventDescriptionRow: {
+    flexDirection: "row",
+    flex: 1,
   },
-  eventDescription:{
-    flex:1,
-    paddingTop:5
+  eventDescription: {
+    flex: 1,
+    paddingTop: 5
   },
-  eventDescriptionView:{
-    flexDirection:"column",
-    flex:1,
+  eventDescriptionView: {
+    flexDirection: "column",
+    flex: 1,
   },
-  eventIcon:{
-    flex:1,
-    alignSelf:'flex-end'
+  eventIcon: {
+    flex: 1,
+    alignSelf: 'flex-end'
   },
-  buttonStyle:{
-    alignSelf:'center',
-    fontSize:20,
-    textDecorationLine:'underline'
+  buttonStyle: {
+    alignSelf: 'center',
+    fontSize: 20,
+    textDecorationLine: 'underline'
   }
 
 });

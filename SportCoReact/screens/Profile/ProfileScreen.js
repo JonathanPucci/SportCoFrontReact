@@ -36,7 +36,6 @@ class ProfileScreen extends React.Component {
 
       this.state.apiService.getSingleEntity('users/email', email)
         .then(res => {
-
           this.state.apiService.getSingleEntity('userstats', res.data.user_id)
             .then(stats => {
               this.setState({
