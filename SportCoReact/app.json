@@ -24,6 +24,9 @@
     "assetBundlePatterns": [
       "**/*"
     ],
+    "androidStatusBar": {
+			"barStyle": "dark-content"
+		},
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.sportcoapp",
@@ -38,7 +41,12 @@
         "googleMaps": {
           "apiKey": "AIzaSyActNSLf-qg2NfX87wzHY8tp0mI0l3qol8"
         }
-      }
+      },
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION"
+      ],
+      "windowSoftInputMode": "adjustPan"
     },
     "description": ""
   }
