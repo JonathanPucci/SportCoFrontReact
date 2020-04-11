@@ -39,6 +39,7 @@ class FacebookLogin extends React.Component {
   }
 
   loginAction(user,id) {
+    console.log(id);
     const action = {
       type: USER_LOGGED,
       value: user,
@@ -76,7 +77,7 @@ class FacebookLogin extends React.Component {
                 apiService
                   .addEntity('userstats', datauser.data.data)
                   .then(data => {
-                    loginAction(user,datauser.data.user_id);
+                    loginAction(user,datauser.data.data.user_id);
                   });
               });
           })

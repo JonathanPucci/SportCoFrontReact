@@ -40,7 +40,7 @@ function auth(state = { user: null, waiting: false }, action) {
       var nextState = {
         ...state,
         user: user,
-        user_id : action.additionalInfo,
+        user_id: action.additionalInfo,
         s3Options: options
       };
       return nextState;

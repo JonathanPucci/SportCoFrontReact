@@ -362,7 +362,7 @@ class EventScreen extends React.Component {
   }
 
   renderComments() {
-    let comments = this.state.event.comments.slice().sort((a, b) => (new Date(b.date)) - (new Date(a.date)));
+    let comments = this.state.event.comments.slice().sort((a, b) => (new Date(a.date)) - (new Date(b.date)));
     return (
       <View style={{ marginTop: 30 }}>
         {this.renderDescriptionText('Comments', '', 'auto', true)}
@@ -667,7 +667,7 @@ class EventScreen extends React.Component {
 
 
   addComment() {
-    let comments = this.state.event.comments.slice().sort((a, b) => (new Date(b.date)) - (new Date(a.date)));
+    let comments = this.state.event.comments.slice().sort((a, b) => (new Date(a.date)) - (new Date(b.date)));
     let newComment = {
       isNew: true,
       user_id: this.props.auth.user_id,
