@@ -4,7 +4,9 @@ import Layout from '../../constants/Layout'
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fafafa',
+    width:Layout.window.width,
+    // backgroundColor: '#fafafa',
+    backgroundColor: 'white',
   },
   contentContainer: {
     margin: 15,
@@ -47,9 +49,19 @@ export const styles = StyleSheet.create({
     borderRadius: 50,
 
   },
+  imageParticipant:{
+    alignSelf: 'center',
+    height: 50,
+    width: 50,
+    borderWidth: 0.5,
+    borderRadius: 25,
+  },
   imageContainer : {
     alignSelf:'flex-start',
     marginLeft:30
+  },
+  imageContainerParticipant:{
+    alignSelf:'center',
   },
   wrapperHorizontal: {
     width: 300,

@@ -33,7 +33,7 @@ class HomeScreen extends React.Component {
   }
 
   componentDidMount() {
-    // this.props.navigation.navigate('Event', { event: {} });
+    this.props.navigation.navigate('Event', { event: {event : {event_id:1}} });
   }
 
   render() {

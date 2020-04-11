@@ -61,8 +61,9 @@ class EventScreen extends React.Component {
         },
         participants: []
       },
+      eventBeforeEdit: {},
       regionPicked: {
-       
+
       },
       initialRegion: {}
     };
@@ -117,7 +118,7 @@ class EventScreen extends React.Component {
         }>
 
         {this.renderHostHeader(event, photoUrl, eventIcon)}
-        <View style={{ flex: 1, alignSelf: 'center', marginTop: 20 }}>
+        <View style={{ flex: 1, width: '100%', alignSelf: 'center', marginTop: 20 }}>
           <View style={styles.descriptionView}>
             <Image
               source={eventIcon.image}
@@ -127,7 +128,11 @@ class EventScreen extends React.Component {
               {this.renderDescriptionText('Description', event.event.description)}
               {this.renderDescriptionText('Date', date)}
               {this.renderDescriptionText('Hôte', event.host.user_name.split(' ')[0])}
-              {this.renderDescriptionText('Participants', event.event.participants_min + ' / ' + event.participants.length + ' / ' + event.event.participants_max)}
+              <View style={{ flexDirection: 'row' }}>
+                {this.renderDescriptionText('Min', event.event.participants_min, 'flex-start')}
+                {this.renderDescriptionText('Going', event.participants.length, 'center',false)}
+                {this.renderDescriptionText('Max', event.event.participants_max, 'flex-end')}
+              </View>
               <RenderOverlayDateTimePicker
                 isEditingDate={this.state.isEditingDate}
                 stopEditingDate={() => { this.setState({ isEditingDate: false }) }}
@@ -153,13 +158,14 @@ class EventScreen extends React.Component {
               />
             </View>
           </View>
+          {this.renderOptions()}
+          {this.renderParticipants()}
           <View style={{ marginTop: 20, marginBottom: 20, flex: 1 }}>
             <Text>Vous trouverez ici toutes les informations concernant l'évènement ! L'adresse se trouve via le plan, ou en cliquant sur ce lien : LinkToMap</Text>
           </View>
           {this.renderMapView(event)}
-          {this.renderOptions()}
         </View>
-        <View style={{ height: 75 }}></View>
+        <View style={{ height: 100 }}></View>
       </ScrollView>
     );
   }
@@ -175,7 +181,7 @@ class EventScreen extends React.Component {
   renderHostHeader(event, photoUrl, eventIcon) {
     return (
       <View style={{ flex: 1, flexDirection: 'row' }}>
-        <TouchableWithoutFeedback onPress={this.seeHostProfile.bind(this)}>
+        <TouchableWithoutFeedback onPress={this.seeProfile.bind(this, this.state.event.host.email)}>
           <View style={styles.imageContainer}>
             {photoUrl != undefined && <Image source={{ uri: photoUrl + '?type=large&width=500&height=500' }} style={styles.image} />}
             {photoUrl == undefined && <Image source={require('../../assets/images/robot-dev.png')} style={styles.image} />}
@@ -216,11 +222,14 @@ class EventScreen extends React.Component {
     )
   }
 
-  renderDescriptionText(title, data) {
+  renderDescriptionText(title, data, centered = 'auto', isMutable = true) {
     return (
-      <View style={[{ flex: 1, flexDirection: 'column' }, this.state.editing ? { bottom: 15 } : {}]}>
+      <View style={[
+        { flex: 1, flexDirection: 'column' },
+        this.state.editing ? { bottom: 15 } : {},
+      ]}>
         <View style={{ flex: 1, flexDirection: 'row' }}>
-          {this.state.editing && (
+          {this.state.editing && isMutable && (
             <Icon
               raised
               name='edit'
@@ -229,10 +238,9 @@ class EventScreen extends React.Component {
               size={15}
               onPress={this.setEditingProperty.bind(this, title, true)} />
           )}
-          <Text style={[styles.titleDescription, this.state.editing ? { top: 15 } : {}]}>{title}</Text>
+          <Text style={[styles.titleDescription, centered != 'auto' ? { textAlign: 'center' } : {}, this.state.editing ? { top: 15 } : {}]}>{title}</Text>
         </View>
-
-        <Text style={styles.titleDescriptionText}>{data}</Text>
+        <Text style={[styles.titleDescriptionText, centered != 'auto' ? { alignSelf: 'center' } : {}]}>{data}</Text>
       </View>
     )
   }
@@ -289,11 +297,14 @@ class EventScreen extends React.Component {
             <View>
 
               {this.state.editing ? (
-                <View>
+                <View style={{ flexDirection: 'row' }} >
                   <RenderSaveButton
                     title={`| Let's do it !`}
                     callback={this.updateEvent.bind(this)}
                   />
+                  <View style={{ bottom: 15 }}>
+                    <EventIcon name='remove' color='red' callback={this.cancelEdit.bind(this)} />
+                  </View>
                 </View>
               ) : (
                   <View style={{ flexDirection: 'row' }} >
@@ -315,6 +326,31 @@ class EventScreen extends React.Component {
                   />} title={`| Annuler?`} onPress={this.leaveEvent.bind(this)} />
             )}
         </View>
+      </View>
+    )
+  }
+
+  renderParticipants() {
+    return (
+      <View >
+        {this.renderDescriptionText('Participants', '')}
+        <View style={{ flexDirection: 'row' }}>
+          {this.state.event.participants.map((participant, index) => {
+            let photoUrl = participant.photo_url;
+            return (
+              <View key={'participant-' + index} style={{ flexDirection: 'column', marginHorizontal: 10, justifyContent: 'center', alignItems: 'center' }}>
+                <TouchableWithoutFeedback onPress={this.seeProfile.bind(this, participant.email)}>
+                  <View style={styles.imageContainerParticipant}>
+                    {photoUrl != undefined && <Image source={{ uri: photoUrl + '?type=large&width=500&height=500' }} style={styles.imageParticipant} />}
+                    {photoUrl == undefined && <Image source={require('../../assets/images/robot-dev.png')} style={styles.imageParticipant} />}
+                  </View>
+                </TouchableWithoutFeedback>
+                <Text numberOfLines={1} style={{ alignSelf: 'center', marginBottom: 10, width: 50 }}>{participant.user_name}</Text>
+              </View>
+            )
+          })}
+        </View>
+
       </View>
     )
   }
@@ -409,7 +445,7 @@ class EventScreen extends React.Component {
   }
 
   editEvent() {
-    this.setState({ editing: true })
+    this.setState({ editing: true, eventBeforeEdit: this.state.event })
   }
 
   setEditingProperty(property, doneornot) {
@@ -420,7 +456,8 @@ class EventScreen extends React.Component {
       case 'Date':
         this.setState({ isEditingDate: doneornot })
         break;
-      case 'Participants':
+      case 'Min':
+      case 'Max':
         this.setState({ isEditingParticipantNumbers: doneornot })
         break;
       case 'Description':
@@ -538,6 +575,10 @@ class EventScreen extends React.Component {
     }
   }
 
+  cancelEdit() {
+    this.setState({ editing: false, event: this.state.eventBeforeEdit });
+  }
+
   cancelEvent() {
     this.state.event.event['reason_for_update'] = 'EVENT_CANCELED';
     this.state.event.event['data_name'] = 'event_id';
@@ -548,8 +589,8 @@ class EventScreen extends React.Component {
       });
   }
 
-  seeHostProfile() {
-    this.props.navigation.navigate('Profile', { email: this.state.event.host.email });
+  seeProfile(email) {
+    this.props.navigation.navigate('Profile', { email: email });
   }
 
 
