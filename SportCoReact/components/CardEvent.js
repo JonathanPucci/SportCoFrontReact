@@ -3,9 +3,6 @@ import { StyleSheet, View, TouchableWithoutFeedback, Image, Text } from 'react-n
 import { mapSportIcon } from '../helpers/mapper'
 import Layout from '../constants/Layout'
 
-const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-
-
 export const CARD_HEIGHT = Layout.window.height / 4;
 export const CARD_WIDTH = CARD_HEIGHT - 50;
 

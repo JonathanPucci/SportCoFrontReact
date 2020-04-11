@@ -4,7 +4,7 @@ import Layout from '../../constants/Layout'
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width:Layout.window.width,
+    width: Layout.window.width,
     // backgroundColor: '#fafafa',
     backgroundColor: 'white',
   },
@@ -49,19 +49,51 @@ export const styles = StyleSheet.create({
     borderRadius: 50,
 
   },
-  imageParticipant:{
+  imageParticipant: {
     alignSelf: 'center',
     height: 50,
     width: 50,
     borderWidth: 0.5,
     borderRadius: 25,
   },
-  imageContainer : {
-    alignSelf:'flex-start',
-    marginLeft:30
+  imageComment: {
+    alignSelf: 'center',
+    height: 30,
+    width: 30,
+    borderWidth: 0.5,
+    borderRadius: 15,
   },
-  imageContainerParticipant:{
-    alignSelf:'center',
+  imageContainer: {
+    alignSelf: 'flex-start',
+    marginLeft: 30
+  },
+  imageContainerParticipant: {
+    alignSelf: 'center',
+  },
+  imageContainerComment: {
+    alignSelf: 'center',
+    top: 2
+  },
+  commentBloc: {
+    flexDirection: 'row',
+    borderTopWidth: 0.5,
+    padding : 10
+  },
+  commentUserName: {
+    fontSize: 13,
+    marginLeft: 5
+  },
+  commentDate: {
+    marginTop:10,
+    fontSize:10,
+    color: '#777'
+  },
+  commentInfo: {
+    flexDirection: 'column'
+  },
+  commentText: {
+    fontSize: 12,
+    marginLeft: 10
   },
   wrapperHorizontal: {
     width: 300,
@@ -87,7 +119,7 @@ export const styles = StyleSheet.create({
     borderColor: "#DAA520"
   },
   wrapperPickerContainer: {
-    margin:40,
+    margin: 40,
     flex: 1,
     flexDirection: "column",
     justifyContent: "space-between",

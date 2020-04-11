@@ -70,7 +70,7 @@ export class MultiEventScreen extends React.Component {
 
     renderSportCard(item, index) {
         return (
-            <CardEvent pressedCard={this.goToEvent.bind(this, item)} item={item}/>
+            <CardEvent markerActive={true} pressedCard={this.goToEvent.bind(this, item)} item={item} />
         )
     }
 
@@ -126,7 +126,7 @@ export class MultiEventScreen extends React.Component {
     }
 
 
-   
+
 }
 
 

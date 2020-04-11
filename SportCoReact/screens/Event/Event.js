@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ScrollView, Text, View, Image, RefreshControl } from 'react-native';
+import { TextInput, Text, View, Image, RefreshControl } from 'react-native';
 import { connect } from 'react-redux'
 import { styles } from './styles'
 import SportCoApi from '../../services/apiService';
@@ -9,6 +9,7 @@ import CustomIcon from '../../components/Icon';
 import { Button, Icon } from 'react-native-elements'
 import { RenderOverlayDateTimePicker, RenderOverlayMinMaxParticipants, RenderOverlayDescription, RenderSaveButton, RenderMapViewSpotPicker, RenderOverlaySport } from './OverlaysEventEdition'
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
 const roadMapStyle = [
@@ -59,7 +60,8 @@ class EventScreen extends React.Component {
           spot_longitude: '',
           spot_latitude: '',
         },
-        participants: []
+        participants: [],
+        comments: []
       },
       eventBeforeEdit: {},
       regionPicked: {
@@ -109,10 +111,11 @@ class EventScreen extends React.Component {
     let eventIcon = mapSportIcon(event.event.sport.toLowerCase());
     let date = EventScreen.computeDate(event.event.date);
     return (
-      <ScrollView
+      <KeyboardAwareScrollView
+        extraScrollHeight={150}
         style={styles.container}
         contentContainerStyle={styles.contentContainer}
-        keyboardShouldPersistTaps="always"
+        keyboardShouldPersistTaps="handled"
         refreshControl={
           <RefreshControl refreshing={this.state.refreshing} onRefresh={this.getData.bind(this)} />
         }>
@@ -130,7 +133,7 @@ class EventScreen extends React.Component {
               {this.renderDescriptionText('Hôte', event.host.user_name.split(' ')[0])}
               <View style={{ flexDirection: 'row' }}>
                 {this.renderDescriptionText('Min', event.event.participants_min, 'flex-start')}
-                {this.renderDescriptionText('Going', event.participants.length, 'center',false)}
+                {this.renderDescriptionText('Going', event.participants.length, 'center', false)}
                 {this.renderDescriptionText('Max', event.event.participants_max, 'flex-end')}
               </View>
               <RenderOverlayDateTimePicker
@@ -164,9 +167,10 @@ class EventScreen extends React.Component {
             <Text>Vous trouverez ici toutes les informations concernant l'évènement ! L'adresse se trouve via le plan, ou en cliquant sur ce lien : LinkToMap</Text>
           </View>
           {this.renderMapView(event)}
+          {this.renderComments(event)}
         </View>
-        <View style={{ height: 100 }}></View>
-      </ScrollView>
+        <View style={{ height: 200 }}></View>
+      </KeyboardAwareScrollView>
     );
   }
 
@@ -235,12 +239,14 @@ class EventScreen extends React.Component {
               name='edit'
               type='font-awesome'
               color='orange'
-              size={15}
+              size={title == 'Min' || title == 'Max' ? 4 : 15}
               onPress={this.setEditingProperty.bind(this, title, true)} />
           )}
           <Text style={[styles.titleDescription, centered != 'auto' ? { textAlign: 'center' } : {}, this.state.editing ? { top: 15 } : {}]}>{title}</Text>
         </View>
-        <Text style={[styles.titleDescriptionText, centered != 'auto' ? { alignSelf: 'center' } : {}]}>{data}</Text>
+        <Text style={[styles.titleDescriptionText,
+        { marginTop: title == 'Min' || title == 'Going' || title == 'Max' ? 10 : 0 },
+        centered != 'auto' ? { alignSelf: 'center' } : {}]}>{data}</Text>
       </View>
     )
   }
@@ -333,7 +339,7 @@ class EventScreen extends React.Component {
   renderParticipants() {
     return (
       <View >
-        {this.renderDescriptionText('Participants', '')}
+        {this.renderDescriptionText('Participants', '', 'auto', false)}
         <View style={{ flexDirection: 'row' }}>
           {this.state.event.participants.map((participant, index) => {
             let photoUrl = participant.photo_url;
@@ -351,6 +357,64 @@ class EventScreen extends React.Component {
           })}
         </View>
 
+      </View>
+    )
+  }
+
+  renderComments() {
+    let comments = this.state.event.comments.slice().sort((a, b) => (new Date(b.date)) - (new Date(a.date)));
+    return (
+      <View style={{ marginTop: 30 }}>
+        {this.renderDescriptionText('Comments', '', 'auto', true)}
+        {comments.map((comment, index) => {
+          let photoUrl = comment.photo_url;
+          return (
+            <View key={"comment-" + index} style={styles.commentBloc}>
+              <View style={styles.commentInfo}>
+                <View style={{ flexDirection: 'row' }}>
+                  <View style={styles.imageContainerComment}>
+                    {photoUrl != undefined && <Image source={{ uri: photoUrl + '?type=large&width=500&height=500' }} style={styles.imageComment} />}
+                    {photoUrl == undefined && <Image source={require('../../assets/images/robot-dev.png')} style={styles.imageComment} />}
+                  </View>
+                  <Text style={styles.commentUserName}>{comment.user_name.split(' ')[0]} : </Text>
+                </View>
+                <Text style={styles.commentDate}>{this.timeSince(comment.isNew? new Date() : new Date(comment.date))}</Text>
+                {comment.isNew && (
+                  <View style={{ flexDirection: 'row' }}>
+                    <EventIcon name='check' color='green' callback={this.validateComment.bind(this)} />
+                    <EventIcon name='remove' color='red' callback={this.cancelComment.bind(this)} />
+                  </View>
+                )}
+              </View>
+              <View style={{ width: '75%' }}>
+                {comment.isNew ?
+                  (<View style={{
+                    borderBottomColor: '#000000',
+                    borderBottomWidth: 0.5,
+                    width: '75%'
+                  }}>
+                    <TextInput
+                      multiline
+                      numberOfLines={3}
+                      editable
+                      maxLength={300}
+                      height={50}
+                      onChangeText={this.onCommentChangeText.bind(this)}
+                      value={comments[comments.length - 1].comment_text}
+                    />
+                  </View>) :
+                  <Text numberOfLines={3} style={styles.commentText}>{comment.comment_text}</Text>
+                }
+              </View>
+            </View>
+          )
+        })}
+        {comments.length == 0 ||
+          (comments.length != 0 && !comments[comments.length - 1].isNew) &&
+          <View style={{ flex: 1 }}>
+            <EventIcon name='plus' color='blue' callback={this.addComment.bind(this)} />
+          </View>
+        }
       </View>
     )
   }
@@ -457,6 +521,7 @@ class EventScreen extends React.Component {
         this.setState({ isEditingDate: doneornot })
         break;
       case 'Min':
+      case 'Participants':
       case 'Max':
         this.setState({ isEditingParticipantNumbers: doneornot })
         break;
@@ -528,22 +593,29 @@ class EventScreen extends React.Component {
             }
             this.apiService.addEntity('events', updatedEventWithSpot.event.event)
               .then((res) => {
-                let newState = {
-                  editing: false,
-                  event: {
-                    ...updatedEventWithSpot.event,
-                    event: {
-                      ...updatedEventWithSpot.event.event,
-                      event_id: res.data.data.event_id
-                    }
-                  }
-                };
-                this.apiService.editEntity('userstats',
-                  {
-                    user_id: this.state.event.host.user_id,
-                    statToUpdate: this.state.event.event.sport + '_created',
-                  });
-                this.setState(newState, () => { this.getData() });
+                let eventP = {
+                  user_id: this.state.loggedUser_id,
+                  event_id: res.data.data.event_id
+                }
+                this.apiService.addEntity('eventparticipant', eventP)
+                  .then((data) => {
+                    let newState = {
+                      editing: false,
+                      event: {
+                        ...updatedEventWithSpot.event,
+                        event: {
+                          ...updatedEventWithSpot.event.event,
+                          event_id: res.data.data.event_id
+                        }
+                      }
+                    };
+                    this.apiService.editEntity('userstats',
+                      {
+                        user_id: this.state.event.host.user_id,
+                        statToUpdate: this.state.event.event.sport + '_created',
+                      });
+                    this.setState(newState, () => { this.getData() });
+                  })
               })
               .catch((error) => {
                 console.log(error)
@@ -594,6 +666,48 @@ class EventScreen extends React.Component {
   }
 
 
+  addComment() {
+    let comments = this.state.event.comments.slice().sort((a, b) => (new Date(b.date)) - (new Date(a.date)));
+    let newComment = {
+      isNew: true,
+      user_id: this.props.auth.user_id,
+      user_name: this.props.auth.user.displayName,
+      photo_url: this.props.auth.user.photoURL,
+      comment_text: '',
+      date: (new Date(comments[comments.length - 1].date) - 1),
+      event_id: this.state.event.event.event_id
+    }
+    comments.push(newComment);
+    this.setState({
+      event: { ...this.state.event, comments: comments }
+    })
+  }
+
+  onCommentChangeText(text) {
+    let comments = this.state.event.comments;
+    comments[comments.length - 1].comment_text = text;
+    this.setState({ event: { ...this.state.event, comments: comments } });
+  }
+
+  validateComment() {
+    let ec = this.state.event.comments[this.state.event.comments.length - 1];
+    ec.date = this.convertUTCDateToLocalDate(new Date());
+    console.log(ec.date);
+    this.apiService.addEntity('eventcomment', ec)
+      .then(() => {
+        this.getData();
+      })
+  }
+
+  cancelComment() {
+    let comments = this.state.event.comments;
+    comments.pop();
+    this.setState({ event: { ...this.state.event, comments: comments } });
+  }
+
+
+
+
   /*********************************************************************************
    *************************                 ***************************************
    ********************      HELPERS   STUFF    ************************************
@@ -630,6 +744,44 @@ class EventScreen extends React.Component {
     }
     return JSON.stringify(obj) === JSON.stringify({});
   }
+
+
+  timeSince(date) {
+    let minute = 60;
+    let hour = minute * 60;
+    let day = hour * 24;
+    let month = day * 30;
+    let year = day * 365;
+
+    let suffix = ' ago';
+
+    let elapsed = Math.floor((Date.now() - date) / 1000);
+
+    if (elapsed < minute) {
+      return 'just now';
+    }
+
+    // get an array in the form of [number, string]
+    let a = elapsed < hour && [Math.floor(elapsed / minute), 'minute'] ||
+      elapsed < day && [Math.floor(elapsed / hour), 'hour'] ||
+      elapsed < month && [Math.floor(elapsed / day), 'day'] ||
+      elapsed < year && [Math.floor(elapsed / month), 'month'] ||
+      [Math.floor(elapsed / year), 'year'];
+
+    // pluralise and append suffix
+    return a[0] + ' ' + a[1] + (a[0] === 1 ? '' : 's') + suffix;
+  }
+
+  convertUTCDateToLocalDate(date) {
+    var newDate = new Date(date.getTime()+date.getTimezoneOffset()*60*1000);
+
+    var offset = date.getTimezoneOffset() / 60;
+    var hours = date.getHours();
+
+    newDate.setHours(hours - offset);
+
+    return newDate;   
+}
 }
 
 export class EventIcon extends React.Component {
