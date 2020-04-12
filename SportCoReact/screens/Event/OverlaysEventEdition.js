@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Text, View, TextInput } from 'react-native';
+import { Text, View, TextInput, Picker } from 'react-native';
 import { styles } from './styles'
 import MapView from 'react-native-maps';
 import { Button, Icon, Overlay } from 'react-native-elements'
@@ -110,6 +110,41 @@ export class RenderOverlayDescription extends React.Component {
                     />
                 </View>
             </Overlay>
+        )
+    }
+}
+
+export class RenderOverlayLevel extends React.Component {
+    render() {
+        return (
+            <Overlay
+                isVisible={this.props.isEditingLevel}
+                onBackdropPress={() => { this.props.stopEditingLevel() }}
+            >
+                <View style={{ flex: 1}}>
+                    <Text style={{ flex: 0.1, alignSelf: 'center', fontSize: 20, fontWeight: 'bold' }}>
+                        Level
+                    </Text>
+                    <Picker
+                        selectedValue={this.props.level}
+                        style={{ flex: 1, height: 50, width: 150, alignSelf: 'center' }}
+                        onValueChange={this.props.onLevelChange}
+                    >
+                        {this.props.levels.map((level, index) => {
+                            return (
+                                <Picker.Item key={'level-' + index} label={level} value={level} />
+                            )
+                        })}
+                    </Picker>
+                    <View style={{ flex: 1 }}>
+                        <RenderSaveButton
+                            title={`| Enregister?`}
+                            callback={this.props.saveLevel}
+                        />
+                    </View>
+                </View>
+
+            </Overlay >
         )
     }
 }

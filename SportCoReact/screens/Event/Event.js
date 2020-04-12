@@ -7,9 +7,10 @@ import MapView from 'react-native-maps';
 import { mapSportIcon } from '../../helpers/mapper';
 import CustomIcon from '../../components/Icon';
 import { Button, Icon } from 'react-native-elements'
-import { RenderOverlayDateTimePicker, RenderOverlayMinMaxParticipants, RenderOverlayDescription, RenderSaveButton, RenderMapViewSpotPicker, RenderOverlaySport } from './OverlaysEventEdition'
+import { RenderOverlayDateTimePicker, RenderOverlayMinMaxParticipants, RenderOverlayDescription, RenderOverlayLevel, RenderMapViewSpotPicker, RenderOverlaySport } from './OverlaysEventEdition'
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { SPORTS, LEVELS } from '../../constants/DbConstants.js'
 
 const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
 const roadMapStyle = [
@@ -24,6 +25,7 @@ const roadMapStyle = [
   }
 ];
 
+
 class EventScreen extends React.Component {
 
   constructor(props) {
@@ -36,6 +38,7 @@ class EventScreen extends React.Component {
       isEditingParticipantNumbers: false,
       isEditingDescription: false,
       isEditingMapMarker: false,
+      isEditingLevel: false,
       event: {
         event: {
           date: new Date(),
@@ -46,7 +49,8 @@ class EventScreen extends React.Component {
           participants_min: 2,
           photo: '',
           sport: 'basket',
-          spot_id: ''
+          spot_id: '',
+          sport_level: 'intermediate'
         },
         host: {
           email: '',
@@ -130,7 +134,7 @@ class EventScreen extends React.Component {
             <View style={{ flexDirection: 'column', flex: 1, marginLeft: 10 }}>
               {this.renderDescriptionText('Description', event.event.description)}
               {this.renderDescriptionText('Date', date)}
-              {this.renderDescriptionText('Hôte', event.host.user_name.split(' ')[0])}
+              {this.renderDescriptionText('Level', event.event.sport_level)}
               <View style={{ flexDirection: 'row' }}>
                 {this.renderDescriptionText('Min', event.event.participants_min, 'flex-start')}
                 {this.renderDescriptionText('Going', event.participants.length, 'center', false)}
@@ -158,6 +162,14 @@ class EventScreen extends React.Component {
                 description={this.state.event.event.description}
                 onDescriptionChange={this.setStateProperty.bind(this, 'event', 'description')}
                 saveDescription={this.setEditingProperty.bind(this, 'Description', false)}
+              />
+              <RenderOverlayLevel
+                isEditingLevel={this.state.isEditingLevel}
+                stopEditingLevel={() => { this.setState({ isEditingLevel: false }) }}
+                level={this.state.event.event.sport_level}
+                levels={LEVELS}
+                onLevelChange={this.setStateProperty.bind(this, 'event', 'sport_level')}
+                saveLevel={this.setEditingProperty.bind(this, 'Level', false)}
               />
             </View>
           </View>
@@ -304,13 +316,15 @@ class EventScreen extends React.Component {
 
               {this.state.editing ? (
                 <View style={{ flexDirection: 'row' }} >
-                  <RenderSaveButton
+                  {/* <RenderSaveButton
                     title={`| Let's do it !`}
                     callback={this.updateEvent.bind(this)}
-                  />
-                  <View style={{ bottom: 15 }}>
-                    <EventIcon name='remove' color='red' callback={this.cancelEdit.bind(this)} />
-                  </View>
+                  /> */}
+                  <EventIcon name='check' color='green' callback={this.updateEvent.bind(this)} />
+
+                  {/* <View style={{ bottom: 15 }}> */}
+                  <EventIcon name='remove' color='red' callback={this.cancelEdit.bind(this)} />
+                  {/* </View> */}
                 </View>
               ) : (
                   <View style={{ flexDirection: 'row' }} >
@@ -378,7 +392,7 @@ class EventScreen extends React.Component {
                   </View>
                   <Text style={styles.commentUserName}>{comment.user_name.split(' ')[0]} : </Text>
                 </View>
-                <Text style={styles.commentDate}>{this.timeSince(comment.isNew? new Date() : new Date(comment.date))}</Text>
+                <Text style={styles.commentDate}>{this.timeSince(comment.isNew ? new Date() : new Date(comment.date))}</Text>
                 {comment.isNew && (
                   <View style={{ flexDirection: 'row' }}>
                     <EventIcon name='check' color='green' callback={this.validateComment.bind(this)} />
@@ -528,6 +542,9 @@ class EventScreen extends React.Component {
       case 'Description':
         this.setState({ isEditingDescription: doneornot })
         break;
+      case 'Level':
+        this.setState({ isEditingLevel: doneornot })
+        break;
       case 'Localisation':
         this.setState({ isEditingMapMarker: doneornot, regionPicked: this.state.initialRegion })
         break;
@@ -570,6 +587,7 @@ class EventScreen extends React.Component {
       newEvent[parentProperty] = newValue;
     else
       newEvent[parentProperty][newProperty] = newValue;
+    // console.log(newEvent + '.' + parentProperty + '.' + newProperty + '=' + newValue)
     this.setState({ event: newEvent });
   }
 
@@ -773,15 +791,15 @@ class EventScreen extends React.Component {
   }
 
   convertUTCDateToLocalDate(date) {
-    var newDate = new Date(date.getTime()+date.getTimezoneOffset()*60*1000);
+    var newDate = new Date(date.getTime() + date.getTimezoneOffset() * 60 * 1000);
 
     var offset = date.getTimezoneOffset() / 60;
     var hours = date.getHours();
 
     newDate.setHours(hours - offset);
 
-    return newDate;   
-}
+    return newDate;
+  }
 }
 
 export class EventIcon extends React.Component {
