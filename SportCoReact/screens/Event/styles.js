@@ -43,10 +43,10 @@ export const styles = StyleSheet.create({
   },
   image: {
     alignSelf: 'center',
-    height: 100,
-    width: 100,
+    height: 80,
+    width: 80,
     borderWidth: 1,
-    borderRadius: 50,
+    borderRadius: 40,
 
   },
   imageParticipant: {
@@ -64,6 +64,7 @@ export const styles = StyleSheet.create({
     borderRadius: 15,
   },
   imageContainer: {
+    flex : 1,
     alignSelf: 'flex-start',
     marginLeft: 30
   },

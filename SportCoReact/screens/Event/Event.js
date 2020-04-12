@@ -173,7 +173,6 @@ class EventScreen extends React.Component {
               />
             </View>
           </View>
-          {this.renderOptions()}
           {this.renderParticipants()}
           <View style={{ marginTop: 20, marginBottom: 20, flex: 1 }}>
             <Text>Vous trouverez ici toutes les informations concernant l'évènement ! L'adresse se trouve via le plan, ou en cliquant sur ce lien : LinkToMap</Text>
@@ -196,7 +195,7 @@ class EventScreen extends React.Component {
 
   renderHostHeader(event, photoUrl, eventIcon) {
     return (
-      <View style={{ flex: 1, flexDirection: 'row' }}>
+      <View style={{ flex: 1, flexDirection: 'row',justifyContent:'space-between' }}>
         <TouchableWithoutFeedback onPress={this.seeProfile.bind(this, this.state.event.host.email)}>
           <View style={styles.imageContainer}>
             {photoUrl != undefined && <Image source={{ uri: photoUrl + '?type=large&width=500&height=500' }} style={styles.image} />}
@@ -204,36 +203,38 @@ class EventScreen extends React.Component {
           </View>
         </TouchableWithoutFeedback>
 
-        <View style={{ flex: 1, justifyContent: 'center', marginLeft: 15, flexDirection: 'row' }}>
-          <Text style={{ fontSize: 18, flex: 3 }}>Salut ! Moi c'est {event.host.user_name.split(' ')[0]}, on va faire un {event.event.sport}, n'hésite pas à nous rejoindre !</Text>
-          <View style={{ flex: 1, flexDirection: 'column' }}>
-            <CustomIcon
-              name={eventIcon.iconName}
-              type={eventIcon.iconFamily}
-              size={30}
-              style={{ alignSelf: 'center', flex: 1 }}
-              selected={true}
-            />
-            {this.state.editing && (
-              <Icon
-                raised
-                name='edit'
-                type='font-awesome'
-                color='orange'
-                size={15}
-                style={{ bottom: -20, right: -20 }}
-                onPress={this.setEditingProperty.bind(this, 'Sport', true)} />
-            )}
-            <RenderOverlaySport
-              isEditingSport={this.state.isEditingSport}
-              stopEditingSport={() => { this.setState({ isEditingSport: false }) }}
-              sport={this.state.event.event.sport}
-              onSportChange={this.setStateProperty.bind(this, 'event', 'sport')}
-              saveSport={this.setEditingProperty.bind(this, 'Sport', false)}
-            />
-          </View>
+        <View style={{
+          justifyContent: 'center', alignItems: 'center'
+        }}>
+          <Text style={{ fontSize: 18 }}>{event.event.sport.toUpperCase()}</Text>
+          {this.renderOptions()}
         </View>
-
+        <View style={{ flexDirection: 'column', alignSelf: 'center', alignItems: 'center' }}>
+          <CustomIcon
+            name={eventIcon.iconName}
+            type={eventIcon.iconFamily}
+            size={80}
+            style={{ alignSelf: 'center', flex: 1 }}
+            selected={true}
+          />
+          {this.state.editing && (
+            <Icon
+              raised
+              name='edit'
+              type='font-awesome'
+              color='orange'
+              size={15}
+              style={{ bottom: -20, right: -20 }}
+              onPress={this.setEditingProperty.bind(this, 'Sport', true)} />
+          )}
+        </View>
+        <RenderOverlaySport
+          isEditingSport={this.state.isEditingSport}
+          stopEditingSport={() => { this.setState({ isEditingSport: false }) }}
+          sport={this.state.event.event.sport}
+          onSportChange={this.setStateProperty.bind(this, 'event', 'sport')}
+          saveSport={this.setEditingProperty.bind(this, 'Sport', false)}
+        />
       </View>
     )
   }
@@ -245,7 +246,7 @@ class EventScreen extends React.Component {
     }
     return (
       <View style={[
-        { flex: 1, flexDirection: 'column', marginBottom:10},
+        { flex: 1, flexDirection: 'column', marginBottom: 10 },
         this.state.editing ? { bottom: 15 } : {},
       ]}>
         <View style={{ flex: 1, flexDirection: 'row' }}>
@@ -262,10 +263,10 @@ class EventScreen extends React.Component {
         </View>
         <View style={styles.titleDescriptionText}>
           {title == 'Level' && (
-            <Image source={levelImage} style={{ bottom: this.state.editing ? 40:30, left: this.state.editing ? 100:50, height: 40, width: 40 }} />
+            <Image source={levelImage} style={{ bottom: this.state.editing ? 40 : 30, left: this.state.editing ? 100 : 50, height: 40, width: 40 }} />
           )}
           <Text style={[styles.titleDescriptionText,
-          { marginTop: title == 'Min' || title == 'Going' || title == 'Max' ? 10 : title == 'Level' ? -30:0 },
+          { marginTop: title == 'Min' || title == 'Going' || title == 'Max' ? 10 : title == 'Level' ? -30 : 0 },
           centered != 'auto' ? { alignSelf: 'center' } : {}]}>
             {data}
           </Text>
@@ -364,7 +365,7 @@ class EventScreen extends React.Component {
 
   renderParticipants() {
     return (
-      <View >
+      <View style={{marginTop:30}} >
         {this.renderDescriptionText('Participants', '', 'auto', false)}
         <View style={{ flexDirection: 'row' }}>
           {this.state.event.participants.map((participant, index) => {
@@ -431,7 +432,7 @@ class EventScreen extends React.Component {
     let comments = this.state.event.comments.slice().sort((a, b) => (new Date(a.date)) - (new Date(b.date)));
     return (
       <View style={{ marginTop: 30 }}>
-        {this.renderDescriptionText('Comments', '', 'auto', true)}
+        {this.renderDescriptionText('Comments', '', 'auto', false)}
         {comments.map((comment, index) => {
           let photoUrl = comment.photo_url;
           return (
