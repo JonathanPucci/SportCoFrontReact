@@ -1,9 +1,15 @@
 import React, { Component } from "react";
-import { View } from 'react-native';
-import { Text } from 'react-native-elements'
+import { View, Image } from 'react-native';
+import { Text } from 'react-native'
 import Icon from './Icon'
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { StyleSheet } from 'react-native';
+import { LEVELS } from "../constants/DbConstants";
+import { Rating, AirbnbRating } from 'react-native-ratings';
+
+
+const LEVEL_IMAGE = require('../assets/images/medal.png')
+const WATER_IMAGE = require('../assets/images/water.png')
 
 
 
@@ -39,6 +45,7 @@ export default class SportsAvailable extends Component {
     }
 
     renderSport(sport, icon, type) {
+        // let levelImage = this.mapLevelImage(this.props.stats[sport].level)
         return (
             <View >
                 <View style={{ flexDirection: 'row' }}>
@@ -63,8 +70,67 @@ export default class SportsAvailable extends Component {
                         </View>
                     )}
                 </View>
+                {this.props.showStats && (
+                    <View style={{ marginLeft: 5, flexDirection: 'row' }}>
+                        <Text style={{ marginRight: 10 }}>Level </Text>
+                        <TouchableWithoutFeedback
+                            onPress={this.ratingCompleted.bind(this, sport)}>
+                            <View>
+                                <Rating
+                                    type='custom'
+                                    ratingImage={LEVEL_IMAGE}
+                                    ratingColor='#3498db'
+                                    ratingBackgroundColor='#c8c7c8'
+                                    ratingCount={LEVELS.length}
+                                    imageSize={25}
+                                    startingValue={this.mapScore(this.props.stats[sport].level)}
+                                    onFinishRating={() => { }}
+                                />
+                            </View>
+                        </TouchableWithoutFeedback>
+
+                    </View>
+                )}
             </View>
         );
+    }
+
+    ratingCompleted(sport) {
+        let level = this.mapScore(this.props.stats[sport].level);
+        level = this.mapScore((level)%LEVELS.length, true);
+        this.props.ratingCompleted(sport, level);
+    }
+
+    mapScore(ratingOrLevel, isRating = false) {
+        if (isRating)
+            return LEVELS[ratingOrLevel];
+        else
+            return LEVELS.indexOf(ratingOrLevel) + 1;
+    }
+
+    mapLevelImage(level) {
+        let levelIndex = this.mapScore(level);
+        let levelImage = null;
+        switch (levelIndex) {
+            case 0:
+                levelImage = require('../assets/images/level1.png');
+                break;
+            case 2:
+                levelImage = require('../assets/images/level2.png');
+                break;
+            case 3:
+                levelImage = require('../assets/images/level3.png');
+                break;
+            case 4:
+                levelImage = require('../assets/images/level4.png');
+                break;
+            case 5:
+                levelImage = require('../assets/images/level5.png');
+                break;
+            default:
+                break;
+        };
+        return levelImage
     }
 
     isSportSelected(sport) {
@@ -74,10 +140,10 @@ export default class SportsAvailable extends Component {
     }
 
     toggleSport(sport) {
-        if(this.props.maxOne){
+        if (this.props.maxOne) {
             this.props.sportsSelectedChanged([sport]);
         }
-        else  if (!this.props.showStats) {
+        else if (!this.props.showStats) {
             let newsports = this.props.sportsSelected;
             this.isSportSelected(sport) ?
                 newsports.splice(newsports.indexOf(sport), 1) :

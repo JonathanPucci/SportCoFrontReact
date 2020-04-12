@@ -134,7 +134,7 @@ class EventScreen extends React.Component {
             <View style={{ flexDirection: 'column', flex: 1, marginLeft: 10 }}>
               {this.renderDescriptionText('Description', event.event.description)}
               {this.renderDescriptionText('Date', date)}
-              {this.renderDescriptionText('Level', event.event.sport_level)}
+              {this.renderDescriptionText('Level', event.event.sport_level.toLocaleUpperCase())}
               <View style={{ flexDirection: 'row' }}>
                 {this.renderDescriptionText('Min', event.event.participants_min, 'flex-start')}
                 {this.renderDescriptionText('Going', event.participants.length, 'center', false)}
@@ -239,9 +239,13 @@ class EventScreen extends React.Component {
   }
 
   renderDescriptionText(title, data, centered = 'auto', isMutable = true) {
+    let levelImage = null;
+    if (title == 'Level') {
+      levelImage = this.mapLevelImage(null, data.toLowerCase());
+    }
     return (
       <View style={[
-        { flex: 1, flexDirection: 'column' },
+        { flex: 1, flexDirection: 'column', marginBottom:10},
         this.state.editing ? { bottom: 15 } : {},
       ]}>
         <View style={{ flex: 1, flexDirection: 'row' }}>
@@ -256,9 +260,17 @@ class EventScreen extends React.Component {
           )}
           <Text style={[styles.titleDescription, centered != 'auto' ? { textAlign: 'center' } : {}, this.state.editing ? { top: 15 } : {}]}>{title}</Text>
         </View>
-        <Text style={[styles.titleDescriptionText,
-        { marginTop: title == 'Min' || title == 'Going' || title == 'Max' ? 10 : 0 },
-        centered != 'auto' ? { alignSelf: 'center' } : {}]}>{data}</Text>
+        <View style={styles.titleDescriptionText}>
+          {title == 'Level' && (
+            <Image source={levelImage} style={{ bottom: this.state.editing ? 40:30, left: this.state.editing ? 100:50, height: 40, width: 40 }} />
+          )}
+          <Text style={[styles.titleDescriptionText,
+          { marginTop: title == 'Min' || title == 'Going' || title == 'Max' ? 10 : title == 'Level' ? -30:0 },
+          centered != 'auto' ? { alignSelf: 'center' } : {}]}>
+            {data}
+          </Text>
+
+        </View>
       </View>
     )
   }
@@ -357,6 +369,7 @@ class EventScreen extends React.Component {
         <View style={{ flexDirection: 'row' }}>
           {this.state.event.participants.map((participant, index) => {
             let photoUrl = participant.photo_url;
+            let levelImage = this.mapLevelImage(participant);
             return (
               <View key={'participant-' + index} style={{ flexDirection: 'column', marginHorizontal: 10, justifyContent: 'center', alignItems: 'center' }}>
                 <TouchableWithoutFeedback onPress={this.seeProfile.bind(this, participant.email)}>
@@ -366,6 +379,7 @@ class EventScreen extends React.Component {
                   </View>
                 </TouchableWithoutFeedback>
                 <Text numberOfLines={1} style={{ alignSelf: 'center', marginBottom: 10, width: 50 }}>{participant.user_name}</Text>
+                <Image source={levelImage} style={{ position: 'absolute', bottom: 50, left: 30, height: 40, width: 40 }} />
               </View>
             )
           })}
@@ -374,6 +388,44 @@ class EventScreen extends React.Component {
       </View>
     )
   }
+
+  mapScore(ratingOrLevel, isRating = false) {
+    if (isRating)
+      return LEVELS[ratingOrLevel];
+    else
+      return LEVELS.indexOf(ratingOrLevel);
+  }
+
+  mapLevelImage(participant, level = null) {
+    let levelIndex = null;
+    if (level == null)
+      levelIndex = this.mapScore(participant[this.state.event.event.sport + '_level']);
+    else
+      levelIndex = this.mapScore(level);
+
+    let levelImage = null;
+    switch (levelIndex) {
+      case 0:
+        levelImage = require('../../assets/images/level1.png');
+        break;
+      case 1:
+        levelImage = require('../../assets/images/level2.png');
+        break;
+      case 2:
+        levelImage = require('../../assets/images/level3.png');
+        break;
+      case 3:
+        levelImage = require('../../assets/images/level4.png');
+        break;
+      case 4:
+        levelImage = require('../../assets/images/level5.png');
+        break;
+      default:
+        break;
+    };
+    return levelImage
+  }
+
 
   renderComments() {
     let comments = this.state.event.comments.slice().sort((a, b) => (new Date(a.date)) - (new Date(b.date)));
@@ -423,8 +475,8 @@ class EventScreen extends React.Component {
             </View>
           )
         })}
-        {comments.length == 0 ||
-          (comments.length != 0 && !comments[comments.length - 1].isNew) &&
+        {(!comments.length ||
+          (comments.length && !comments[comments.length - 1].isNew)) &&
           <View style={{ flex: 1 }}>
             <EventIcon name='plus' color='blue' callback={this.addComment.bind(this)} />
           </View>

@@ -16,12 +16,16 @@ import SportsAvailable from '../../components/SportsAvailable';
 
 class ProfileScreen extends React.Component {
 
-  state = {
-    user: undefined,
-    sportsSelected: ['Tennis'],
-    apiService: new SportCoApi(),
-    refreshing: false
+  constructor() {
+    super();
+    this.state = {
+      user: undefined,
+      sportsSelected: ['Tennis'],
+      refreshing: false
+    }
+    this.apiService = new SportCoApi()
   }
+
 
   componentDidMount() {
     this.getData();
@@ -34,9 +38,9 @@ class ProfileScreen extends React.Component {
       if (this.props.route.params != undefined)
         email = this.props.route.params.email;
 
-      this.state.apiService.getSingleEntity('users/email', email)
+      this.apiService.getSingleEntity('users/email', email)
         .then(res => {
-          this.state.apiService.getSingleEntity('userstats', res.data.user_id)
+          this.apiService.getSingleEntity('userstats', res.data.user_id)
             .then(stats => {
               this.setState({
                 user: res.data,
@@ -53,10 +57,13 @@ class ProfileScreen extends React.Component {
       return <View />
     return (
       <View style={styles.container}>
-        <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}
+        <ScrollView 
+        style={styles.container} 
+        contentContainerStyle={styles.contentContainer}
           refreshControl={
             <RefreshControl refreshing={this.state.refreshing} onRefresh={this.getData.bind(this)} />
-          }>
+          }
+          keyboardShouldPersistTaps='always'>
           <SafeAreaView style={styles.container}>
             <View style={styles.basicInfoContainer}>
               <View style={styles.basicInfo}>
@@ -89,7 +96,8 @@ class ProfileScreen extends React.Component {
                 showStats={true}
                 stats={this.state.userstats}
                 sportsSelected={this.state.sportsSelected}
-                sportsSelectedChanged={(newsports) => { this.setState({ sportsSelected: newsports }) }} />
+                sportsSelectedChanged={(newsports) => { this.setState({ sportsSelected: newsports }) }}
+                ratingCompleted={this.ratingCompleted.bind(this)} />
             </View>
             <Divider style={styles.divider} />
             <View style={styles.bottom}>
@@ -108,6 +116,17 @@ class ProfileScreen extends React.Component {
         </ScrollView>
       </View>
     );
+  }
+
+  ratingCompleted(sport, level) {
+    let userstats = this.state.userstats;
+    userstats[sport].level = level;
+    this.setState({ userstats: userstats })
+    this.apiService.editEntity('userstats/level', {
+      sport_level: sport + '_level',
+      level: level,
+      user_id: this.state.user.user_id
+    })
   }
 
 
