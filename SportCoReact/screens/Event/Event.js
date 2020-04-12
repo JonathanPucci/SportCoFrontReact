@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { TextInput, Text, View, Image, RefreshControl } from 'react-native';
+import { TextInput, Text, View, Image, RefreshControl, Platform } from 'react-native';
 import { connect } from 'react-redux'
 import { styles } from './styles'
 import SportCoApi from '../../services/apiService';
@@ -11,6 +11,7 @@ import { RenderOverlayDateTimePicker, RenderOverlayMinMaxParticipants, RenderOve
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { SPORTS, LEVELS } from '../../constants/DbConstants.js'
+import { createOpenLink } from 'react-native-open-maps';
 
 const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
 const roadMapStyle = [
@@ -174,10 +175,23 @@ class EventScreen extends React.Component {
             </View>
           </View>
           {this.renderParticipants()}
-          <View style={{ marginTop: 20, marginBottom: 20, flex: 1 }}>
-            <Text>Vous trouverez ici toutes les informations concernant l'évènement ! L'adresse se trouve via le plan, ou en cliquant sur ce lien : LinkToMap</Text>
-          </View>
+
           {this.renderMapView(event)}
+          <View style={{ marginTop: 20, marginBottom: 20, flex: 1 }}>
+            <Button
+              color={'#bdc3c7'}
+              onPress={Platform.OS == 'ios' ?
+                createOpenLink({
+                  latitude: parseFloat(this.state.event.spot.spot_latitude),
+                  longitude: parseFloat(this.state.event.spot.spot_longitude),
+                  query: 'Oh yeah'
+                }) :
+                createOpenLink({
+                  query: (this.state.event.spot.spot_latitude + ',' + this.state.event.spot.spot_longitude)
+                })
+              }
+              title="Click To Open in Maps" />
+          </View>
           {this.renderComments(event)}
         </View>
         <View style={{ height: 200 }}></View>
@@ -195,7 +209,7 @@ class EventScreen extends React.Component {
 
   renderHostHeader(event, photoUrl, eventIcon) {
     return (
-      <View style={{ flex: 1, flexDirection: 'row',justifyContent:'space-between' }}>
+      <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
         <TouchableWithoutFeedback onPress={this.seeProfile.bind(this, this.state.event.host.email)}>
           <View style={styles.imageContainer}>
             {photoUrl != undefined && <Image source={{ uri: photoUrl + '?type=large&width=500&height=500' }} style={styles.image} />}
@@ -365,7 +379,7 @@ class EventScreen extends React.Component {
 
   renderParticipants() {
     return (
-      <View style={{marginTop:30}} >
+      <View style={{ marginTop: 30 }} >
         {this.renderDescriptionText('Participants', '', 'auto', false)}
         <View style={{ flexDirection: 'row' }}>
           {this.state.event.participants.map((participant, index) => {
@@ -852,6 +866,13 @@ class EventScreen extends React.Component {
     newDate.setHours(hours - offset);
 
     return newDate;
+  }
+
+  createOpenLinksNative() {
+    createOpenLink({
+      latitude: parseFloat(this.state.event.spot.spot_latitude),
+      longitude: parseFloat(this.state.event.spot.spot_longitude)
+    });
   }
 }
 
