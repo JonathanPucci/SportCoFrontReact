@@ -93,11 +93,10 @@ export class RenderOverlayDescription extends React.Component {
                     }}>
                         <TextInput
                             style={{
-                                width: "120%",
                                 alignItems: 'center',
                                 overflow: "hidden",
-                                alignSelf: 'center'
-
+                                alignSelf: 'center',
+                                textAlign:'center'
                             }}
                             onChangeText={this.props.onDescriptionChange}
                             defaultValue={this.props.description}

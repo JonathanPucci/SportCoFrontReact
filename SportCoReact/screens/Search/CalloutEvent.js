@@ -7,7 +7,7 @@ import { eventCalloutStyles } from './styles';
 import Icon from '../../components/Icon'
 import { mapSportIcon } from '../../helpers/mapper'
 import SportCoApi from '../../services/apiService';
-import Event from '../Event/Event';
+import {computeDate} from '../Event/Helpers';
 
 class CalloutEvent extends React.Component {
 
@@ -40,7 +40,7 @@ class CalloutEvent extends React.Component {
                         <View style={eventCalloutStyles.eventDescriptionView}>
                             <View style={eventCalloutStyles.eventDescription}>
                                 <Text h5 >Participants : {eventInfo.participants.length}/{eventInfo.event.participants_max}</Text>
-                                <Text h5 >{Event.computeDate(eventInfo.event.date)} 14h-16h </Text>
+                                <Text h5 >{computeDate(eventInfo.event.date)} 14h-16h </Text>
                             </View>
                         </View>
                         <View style={{ alignItems: 'center', justifyContent:'center' }}>
