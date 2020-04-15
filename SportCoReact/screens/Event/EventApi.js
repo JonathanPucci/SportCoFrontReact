@@ -10,7 +10,7 @@ const apiService = new SportCoApi();
  ********************************************************************************/
 
 export function updateEvent() {
-    if (this.state.event.event.event_id == '') {
+    if (this.state.eventData.event.event_id == '') {
         // Get Spot from region (create if not exist)
         // Then add spotId to event
         this.apiService.getEntities("spots/coordinates", this.state.regionPicked)
@@ -18,9 +18,9 @@ export function updateEvent() {
                 if (data.data.length != 0) {
                     let updatedEventWithSpot = {
                         event: {
-                            ...this.state.event,
+                            ...this.state.eventData,
                             event: {
-                                ...this.state.event.event,
+                                ...this.state.eventData.event,
                                 spot_id: data.data[0].spot_id
                             },
                             spot: data.data[0]
@@ -46,10 +46,10 @@ export function updateEvent() {
                                     };
                                     this.apiService.editEntity('userstats',
                                         {
-                                            user_id: this.state.event.host.user_id,
-                                            statToUpdate: this.state.event.event.sport + '_created',
+                                            user_id: this.state.eventData.host.user_id,
+                                            statToUpdate: this.state.eventData.event.sport + '_created',
                                         });
-                                    this.setState(newState, () => { this.getData() });
+                                    this.setState(newState, () => { this.getData(true) });
                                 })
                         })
                         .catch((error) => {
@@ -57,7 +57,7 @@ export function updateEvent() {
                         })
                 } else {
                     //Spot is unknown yet, let's add it and retry
-                    this.apiService.addEntity('spots', this.state.event.spot)
+                    this.apiService.addEntity('spots', this.state.eventData.spot)
                         .then((data) => {
                             this.updateEvent();
                         })
@@ -70,31 +70,23 @@ export function updateEvent() {
     } else {
         //avoid setState as we just want to set in DB and then getData !
         //TODO : check if there's not easier...
-        //this.state.event.event.date.setMinutes(this.state.event.event.date.getMinutes() - this.state.event.event.date.getTimezoneOffset());
+        //this.state.eventData.event.date.setMinutes(this.state.eventData.event.date.getMinutes() - this.state.eventData.event.date.getTimezoneOffset());
 
-        this.state.event.event['reason_for_update'] = 'EVENT_CHANGED';
-        this.state.event.event['data_name'] = 'event_id';
+        this.state.eventData.event['reason_for_update'] = 'EVENT_CHANGED';
+        this.state.eventData.event['data_name'] = 'event_id';
 
-        this.apiService.editEntity('events', this.state.event.event)
+        this.apiService.editEntity('events', this.state.eventData.event)
             .then(() => {
-                this.getData();
+                this.getData(true);
             })
     }
 }
 
-export function editEvent() {
-    this.setState({ editing: true, eventBeforeEdit: this.state.event })
-}
-
-export function cancelEdit() {
-    this.setState({ editing: false, event: this.state.eventBeforeEdit });
-}
-
 export function cancelEvent() {
-    this.state.event.event['reason_for_update'] = 'EVENT_CANCELED';
-    this.state.event.event['data_name'] = 'event_id';
+    this.state.eventData.event['reason_for_update'] = 'EVENT_CANCELED';
+    this.state.eventData.event['data_name'] = 'event_id';
 
-    this.apiService.deleteEntity('events', this.state.event.event)
+    this.apiService.deleteEntity('events', this.state.eventData.event)
         .then((data) => {
             this.props.navigation.goBack();
         });
@@ -110,27 +102,27 @@ export function cancelEvent() {
 export function joinEvent() {
     let eventP = {
         user_id: this.state.loggedUser_id,
-        event_id: this.state.event.event.event_id
+        event_id: this.state.eventData.event.event_id
     }
     this.apiService.addEntity('eventparticipant', eventP)
         .then(() => {
-            this.getData();
+            this.getData(false);
         })
     this.apiService.editEntity('userstats',
         {
             user_id: this.state.loggedUser_id,
-            statToUpdate: this.state.event.event.sport + '_joined'
+            statToUpdate: this.state.eventData.event.sport + '_joined'
         });
 }
 
 export function leaveEvent() {
     let eventP = {
         user_id: this.state.loggedUser_id,
-        event_id: this.state.event.event.event_id
+        event_id: this.state.eventData.event.event_id
     }
     this.apiService.deleteEntity('eventparticipant', eventP)
         .then(() => {
-            this.getData();
+            this.getData(false);
         })
 }
 
@@ -147,7 +139,7 @@ export function leaveEvent() {
 
 
 export function addComment() {
-    let comments = this.state.event.comments.slice().sort((a, b) => (new Date(a.date)) - (new Date(b.date)));
+    let comments = this.state.eventData.comments.slice().sort((a, b) => (new Date(a.date)) - (new Date(b.date)));
     let newComment = {
         isNew: true,
         user_id: this.props.auth.user_id,
@@ -155,31 +147,27 @@ export function addComment() {
         photo_url: this.props.auth.user.photoURL,
         comment_text: '',
         date: 'NEW',
-        event_id: this.state.event.event.event_id
+        event_id: this.state.eventData.event.event_id
     }
     comments.push(newComment);
-    this.setState({
-        event: { ...this.state.event, comments: comments }
-    })
+    this.setState({ eventData: { ...this.state.eventData, comments: comments } })
 }
 
 export function onCommentChangeText(text) {
-    let comments = this.state.event.comments;
+    let comments = this.state.eventData.comments;
     comments[comments.length - 1].comment_text = text;
-    this.setState({ event: { ...this.state.event, comments: comments } });
+    this.setState({ eventData: { ...this.state.eventData, comments: comments } });
 }
 
-export function validateComment() {
-    let ec = this.state.event.comments[this.state.event.comments.length - 1];
+export async function validateComment() {
+    let ec = this.state.eventData.comments[this.state.eventData.comments.length - 1];
     ec.date = convertUTCDateToLocalDate(new Date());
-    apiService.addEntity('eventcomment', ec)
-        .then(() => {
-            this.getData();
-        })
+    const data = await apiService.addEntity('eventcomment', ec)
+    this.getData();
 }
 
 export function cancelComment() {
-    let comments = this.state.event.comments;
+    let comments = this.state.eventData.comments;
     comments.pop();
-    this.setState({ event: { ...this.state.event, comments: comments } });
+    this.setState({ eventData: { ...this.state.eventData, comments: comments } });
 }

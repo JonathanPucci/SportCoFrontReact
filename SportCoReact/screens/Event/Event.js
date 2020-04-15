@@ -1,35 +1,23 @@
 import * as React from 'react';
-import { TextInput, Text, View, Image, RefreshControl, Platform } from 'react-native';
+import { Text, View, Image, RefreshControl, Platform } from 'react-native';
 import { connect } from 'react-redux'
 import { styles } from './styles'
 import SportCoApi from '../../services/apiService';
-import MapView from 'react-native-maps';
 import { mapSportIcon } from '../../helpers/mapper';
 import CustomIcon from '../../components/Icon';
 import { Button, Icon } from 'react-native-elements'
-import { RenderOverlayDateTimePicker, RenderOverlayMinMaxParticipants, RenderOverlayDescription, RenderOverlayLevel, RenderMapViewSpotPicker, RenderOverlaySport } from './OverlaysEventEdition'
+import { OverlayDateTimePicker, OverlayMinMaxParticipants, OverlayDescription, OverlayLevel, OverlaySport } from './OverlaysEventEdition'
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { LEVELS } from '../../constants/DbConstants.js'
 import { createOpenLink } from 'react-native-open-maps';
-import { OptionIcon } from './OptionIcon'
-import { seeProfile, isOrganizedByMe, isEmpty, computeAlreadyJoined, computeDate, timeSince, mapLevelImage } from './Helpers'
-import { addComment, cancelComment, onCommentChangeText, validateComment } from './EventApi';
-import { joinEvent, leaveEvent } from './EventApi';
-import { editEvent, cancelEdit, cancelEvent, updateEvent } from './EventApi';
-
-const roadMapStyle = [
-  {
-    "featureType": "road",
-    "elementType": "labels",
-    "stylers": [
-      {
-        "visibility": "on"
-      }
-    ]
-  }
-];
-
+import { seeProfile, isEmpty, computeDate } from './Helpers'
+import * as EventApi from './EventApi';
+import { Comments } from "./Comments/Comments";
+import { DescriptionText } from "./DescriptionText/DescriptionText";
+import { EventMapView } from './EventMapView/EventMapView';
+import { Participants } from './Participants/Participants';
+import { Options } from './Options/Options';
 
 class EventScreen extends React.Component {
 
@@ -44,67 +32,37 @@ class EventScreen extends React.Component {
       isEditingDescription: false,
       isEditingMapMarker: false,
       isEditingLevel: false,
-      event: {
-        event: {
-          date: new Date(),
-          description: '',
-          event_id: '',
-          host_id: "",
-          participants_max: 2,
-          participants_min: 2,
-          photo: '',
-          sport: 'basket',
-          spot_id: '',
-          sport_level: 'intermediate'
-        },
-        host: {
-          email: '',
-          photo_url: '',
-          user_name: '',
-          user_id: ''
-        },
-        spot: {
-          spot_id: '',
-          spot_name: '',
-          spot_longitude: '',
-          spot_latitude: '',
-        },
-        participants: [],
-        comments: []
-      },
-      eventBeforeEdit: {},
-      regionPicked: {
-
-      },
+      regionPicked: {},
       initialRegion: {}
     };
     this.apiService = new SportCoApi();
-    this.addComment = addComment.bind(this);
-    this.validateComment = validateComment.bind(this);
-    this.onCommentChangeText = onCommentChangeText.bind(this);
-    this.cancelComment = cancelComment.bind(this);
-    this.joinEvent = joinEvent.bind(this);
-    this.leaveEvent = leaveEvent.bind(this);
-    this.cancelEvent = cancelEvent.bind(this);
-    this.updateEvent = updateEvent.bind(this);
-    this.editEvent = editEvent.bind(this);
-    this.cancelEdit = cancelEdit.bind(this);
+    this.addComment = EventApi.addComment.bind(this);
+    this.validateComment = EventApi.validateComment.bind(this);
+    this.onCommentChangeText = EventApi.onCommentChangeText.bind(this);
+    this.cancelComment = EventApi.cancelComment.bind(this);
+    this.joinEvent = EventApi.joinEvent.bind(this);
+    this.leaveEvent = EventApi.leaveEvent.bind(this);
+    this.cancelEvent = EventApi.cancelEvent.bind(this);
+    this.updateEvent = EventApi.updateEvent.bind(this);
   }
 
   componentDidMount() {
     this.watchId = navigator.geolocation.watchPosition(
-      this.setCurrentPosition.bind(this),
+      this.setCurrentPosition,
       () => { console.log('setPosError') },
       {
         enableHighAccuracy: true,
         timeout: 1000,
         maximumAge: 0
       }
-
     );
   }
 
-  setCurrentPosition(position) {
+  getInitEventData = () => {
+    return { ...this.props.eventDataFromStore };
+  }
+
+  setCurrentPosition = async (position) => {
     navigator.geolocation.clearWatch(this.watchId);
     let region = {
       latitude: position.coords.latitude,
@@ -112,29 +70,29 @@ class EventScreen extends React.Component {
       latitudeDelta: 0.08,
       longitudeDelta: 0.08
     };
+    const data = await this.getData();
+    const initEventData = this.getInitEventData();
     this.setState(
       {
         ...this.state,
         initialRegion: region,
-        regionPicked: region
-      }, () => {
-        this.getData()
-      });
+        regionPicked: region,
+        eventData: initEventData
+      }
+    );
   }
 
-
-  /********************************************************************************
- *************************                  ***************************************
- ********************         RENDER             **********************************
- *************************                  ***************************************
- *********************************************************************************/
-
+  /**********************************************************************************
+   ********************         RENDER             **********************************
+   *********************************************************************************/
 
   render() {
-    let event = this.state.event;
-    let photoUrl = this.state.event.host.photo_url;
-    let eventIcon = mapSportIcon(event.event.sport.toLowerCase());
-    let date = computeDate(event.event.date);
+    let eventData = this.state.eventData;
+    if (eventData == undefined)
+      return <View></View>
+    let photoUrl = eventData.host.photo_url;
+    let eventIcon = mapSportIcon(eventData.event.sport.toLowerCase());
+    let date = computeDate(eventData.event.date);
     return (
       <KeyboardAwareScrollView
         extraScrollHeight={150}
@@ -142,77 +100,103 @@ class EventScreen extends React.Component {
         contentContainerStyle={styles.contentContainer}
         keyboardShouldPersistTaps="handled"
         refreshControl={
-          <RefreshControl refreshing={this.state.refreshing} onRefresh={this.getData.bind(this)} />
+          <RefreshControl refreshing={this.state.refreshing} onRefresh={this.getData} />
         }>
 
-        {this.renderHostHeader(event, photoUrl, eventIcon)}
+        {this.renderHostHeader(eventData, photoUrl, eventIcon)}
         <View style={{ flex: 1, width: '100%', alignSelf: 'center', marginTop: 20 }}>
           <View style={styles.descriptionView}>
-            <Image
-              source={eventIcon.image}
-              style={styles.imageSport}
-            />
-            <View style={{ flexDirection: 'column', flex: 1, marginLeft: 10 }}>
-              {this.renderDescriptionText('Description', event.event.description)}
-              {this.renderDescriptionText('Date', date)}
-              {this.renderDescriptionText('Level', event.event.sport_level.toLocaleUpperCase())}
-              <View style={{ flexDirection: 'row' }}>
-                {this.renderDescriptionText('Min', event.event.participants_min, 'flex-start')}
-                {this.renderDescriptionText('Going', event.participants.length, 'center', false)}
-                {this.renderDescriptionText('Max', event.event.participants_max, 'flex-end')}
+            <View style={{ flex: 1, flexDirection: 'column' }}>
+              <Image
+                source={eventIcon.image}
+                style={styles.imageSport}
+              />
+              <View style={{ marginTop: 20 }}>
+                <DescriptionText
+                  title='Visibility'
+                  data={eventData.event.visibility.toUpperCase()}
+                  editing={this.state.editing}
+                  setEditingProperty={this.setEditingProperty}
+                />
               </View>
-              <RenderOverlayDateTimePicker
-                isEditingDate={this.state.isEditingDate}
-                stopEditingDate={() => { this.setState({ isEditingDate: false }) }}
-                event={this.state.event}
-                onDateChange={this.setStateProperty.bind(this, 'event', 'date')}
-                onDateTimeChange={this.setStateProperty.bind(this, 'event', 'datetime')}
-                saveDate={this.setEditingProperty.bind(this, 'Date', false)}
-              />
-              <RenderOverlayMinMaxParticipants
-                isEditingParticipantNumbers={this.state.isEditingParticipantNumbers}
-                stopEditingParticipantNumbers={() => { this.setState({ isEditingParticipantNumbers: false }) }}
-                event={this.state.event}
-                onPMinChange={this.setStateProperty.bind(this, 'event', 'participants_min')}
-                onPMaxChange={this.setStateProperty.bind(this, 'event', 'participants_max')}
-                saveParticipants={this.setEditingProperty.bind(this, 'Participants', false)}
-              />
-              <RenderOverlayDescription
+            </View>
+            <View style={{ flexDirection: 'column', flex: 1, marginLeft: 10 }}>
+              {this.renderDescriptionText('Description', eventData.event.description)}
+              {this.renderDescriptionText('Date', date)}
+              {this.renderDescriptionText('Level', eventData.event.sport_level.toLocaleUpperCase())}
+              <View style={{ flexDirection: 'row', marginLeft: -20 }}>
+                {this.renderDescriptionText('Min', eventData.event.participants_min, true)}
+                {this.renderDescriptionText('Going', eventData.participants.length, true, false)}
+                {this.renderDescriptionText('Max', eventData.event.participants_max, true, false)}
+              </View>
+              <OverlayDescription
                 isEditingDescription={this.state.isEditingDescription}
                 stopEditingDescription={() => { this.setState({ isEditingDescription: false }) }}
-                description={this.state.event.event.description}
-                onDescriptionChange={this.setStateProperty.bind(this, 'event', 'description')}
-                saveDescription={this.setEditingProperty.bind(this, 'Description', false)}
+                description={eventData.event.description}
+                onDescriptionChange={(desc) => this.setStateEventDataProperty('event', 'description', desc)}
+                saveDescription={() => this.setEditingProperty('Description', false)}
               />
-              <RenderOverlayLevel
+              <OverlayDateTimePicker
+                isEditingDate={this.state.isEditingDate}
+                stopEditingDate={() => { this.setState({ isEditingDate: false }) }}
+                event={eventData}
+                onDateChange={(e, d) => this.setStateEventDataProperty('event', 'date', null, d)}
+                onDateTimeChange={(e, dt) => this.setStateEventDataProperty('event', 'datetime', null, dt)}
+                saveDate={() => this.setEditingProperty('Date', false)}
+              />
+              <OverlayLevel
                 isEditingLevel={this.state.isEditingLevel}
                 stopEditingLevel={() => { this.setState({ isEditingLevel: false }) }}
-                level={this.state.event.event.sport_level}
+                level={eventData.event.sport_level}
                 levels={LEVELS}
-                onLevelChange={this.setStateProperty.bind(this, 'event', 'sport_level')}
-                saveLevel={this.setEditingProperty.bind(this, 'Level', false)}
+                onLevelChange={(level) => this.setStateEventDataProperty('event', 'sport_level', level)}
+                saveLevel={() => this.setEditingProperty('Level', false)}
+              />
+              <OverlayMinMaxParticipants
+                isEditingParticipantNumbers={this.state.isEditingParticipantNumbers}
+                stopEditingParticipantNumbers={() => { this.setState({ isEditingParticipantNumbers: false }) }}
+                event={eventData}
+                onPMinChange={(min) => this.setStateEventDataProperty('event', 'participants_min', min)}
+                onPMaxChange={(max) => this.setStateEventDataProperty('event', 'participants_max', max)}
+                saveParticipants={() => this.setEditingProperty('Participants', false)}
               />
             </View>
           </View>
-          {this.renderParticipants()}
-
-          {this.renderMapView(event)}
+          <Participants
+            eventData={this.state.eventData}
+            editing={this.state.editing}
+            setEditingProperty={this.setEditingProperty} />
+          <EventMapView
+            eventData={this.state.eventData}
+            editing={this.state.editing}
+            isEditingMapMarker={this.state.isEditingMapMarker}
+            setEditingProperty={this.setEditingProperty}
+            setStateEventDataProperty={this.setStateEventDataProperty}
+            regionChanged={(r) => this.setState(r)}
+          />
           <View style={{ marginTop: 20, marginBottom: 20, flex: 1 }}>
             <Button
               color={'#bdc3c7'}
               onPress={Platform.OS == 'ios' ?
                 createOpenLink({
-                  latitude: parseFloat(this.state.event.spot.spot_latitude),
-                  longitude: parseFloat(this.state.event.spot.spot_longitude),
+                  latitude: parseFloat(eventData.spot.spot_latitude),
+                  longitude: parseFloat(eventData.spot.spot_longitude),
                   query: 'Oh yeah'
                 }) :
                 createOpenLink({
-                  query: (this.state.event.spot.spot_latitude + ',' + this.state.event.spot.spot_longitude)
+                  query: (eventData.spot.spot_latitude + ',' + eventData.spot.spot_longitude)
                 })
               }
               title="Click To Open in Maps" />
           </View>
-          {this.renderComments(event)}
+          <Comments
+            comments={this.state.eventData.comments}
+            addComment={this.addComment}
+            validateComment={this.validateComment}
+            onCommentChangeText={this.onCommentChangeText}
+            cancelComment={this.cancelComment}
+            setEditingProperty={this.setEditingProperty}
+          />
         </View>
         <View style={{ height: 200 }}></View>
       </KeyboardAwareScrollView>
@@ -220,17 +204,27 @@ class EventScreen extends React.Component {
   }
 
 
-  /*********************************************************************************
-   *************************                 ***************************************
-   ********************      RENDERING HEADER   ************************************
-   *************************                 ***************************************
-   ********************************************************************************/
+  renderDescriptionText = (title, data, centered = false, isMutable = true) => {
+    return (
+      <DescriptionText
+        title={title}
+        data={data}
+        editing={this.state.editing}
+        setEditingProperty={this.setEditingProperty}
+        sport={this.state.eventData.event.sport}
+        centered={centered ? 'center' : 'auto'}
+        isMutable={isMutable} />
+    )
+  }
 
+  /*********************************************************************************
+   ********************      RENDERING HEADER   ************************************
+   ********************************************************************************/
 
   renderHostHeader(event, photoUrl, eventIcon) {
     return (
       <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
-        <TouchableWithoutFeedback onPress={seeProfile.bind(this, this.state.event.host.email)}>
+        <TouchableWithoutFeedback onPress={seeProfile.bind(this, this.state.eventData.host.email)}>
           <View style={styles.imageContainer}>
             {photoUrl != undefined && <Image source={{ uri: photoUrl + '?type=large&width=500&height=500' }} style={styles.image} />}
             {photoUrl == undefined && <Image source={require('../../assets/images/robot-dev.png')} style={styles.image} />}
@@ -241,7 +235,17 @@ class EventScreen extends React.Component {
           justifyContent: 'center', alignItems: 'center'
         }}>
           <Text style={{ fontSize: 18 }}>{event.event.sport.toUpperCase()}</Text>
-          {this.renderOptions()}
+          <Options
+            eventData={this.state.eventData}
+            user_id={this.props.auth.user_id}
+            editing={this.state.editing}
+            updateEvent={this.updateEvent}
+            cancelEvent={this.cancelEvent}
+            editEvent={this.editEvent}
+            cancelEdit={this.cancelEdit}
+            joinEvent={this.joinEvent}
+            leaveEvent={this.leaveEvent}
+          />
         </View>
         <View style={{ flexDirection: 'column', alignSelf: 'center', alignItems: 'center' }}>
           <CustomIcon
@@ -259,329 +263,61 @@ class EventScreen extends React.Component {
               color='orange'
               size={15}
               style={{ bottom: -20, right: -20 }}
-              onPress={this.setEditingProperty.bind(this, 'Sport', true)} />
+              onPress={() => this.setEditingProperty('Sport', true)} />
           )}
         </View>
-        <RenderOverlaySport
+        <OverlaySport
           isEditingSport={this.state.isEditingSport}
           stopEditingSport={() => { this.setState({ isEditingSport: false }) }}
-          sport={this.state.event.event.sport}
-          onSportChange={this.setStateProperty.bind(this, 'event', 'sport')}
-          saveSport={this.setEditingProperty.bind(this, 'Sport', false)}
+          sport={this.state.eventData.event.sport}
+          onSportChange={(sport) => this.setStateEventDataProperty('event', 'sport', sport)}
+          saveSport={() => this.setEditingProperty('Sport', false)}
         />
       </View>
     )
   }
 
-
-  /********************************************************************************
- *************************                  ***************************************
- ********************         DESCRIPTION        **********************************
- *************************                  ***************************************
- *********************************************************************************/
-
-  renderDescriptionText(title, data, centered = 'auto', isMutable = true) {
-    let levelImage = null;
-    if (title == 'Level') {
-      levelImage = mapLevelImage(this.state.event.event.sport, null, data.toLowerCase());
-    }
-    return (
-      <View style={[
-        { flex: 1, flexDirection: 'column', marginBottom: 10 },
-        this.state.editing ? { bottom: 15 } : {},
-      ]}>
-        <View style={{ flex: 1, flexDirection: 'row' }}>
-          {this.state.editing && isMutable && (
-            <Icon
-              raised
-              name='edit'
-              type='font-awesome'
-              color='orange'
-              size={title == 'Min' || title == 'Max' ? 4 : 15}
-              onPress={this.setEditingProperty.bind(this, title, true)} />
-          )}
-          <Text style={[styles.titleDescription, centered != 'auto' ? { textAlign: 'center' } : {}, this.state.editing ? { top: 15 } : {}]}>{title}</Text>
-        </View>
-        <View style={styles.titleDescriptionText}>
-          {title == 'Level' && (
-            <Image source={levelImage} style={{ bottom: this.state.editing ? 40 : 30, left: this.state.editing ? 100 : 50, height: 40, width: 40 }} />
-          )}
-          <Text style={[styles.titleDescriptionText,
-          { marginTop: title == 'Min' || title == 'Going' || title == 'Max' ? 10 : title == 'Level' ? -30 : 0 },
-          centered != 'auto' ? { alignSelf: 'center' } : {}]}>
-            {data}
-          </Text>
-
-        </View>
-      </View>
-    )
-  }
-
-
-  /********************************************************************************
- *************************                  ***************************************
- ********************         MAPVIEW       **********************************
- *************************                  ***************************************
- *********************************************************************************/
-
-
-  renderMapView(event) {
-    let eventRegion = {
-      latitude: parseFloat(event.spot.spot_latitude),
-      longitude: parseFloat(event.spot.spot_longitude),
-      latitudeDelta: 0.005,
-      longitudeDelta: 0.005
-    }
-    return (
-      <View style={{ flex: 1 }}>
-        <View>
-          {this.renderDescriptionText('Localisation', '')}
-          {!isNaN(eventRegion.latitude) ? (
-            <MapView
-              style={styles.mapStyle}
-              pitchEnabled={false}
-              rotateEnabled={false}
-              zoomEnabled={true}
-              scrollEnabled={false}
-              showsUserLocation={true}
-              initialRegion={eventRegion}
-              provider={"google"}
-              customMapStyle={roadMapStyle}>
-
-              <MapView.Marker
-                coordinate={eventRegion}
-                onPress={() => { }}
-              />
-            </MapView>
-          ) :
-            <Text>Choisissez une localisation</Text>}
-        </View>
-        <RenderMapViewSpotPicker
-          isVisible={this.state.isEditingMapMarker}
-          stopEditingMapMarker={this.setEditingProperty.bind(this, 'Localisation', false)}
-          regionPicked={!isNaN(eventRegion.latitude) ? eventRegion : this.state.regionPicked}
-          onRegionChange={(region) => { this.setState({ regionPicked: region }) }}
-          saveLocation={this.setStateProperty.bind(this, 'spot', 'WHOLE', null)}
-          selectedSpot={this.setStateProperty.bind(this, 'spot', 'WHOLE', null)}
-        />
-      </View>
-    )
-  }
-
-
-  /********************************************************************************
- *************************                  ***************************************
- ********************         OPTIONS            **********************************
- *************************                  ***************************************
- *********************************************************************************/
-
-  renderOptions() {
-    return (
-      <View style={{ flex: 1, flexDirection: 'row', marginTop: 10, alignSelf: 'center' }}>
-        <View style={{ borderRadius: 10 }} >
-          {isOrganizedByMe(this.state.loggedUser_id, this.state.event.event.host_id) ? (
-            <View>
-
-              {this.state.editing ? (
-                <View style={{ flexDirection: 'row' }} >
-                  <OptionIcon name='check' color='green' callback={this.updateEvent.bind(this)} />
-                  <OptionIcon name='remove' color='red' callback={this.cancelEdit.bind(this)} />
-                </View>
-              ) : (
-                  <View style={{ flexDirection: 'row' }} >
-                    <OptionIcon name='edit' callback={this.editEvent.bind(this)} />
-                    <OptionIcon name='remove' color='red' callback={this.cancelEvent.bind(this)} />
-                  </View>
-                )}
-            </View>
-          ) : (
-              !this.state.alreadyJoined ?
-                <Button title={"Rejoindre l'évènement !"} onPress={this.joinEvent.bind(this)} />
-                :
-                <Button buttonStyle={{ backgroundColor: 'green' }} icon={
-                  <Icon
-                    name="check"
-                    size={15}
-                    color="white"
-                    type='font-awesome'
-                  />} title={`| Annuler?`} onPress={this.leaveEvent.bind(this)} />
-            )}
-        </View>
-      </View>
-    )
-  }
-
-
-  /********************************************************************************
- *************************                  ***************************************
- ********************         PARTICIPANTS       **********************************
- *************************                  ***************************************
- *********************************************************************************/
-
-  renderParticipants() {
-    return (
-      <View style={{ marginTop: 30 }} >
-        {this.renderDescriptionText('Participants', '', 'auto', false)}
-        <View style={{ flexDirection: 'row' }}>
-          {this.state.event.participants.map((participant, index) => {
-            let photoUrl = participant.photo_url;
-            let levelImage = mapLevelImage(this.state.event.event.sport, participant);
-            return (
-              <View key={'participant-' + index} style={{ flexDirection: 'column', marginHorizontal: 10, justifyContent: 'center', alignItems: 'center' }}>
-                <TouchableWithoutFeedback onPress={seeProfile.bind(this, participant.email)}>
-                  <View style={styles.imageContainerParticipant}>
-                    {photoUrl != undefined && <Image source={{ uri: photoUrl + '?type=large&width=500&height=500' }} style={styles.imageParticipant} />}
-                    {photoUrl == undefined && <Image source={require('../../assets/images/robot-dev.png')} style={styles.imageParticipant} />}
-                  </View>
-                </TouchableWithoutFeedback>
-                <Text numberOfLines={1} style={{ alignSelf: 'center', marginBottom: 10, width: 50 }}>{participant.user_name}</Text>
-                <Image source={levelImage} style={{ position: 'absolute', bottom: 50, left: 30, height: 40, width: 40 }} />
-              </View>
-            )
-          })}
-        </View>
-
-      </View>
-    )
-  }
-
   /*********************************************************************************
- *************************                   ***************************************
- ********************       RENDER COMMENTS     ************************************
- *************************                   ***************************************
- **********************************************************************************/
-
-
-  renderComments() {
-    let comments = this.state.event.comments.slice()
-      .sort((a, b) => {
-        if (a == 'NEW')
-          return 1;
-        if (b == 'NEW')
-          return -1;
-        else
-          return (new Date(a.date)) - (new Date(b.date));
-      });
-
-    return (
-      <View style={{ marginTop: 30 }}>
-        {this.renderDescriptionText('Comments', '', 'auto', false)}
-        {comments.map((comment, index) => {
-          let photoUrl = comment.photo_url;
-          return (
-            <View key={"comment-" + index} style={styles.commentBloc}>
-              <View style={styles.commentInfo}>
-                <View style={{ flexDirection: 'row' }}>
-                  <View style={styles.imageContainerComment}>
-                    {photoUrl != undefined && <Image source={{ uri: photoUrl + '?type=large&width=500&height=500' }} style={styles.imageComment} />}
-                    {photoUrl == undefined && <Image source={require('../../assets/images/robot-dev.png')} style={styles.imageComment} />}
-                  </View>
-                  <Text style={styles.commentUserName}>{comment.user_name.split(' ')[0]} : </Text>
-                </View>
-                <Text style={styles.commentDate}>{timeSince(comment.isNew ? new Date() : new Date(comment.date))}</Text>
-                {comment.isNew && (
-                  <View style={{ flexDirection: 'row' }}>
-                    <OptionIcon name='check' color='green' callback={this.validateComment.bind(this)} />
-                    <OptionIcon name='remove' color='red' callback={this.cancelComment.bind(this)} />
-                  </View>
-                )}
-              </View>
-              <View style={{ width: '75%' }}>
-                {comment.isNew ?
-                  (<View style={{
-                    borderBottomColor: '#000000',
-                    borderBottomWidth: 0.5,
-                    width: '75%'
-                  }}>
-                    <TextInput
-                      multiline
-                      numberOfLines={3}
-                      editable
-                      maxLength={300}
-                      height={50}
-                      onChangeText={this.onCommentChangeText.bind(this)}
-                      value={comments[comments.length - 1].comment_text}
-                    />
-                  </View>) :
-                  <Text numberOfLines={3} style={styles.commentText}>{comment.comment_text}</Text>
-                }
-              </View>
-            </View>
-          )
-        })}
-        {(!comments.length ||
-          (comments.length && !comments[comments.length - 1].isNew)) &&
-          <View style={{ flex: 1 }}>
-            <OptionIcon name='plus' color='blue' callback={this.addComment} />
-          </View>
-        }
-      </View>
-    )
-  }
-
-
-
-
-  /*********************************************************************************
-   *************************                 ***************************************
    ********************      DATA  **  STUFF    ************************************
-   *************************                 ***************************************
    ********************************************************************************/
 
-
-  getData() {
-    this.setState({ refreshing: true }, () => {
-      let event = !isEmpty(this.props.route.params.event) ? this.props.route.params.event : this.state.event;
-      let eventId = (event.event.event_id == "") ? -1 : event.event.event_id;
-      this.apiService.getSingleEntity("events", eventId)
-        .then((eventData) => {
-          this.apiService.getSingleEntity("users/email", this.props.auth.user.email)
-            .then((data) => {
-              this.setState({
-                refreshing: false,
-                event: eventData.data,
-                loggedUser_id: data.data.user_id,
-                alreadyJoined: computeAlreadyJoined(data.data.user_id, eventData.data.participants),
-                editing: false
-              });
-            })
-            .catch((error) => {
-              this.setState({
-                refreshing: false
-              });
-            });
-        })
-        .catch((error) => {
-          //Creation flow ongoing
-          this.apiService.getSingleEntity("users/email", this.props.auth.user.email)
-            .then((data) => {
-
-              let loggedUser_id = data.data.user_id;
-              let newState = {
-                refreshing: false,
-                loggedUser_id: loggedUser_id,
-                editing: true,
-                event: {
-                  ...this.state.event,
-                  event: {
-                    ...this.state.event.event,
-                    host_id: loggedUser_id
-                  },
-                  host: data.data
-                }
-              };
-              this.setState(newState);
-            })
-            .catch((error) => {
-              this.setState({
-                refreshing: false
-              });
-            });;
-        })
-    });
+  getData = async () => {
+    let event = !isEmpty(this.props.route.params.event) ? this.props.route.params.event : this.state.eventData;
+    let eventId = (event.event.event_id == "") ? -1 : event.event.event_id;
+    try {
+      const eventData = await this.apiService.getSingleEntity("events", eventId)
+      const action = {
+        type: "SAVE_EVENT_BEFORE_EDIT",
+        value: eventData.data,
+      };
+      this.props.dispatch(action);
+    }
+    catch (error) {
+      //Creation flow ongoing
+      try {
+        const data = await this.apiService.getSingleEntity("users/email", this.props.auth.user.email)
+        let eventData = {
+          ...this.state.eventData,
+          event: {
+            ...this.state.eventData.event,
+            host_id: this.props.auth.user_id
+          },
+          host: data.data
+        }
+        const action = {
+          type: "SAVE_EVENT_BEFORE_EDIT",
+          value: eventData,
+        };
+        this.props.dispatch(action);
+      } catch (error) {
+        this.setState({
+          refreshing: false
+        });
+      };
+    }
   }
 
-  setEditingProperty(property, doneornot) {
+  setEditingProperty = (property, doneornot) => {
     switch (property) {
       case 'Sport':
         this.setState({ isEditingSport: doneornot })
@@ -603,17 +339,20 @@ class EventScreen extends React.Component {
       case 'Localisation':
         this.setState({ isEditingMapMarker: doneornot, regionPicked: this.state.initialRegion })
         break;
+      case 'Visibility':
+        this.setStateEventDataProperty('event', 'visibility', this.state.eventData.event.visibility == 'PRIVATE' ? 'PUBLIC' : 'PRIVATE')
+        break;
       default:
         break;
     }
   }
 
-  setStateProperty(parentProperty, property, value, dateValueIfDate = null) {
-    let newEvent = this.state.event;
+  setStateEventDataProperty = (parentProperty, property, value, dateValueIfDate = null) => {
+    let newEventData = { ...this.state.eventData };
     let newValue = value;
     let newProperty = property;
     let newDate = new Date(dateValueIfDate);
-    let currentDate = new Date(this.state.event.event.date);
+    let currentDate = new Date(this.state.eventData.event.date);
     switch (property) {
       case 'date':
         newDate.setHours(currentDate.getHours());
@@ -630,7 +369,7 @@ class EventScreen extends React.Component {
         //Only for map picking location so far
         this.setEditingProperty('Localisation', false);
         newValue = {
-          ...this.state.event.spot,
+          ...this.state.eventData.spot,
           spot_longitude: this.state.regionPicked.longitude,
           spot_latitude: this.state.regionPicked.latitude
         };
@@ -639,13 +378,21 @@ class EventScreen extends React.Component {
         break;
     }
     if (newProperty == 'WHOLE')
-      newEvent[parentProperty] = newValue;
+      newEventData = { ...newEventData, [parentProperty]: newValue };
     else
-      newEvent[parentProperty][newProperty] = newValue;
+      newEventData = { ...newEventData, [parentProperty]: { ...newEventData[parentProperty], [newProperty]: newValue } };
     // console.log(newEvent + '.' + parentProperty + '.' + newProperty + '=' + newValue)
-    this.setState({ event: newEvent });
+
+    this.setState({ eventData: newEventData });
   }
 
+  editEvent = () => {
+    this.setState({ editing: true })
+  }
+
+  cancelEdit = () => {
+    this.setState({ editing: false, eventData: this.getInitEventData() })
+  }
 
 }
 
@@ -656,9 +403,10 @@ const mapDispatchToProps = (dispatch) => {
   }
 }
 
-const mapStateToProps = (state) => {
-  return state
-}
+const mapStateToProps = (state) => ({
+  ...state,
+  eventDataFromStore: state.eventSaved.eventData
+})
 
 export default connect(mapStateToProps, mapDispatchToProps)(EventScreen)
 

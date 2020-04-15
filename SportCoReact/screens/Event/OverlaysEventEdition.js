@@ -10,7 +10,7 @@ import Bubble from './Bubble'
 import SportsAvailable from '../../components/SportsAvailable';
 import SportCoApi from '../../services/apiService';
 
-export class RenderOverlaySport extends React.Component {
+export class OverlaySport extends React.Component {
 
     render() {
         return (
@@ -24,8 +24,8 @@ export class RenderOverlaySport extends React.Component {
                         sportsSelected={[this.props.sport]}
                         sportsSelectedChanged={this.onSportChange.bind(this)}
                     />
-                    <RenderSaveButton
-                        title={`| That's better?`}
+                    <SaveButton
+                        title={`| That's better`}
                         callback={this.props.saveSport}
                     />
                 </View>
@@ -38,7 +38,7 @@ export class RenderOverlaySport extends React.Component {
     }
 }
 
-export class RenderOverlayDateTimePicker extends React.Component {
+export class OverlayDateTimePicker extends React.Component {
 
     render() {
         return (
@@ -63,7 +63,7 @@ export class RenderOverlayDateTimePicker extends React.Component {
                         is24Hour={true}
                         onChange={this.props.onDateTimeChange}
                     />
-                    <RenderSaveButton
+                    <SaveButton
                         title={`| Enregister?`}
                         callback={this.props.saveDate}
                     />
@@ -73,7 +73,7 @@ export class RenderOverlayDateTimePicker extends React.Component {
     }
 }
 
-export class RenderOverlayDescription extends React.Component {
+export class OverlayDescription extends React.Component {
     render() {
         return (
             <Overlay
@@ -103,7 +103,7 @@ export class RenderOverlayDescription extends React.Component {
                             multiline
                         />
                     </View>
-                    <RenderSaveButton
+                    <SaveButton
                         title={`| Enregister?`}
                         callback={this.props.saveDescription}
                     />
@@ -113,7 +113,7 @@ export class RenderOverlayDescription extends React.Component {
     }
 }
 
-export class RenderOverlayLevel extends React.Component {
+export class OverlayLevel extends React.Component {
     render() {
         return (
             <Overlay
@@ -136,7 +136,7 @@ export class RenderOverlayLevel extends React.Component {
                         })}
                     </Picker>
                     <View style={{ flex: 1 }}>
-                        <RenderSaveButton
+                        <SaveButton
                             title={`| Enregister?`}
                             callback={this.props.saveLevel}
                         />
@@ -148,7 +148,7 @@ export class RenderOverlayLevel extends React.Component {
     }
 }
 
-export class RenderOverlayMinMaxParticipants extends React.Component {
+export class OverlayMinMaxParticipants extends React.Component {
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (this.props.event.event.participants_min != prevProps.event.event.participants_min && this.refListMin != undefined)
@@ -221,7 +221,7 @@ export class RenderOverlayMinMaxParticipants extends React.Component {
                         </View>
                     </View>
                     <View style={{ margin: 20 }}>
-                        <RenderSaveButton
+                        <SaveButton
                             title={`| Enregister?`}
                             callback={this.props.saveParticipants}
                         />
@@ -232,7 +232,7 @@ export class RenderOverlayMinMaxParticipants extends React.Component {
     }
 }
 
-export class RenderMapViewSpotPicker extends React.Component {
+export class MapViewSpotPicker extends React.Component {
 
     constructor() {
         super();
@@ -322,7 +322,7 @@ export class RenderMapViewSpotPicker extends React.Component {
                         <Text style={{ marginTop: 50, textAlign: 'center', fontSize: 20 }}>Choose a spot or drag to create a new one !</Text>
 
                     </View>
-                    <RenderSaveButton
+                    <SaveButton
                         title={`| Enregistrer?`}
                         callback={this.props.saveLocation}
                     />
@@ -343,7 +343,7 @@ export class RenderMapViewSpotPicker extends React.Component {
     }
 }
 
-export class RenderSaveButton extends React.Component {
+export class SaveButton extends React.Component {
     render() {
         return (
             <View>

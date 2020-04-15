@@ -1,0 +1,97 @@
+
+import * as React from 'react';
+import { TextInput, Text, View, Image } from 'react-native';
+import { styles } from './styles'
+import { timeSince } from '../Helpers'
+import { addComment, cancelComment, onCommentChangeText, validateComment } from '../EventApi';
+import { DescriptionText} from '../DescriptionText/DescriptionText'
+import { OptionIcon } from '../OptionIcon'
+
+export class Comments extends React.Component {
+
+
+    constructor(props) {
+        super(props);
+        this.state = {
+
+        };
+        
+      }
+    
+
+ /*********************************************************************************
+ *************************                   ***************************************
+ ********************       RENDER      ************************************
+ *************************                   ***************************************
+ **********************************************************************************/
+
+
+render() {
+    let comments = this.props.comments.slice()
+      .sort((a, b) => {
+        if (a == 'NEW')
+          return 1;
+        if (b == 'NEW')
+          return -1;
+        else
+          return (new Date(a.date)) - (new Date(b.date));
+      });
+
+    return (
+      <View style={{ marginTop: 30 }}>
+        <DescriptionText title='Comments' data='' centered='auto' isMutable={false}   setEditingProperty={this.props.setEditingProperty} />
+        {comments.map((comment, index) => {
+          let photoUrl = comment.photo_url;
+          return (
+            <View key={"comment-" + index} style={styles.commentBloc}>
+              <View style={styles.commentInfo}>
+                <View style={{ flexDirection: 'row' }}>
+                  <View style={styles.imageContainerComment}>
+                    {photoUrl != undefined && <Image source={{ uri: photoUrl + '?type=large&width=500&height=500' }} style={styles.imageComment} />}
+                    {photoUrl == undefined && <Image source={require('../../../assets/images/robot-dev.png')} style={styles.imageComment} />}
+                  </View>
+                  <Text style={styles.commentUserName}>{comment.user_name.split(' ')[0]} : </Text>
+                </View>
+                <Text style={styles.commentDate}>{timeSince(comment.isNew ? new Date() : new Date(comment.date))}</Text>
+                {comment.isNew && (
+                  <View style={{ flexDirection: 'row' }}>
+                    <OptionIcon name='check' color='green' callback={this.props.validateComment} />
+                    <OptionIcon name='remove' color='red' callback={this.props.cancelComment} />
+                  </View>
+                )}
+              </View>
+              <View style={{ width: '75%' }}>
+                {comment.isNew ?
+                  (<View style={{
+                    borderBottomColor: '#000000',
+                    borderBottomWidth: 0.5,
+                    width: '75%'
+                  }}>
+                    <TextInput
+                      multiline
+                      numberOfLines={3}
+                      editable
+                      maxLength={300}
+                      height={50}
+                      onChangeText={this.props.onCommentChangeText}
+                      value={comments[comments.length - 1].comment_text}
+                    />
+                  </View>) :
+                  <Text numberOfLines={3} style={styles.commentText}>{comment.comment_text}</Text>
+                }
+              </View>
+            </View>
+          )
+        })}
+        {(!comments.length ||
+          (comments.length && !comments[comments.length - 1].isNew)) &&
+          <View style={{ flex: 1 }}>
+            <OptionIcon name='plus' color='blue' callback={this.props.addComment} />
+          </View>
+        }
+      </View>
+    )
+  }
+
+}
+

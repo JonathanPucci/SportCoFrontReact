@@ -10,7 +10,10 @@ export function isOrganizedByMe(loggedUser_id, host_id) {
     return loggedUser_id == host_id;
 }
 
-export function computeAlreadyJoined(userId, participants) {
+export function computeAlreadyJoined(userId, eventData) {
+    if (eventData == undefined)
+        return false;
+    let participants = eventData.participants;
     for (let index = 0; index < participants.length; index++) {
         const participant = participants[index];
         if (participant.user_id == userId)
@@ -81,7 +84,7 @@ export function mapScore(ratingOrLevel, isRating = false) {
         return LEVELS.indexOf(ratingOrLevel);
 }
 
-export function mapLevelImage(sport,participant, level = null) {
+export function mapLevelImage(sport, participant, level = null) {
     let levelIndex = null;
 
     if (level == null)

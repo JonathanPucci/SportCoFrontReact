@@ -5,7 +5,8 @@ import {
   WAITING,
   DONE_WAITING,
   RETRIEVED_USER_INFO,
-  USER_LOGGED_OUT
+  USER_LOGGED_OUT,
+  SAVE_EVENT_BEFORE_EDIT
 } from '../Actions';
 
 const options = {
@@ -64,8 +65,27 @@ function auth(state = { user: null, waiting: false }, action) {
 
 }
 
+
+function eventSaved(state = {}, action) {
+  switch (action.type) {
+
+    case SAVE_EVENT_BEFORE_EDIT:
+      var nextState = {
+        ...state,
+        eventData: action.value
+      };
+      return nextState;
+    default:
+      return state;
+  }
+
+}
+
+
+
 const rootReducer = combineReducers({
-  auth
+  auth,
+  eventSaved
 });
 
 export default rootReducer;
