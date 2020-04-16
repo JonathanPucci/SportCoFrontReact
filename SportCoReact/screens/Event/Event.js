@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Text, View, Image, RefreshControl, Platform } from 'react-native';
+import { Text, View, Image, RefreshControl, Platform, Share, Linking } from 'react-native';
 import { connect } from 'react-redux'
 import { styles } from './styles'
 import SportCoApi from '../../services/apiService';
@@ -18,6 +18,7 @@ import { DescriptionText } from "./DescriptionText/DescriptionText";
 import { EventMapView } from './EventMapView/EventMapView';
 import { Participants } from './Participants/Participants';
 import { Options } from './Options/Options';
+import { OptionIcon } from './OptionIcon';
 
 class EventScreen extends React.Component {
 
@@ -165,7 +166,12 @@ class EventScreen extends React.Component {
           <Participants
             eventData={this.state.eventData}
             editing={this.state.editing}
-            setEditingProperty={this.setEditingProperty} />
+            setEditingProperty={this.setEditingProperty}
+            navigation={this.props.navigation} />
+          <View style={{ alignSelf: 'center' }}>
+            <Text style={{ textAlign: 'center', fontSize: 18 }}> Share </Text>
+            <OptionIcon callback={this.onShare} size={20} name="share" color={'blue'} />
+          </View>
           <EventMapView
             eventData={this.state.eventData}
             editing={this.state.editing}
@@ -224,7 +230,7 @@ class EventScreen extends React.Component {
   renderHostHeader(event, photoUrl, eventIcon) {
     return (
       <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
-        <TouchableWithoutFeedback onPress={seeProfile.bind(this, this.state.eventData.host.email)}>
+        <TouchableWithoutFeedback onPress={() => seeProfile(this.props.navigation, this.state.eventData.host.email)}>
           <View style={styles.imageContainer}>
             {photoUrl != undefined && <Image source={{ uri: photoUrl + '?type=large&width=500&height=500' }} style={styles.image} />}
             {photoUrl == undefined && <Image source={require('../../assets/images/robot-dev.png')} style={styles.image} />}
@@ -234,7 +240,7 @@ class EventScreen extends React.Component {
         <View style={{
           justifyContent: 'center', alignItems: 'center'
         }}>
-          <Text style={{ fontSize: 18 }}>{event.event.sport.toUpperCase()}</Text>
+          {/* <Text style={{ fontSize: 18 }}>{event.event.sport.toUpperCase()}</Text> */}
           <Options
             eventData={this.state.eventData}
             user_id={this.props.auth.user_id}
@@ -246,6 +252,7 @@ class EventScreen extends React.Component {
             joinEvent={this.joinEvent}
             leaveEvent={this.leaveEvent}
           />
+
         </View>
         <View style={{ flexDirection: 'column', alignSelf: 'center', alignItems: 'center' }}>
           <CustomIcon
@@ -277,12 +284,36 @@ class EventScreen extends React.Component {
     )
   }
 
+  onShare = async () => {
+    // let redirectUrl = await Linking.makeUrl('exp://127.0.0.1:19000', { event: { event_id: '1' } });
+    // console.log(redirectUrl);
+    try {
+      const result = await Share.share({
+        message:
+          'You should have a look at this event !',
+        url: 'exp://localhost:19000?event_id=' + this.state.eventData.event.event_id
+      });
+
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          // shared with activity type of result.activityType
+        } else {
+          // shared
+        }
+      } else if (result.action === Share.dismissedAction) {
+        // dismissed
+      }
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
   /*********************************************************************************
    ********************      DATA  **  STUFF    ************************************
    ********************************************************************************/
 
   getData = async () => {
-    let event = !isEmpty(this.props.route.params.event) ? this.props.route.params.event : this.state.eventData;
+    let event = !isEmpty(this.props.route.params.eventData) ? this.props.route.params.eventData : this.state.eventData;
     let eventId = (event.event.event_id == "") ? -1 : event.event.event_id;
     try {
       const eventData = await this.apiService.getSingleEntity("events", eventId)
@@ -291,6 +322,10 @@ class EventScreen extends React.Component {
         value: eventData.data,
       };
       this.props.dispatch(action);
+      this.setState({
+        refreshing: false,
+        editing: false
+      });
     }
     catch (error) {
       //Creation flow ongoing
@@ -309,9 +344,14 @@ class EventScreen extends React.Component {
           value: eventData,
         };
         this.props.dispatch(action);
+        this.setState({
+          refreshing: false,
+          editing: false
+        });
       } catch (error) {
         this.setState({
-          refreshing: false
+          refreshing: false,
+          editing: false
         });
       };
     }
@@ -340,7 +380,7 @@ class EventScreen extends React.Component {
         this.setState({ isEditingMapMarker: doneornot, regionPicked: this.state.initialRegion })
         break;
       case 'Visibility':
-        this.setStateEventDataProperty('event', 'visibility', this.state.eventData.event.visibility == 'PRIVATE' ? 'PUBLIC' : 'PRIVATE')
+        this.setStateEventDataProperty('event', 'visibility', this.state.eventData.event.visibility == 'private' ? 'public' : 'private')
         break;
       default:
         break;

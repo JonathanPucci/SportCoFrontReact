@@ -33,9 +33,9 @@ class HomeScreen extends React.Component {
   }
 
   componentDidMount() {
-    setTimeout(()=> {
-      this.props.navigation.navigate('Event', { event: {event : {event_id:3}} })
-    },500);
+    // setTimeout(()=> {
+    //   this.props.navigation.navigate('Event', { event: {event : {event_id:3}} })
+    // },500);
   }
 
   render() {

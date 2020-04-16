@@ -77,7 +77,7 @@ export class MultiEventScreen extends React.Component {
 
     goToEvent(event) {
         this.props.navigation.navigate('Event', {
-            event: event
+            eventData: event
         });
     }
 

@@ -2,8 +2,8 @@ import { LEVELS } from '../../constants/DbConstants.js'
 
 const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
 
-export function seeProfile(email) {
-    this.props.navigation.navigate('Profile', { email: email });
+export const seeProfile = (nav, email) => {
+    nav.navigate('Profile', { email: email });
 }
 
 export function isOrganizedByMe(loggedUser_id, host_id) {

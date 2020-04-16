@@ -100,19 +100,23 @@ export function cancelEvent() {
 
 
 export function joinEvent() {
-    let eventP = {
-        user_id: this.state.loggedUser_id,
-        event_id: this.state.eventData.event.event_id
-    }
-    this.apiService.addEntity('eventparticipant', eventP)
-        .then(() => {
-            this.getData(false);
-        })
-    this.apiService.editEntity('userstats',
-        {
+    if (this.state.eventData.participants.length < this.state.eventData.event.participant_max) {
+        let eventP = {
             user_id: this.state.loggedUser_id,
-            statToUpdate: this.state.eventData.event.sport + '_joined'
-        });
+            event_id: this.state.eventData.event.event_id
+        }
+        this.apiService.addEntity('eventparticipant', eventP)
+            .then(() => {
+                this.getData(false);
+            })
+        this.apiService.editEntity('userstats',
+            {
+                user_id: this.state.loggedUser_id,
+                statToUpdate: this.state.eventData.event.sport + '_joined'
+            });
+    } else {
+        alert('Event is full, sorry !')
+    }
 }
 
 export function leaveEvent() {

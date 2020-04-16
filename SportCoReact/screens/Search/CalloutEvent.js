@@ -64,7 +64,7 @@ class CalloutEvent extends React.Component {
 
     goToEvent(event) {
         this.props.navigation.navigate('Event', {
-            event: event
+            eventData: event
         });
     }
 

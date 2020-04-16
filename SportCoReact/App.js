@@ -3,7 +3,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { Provider } from 'react-redux'
 import Store from './Store/configureStore'
 import AppNavigator from './navigation/AppNavigator'
-import { Vibration, Platform, PermissionsAndroid, KeyboardAvoidingView } from 'react-native';
+import { Vibration, Platform, PermissionsAndroid, KeyboardAvoidingView, Linking } from 'react-native';
 import { Notifications } from 'expo';
 import * as Permissions from 'expo-permissions';
 import * as LocationPermission from 'expo-location';
@@ -19,7 +19,7 @@ export default class App extends React.Component {
       <Provider store={Store}>
         <KeyboardAvoidingView
           behavior={Platform.OS == "ios" ? "padding" : "padding"}
-          style={{flex : 1}}
+          style={{ flex: 1 }}
           keyboardVerticalOffset={Platform.OS == "ios" ? -1000 : -500}
         >
           <AppNavigator />
@@ -55,8 +55,10 @@ export default class App extends React.Component {
 
       //Add permission from Android
       this.grantLocationPermissionForAndroid();
+
     }
   }
+
 
   registerForPushNotificationsAsync = async () => {
     if (Constants.isDevice) {
