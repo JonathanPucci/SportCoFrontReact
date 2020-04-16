@@ -96,10 +96,13 @@ export class OverlayDescription extends React.Component {
                                 alignItems: 'center',
                                 overflow: "hidden",
                                 alignSelf: 'center',
-                                textAlign:'center'
+                                textAlign:'center',
+                                height : 100
                             }}
+                            autoFocus
                             onChangeText={this.props.onDescriptionChange}
                             defaultValue={this.props.description}
+                            placeholder='Description of event here ...'
                             multiline
                         />
                     </View>
@@ -307,9 +310,9 @@ export class MapViewSpotPicker extends React.Component {
                                                         longitude: spot.spot_longitude,
                                                         latitude: spot.spot_latitude
                                                     };
-                                                    if (this.props.selectedSpot != undefined)
-                                                        this.props.selectedSpot(index)
                                                     this.props.onRegionChange(newRegion);
+                                                    if (this.props.selectedSpot != undefined)
+                                                        this.props.selectedSpot(index,newRegion)
                                                     this.setState({ markerRegion: newRegion });
                                                 }}
                                             />
@@ -324,7 +327,7 @@ export class MapViewSpotPicker extends React.Component {
                     </View>
                     <SaveButton
                         title={`| Enregistrer?`}
-                        callback={this.props.saveLocation}
+                        callback={()=>{this.props.saveLocation(this.state.markerRegion)}}
                     />
                 </View>
             </Overlay>

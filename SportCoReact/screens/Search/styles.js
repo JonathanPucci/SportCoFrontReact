@@ -30,7 +30,8 @@ export const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     alignItems: 'center',
-    justifyContent: 'center'
+    width: Layout.window.width,
+    height: Layout.window.height,
   },
   mapStyle: {
     width: Layout.window.width,
@@ -44,7 +45,7 @@ export const styles = StyleSheet.create({
     marginTop: 10
   },
   actionButton: {
-    position: "absolute",
+    position: "relative",
     bottom: CARD_HEIGHT + 30,
     left: 20,
     height:60,
@@ -55,7 +56,9 @@ export const styles = StyleSheet.create({
   },
   actionButtonIcon: {
     fontSize: 20,
-    height: 22,
+    alignSelf : 'center',
+    alignItems : 'center',
+    justifyContent : 'center',
     color: 'white',
   },
   actionButtonItem: {
@@ -67,7 +70,7 @@ export const markerStyles = StyleSheet.create({
     flex: 1,
   },
   scrollView: {
-    position: "absolute",
+    flex: 1,
     bottom: 0,
     left: 0,
     right: 0,

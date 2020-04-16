@@ -4,29 +4,15 @@ import { Text, CheckBox, Input } from 'react-native-elements';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 import { styles } from './styles'
-import MapView from 'react-native-maps';
 import GoogleMapsAutoComplete from "../../components/GoogleMapsAutoComplete"
-import { RenderMapViewSpotPicker } from '../Event/OverlaysEventEdition'
+import { MapViewSpotPicker } from '../Event/OverlaysEventEdition'
 import { ScrollView } from 'react-native-gesture-handler';
 import SportCoApi from '../../services/apiService';
 import { connect } from 'react-redux'
 import { initialZoom } from '../../screens/Search/SearchScreen';
-import { EventIcon } from '../../screens/Event/Event';
-import SpotMap from './SpotMap';
-
-const roadMapStyle = [
-    {
-        "featureType": "road",
-        "elementType": "labels",
-        "stylers": [
-            {
-                "visibility": "on"
-            }
-        ]
-    }
-];
-
-
+import { OptionIcon} from '../../screens/Event/OptionIcon';
+import { SpotMap } from './SpotMap';
+// import Geolocation from '@react-native-community/geolocation';
 
 class SpotManager extends React.Component {
 
@@ -54,7 +40,7 @@ class SpotManager extends React.Component {
     componentDidMount() {
         this.watchId = navigator.geolocation.watchPosition(
             this.setCurrentPosition.bind(this),
-            () => { console.log('setPosError') },
+            (err) => { console.log('setPosError');console.log(err) },
             {
                 enableHighAccuracy: true,
                 timeout: 1000,
@@ -132,7 +118,7 @@ class SpotManager extends React.Component {
                             region={this.state.region}
                             spots={this.state.spots}
                         />
-                        <RenderMapViewSpotPicker
+                        <MapViewSpotPicker
                             isVisible={this.state.isPickingPlace}
                             stopEditingMapMarker={() => this.setState({ isPickingPlace: false })}
                             regionPicked={this.state.region}
@@ -151,7 +137,7 @@ class SpotManager extends React.Component {
                             }}
                         />
                         <View style={{ position: 'absolute', top: 70, left: 10 }}>
-                            <EventIcon name='plus' color='purple' callback={this.addNewSpot.bind(this)} />
+                            <OptionIcon name='plus' color='purple' callback={this.addNewSpot.bind(this)} />
                         </View>
                     </View>
 
@@ -169,11 +155,11 @@ class SpotManager extends React.Component {
                     <View>
                         {this.state.isEditing ? (
                             <View style={{ flexDirection: 'row' }} >
-                                <EventIcon name='check' color='green' callback={this.saveSpotInfo.bind(this)} />
-                                <EventIcon name='remove' color='red' callback={this.cancel.bind(this)} />
+                                <OptionIcon name='check' color='green' callback={this.saveSpotInfo.bind(this)} />
+                                <OptionIcon name='remove' color='red' callback={this.cancel.bind(this)} />
                             </View>
                         ) : (
-                                <EventIcon name='edit' callback={this.editSpot.bind(this)} />
+                                <OptionIcon name='edit' callback={this.editSpot.bind(this)} />
                             )}
                     </View>
                 </View>

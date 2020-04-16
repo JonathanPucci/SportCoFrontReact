@@ -19,6 +19,25 @@ import { EventMapView } from './EventMapView/EventMapView';
 import { Participants } from './Participants/Participants';
 import { Options } from './Options/Options';
 import { OptionIcon } from './OptionIcon';
+// import Geolocation from '@react-native-community/geolocation';
+
+const newEmptyEvent = {
+  event: {
+    event_id: '',
+    description: '',
+    spot_id: '',
+    participants_max: 6,
+    participants_min: 2,
+    sport: 'basket',
+    date: new Date(),
+    visibility: 'public',
+    sport_level: 'intermediate'
+  },
+  host: {},
+  participants: [],
+  comments: [],
+  spot: {}
+}
 
 class EventScreen extends React.Component {
 
@@ -89,7 +108,7 @@ class EventScreen extends React.Component {
 
   render() {
     let eventData = this.state.eventData;
-    if (eventData == undefined)
+    if (eventData == undefined || eventData.event == undefined)
       return <View></View>
     let photoUrl = eventData.host.photo_url;
     let eventIcon = mapSportIcon(eventData.event.sport.toLowerCase());
@@ -132,14 +151,14 @@ class EventScreen extends React.Component {
               </View>
               <OverlayDescription
                 isEditingDescription={this.state.isEditingDescription}
-                stopEditingDescription={() => { this.setState({ isEditingDescription: false }) }}
+                stopEditingDescription={() => this.setEditingProperty('Description', false)}
                 description={eventData.event.description}
                 onDescriptionChange={(desc) => this.setStateEventDataProperty('event', 'description', desc)}
                 saveDescription={() => this.setEditingProperty('Description', false)}
               />
               <OverlayDateTimePicker
                 isEditingDate={this.state.isEditingDate}
-                stopEditingDate={() => { this.setState({ isEditingDate: false }) }}
+                stopEditingDate={() => this.setEditingProperty('Date', false)}
                 event={eventData}
                 onDateChange={(e, d) => this.setStateEventDataProperty('event', 'date', null, d)}
                 onDateTimeChange={(e, dt) => this.setStateEventDataProperty('event', 'datetime', null, dt)}
@@ -147,7 +166,7 @@ class EventScreen extends React.Component {
               />
               <OverlayLevel
                 isEditingLevel={this.state.isEditingLevel}
-                stopEditingLevel={() => { this.setState({ isEditingLevel: false }) }}
+                stopEditingLevel={() => this.setEditingProperty('Level', false)}
                 level={eventData.event.sport_level}
                 levels={LEVELS}
                 onLevelChange={(level) => this.setStateEventDataProperty('event', 'sport_level', level)}
@@ -155,7 +174,7 @@ class EventScreen extends React.Component {
               />
               <OverlayMinMaxParticipants
                 isEditingParticipantNumbers={this.state.isEditingParticipantNumbers}
-                stopEditingParticipantNumbers={() => { this.setState({ isEditingParticipantNumbers: false }) }}
+                stopEditingParticipantNumbers={() => this.setEditingProperty('Participants', false)}
                 event={eventData}
                 onPMinChange={(min) => this.setStateEventDataProperty('event', 'participants_min', min)}
                 onPMaxChange={(max) => this.setStateEventDataProperty('event', 'participants_max', max)}
@@ -175,10 +194,11 @@ class EventScreen extends React.Component {
           <EventMapView
             eventData={this.state.eventData}
             editing={this.state.editing}
+            regionPicked={this.state.regionPicked}
             isEditingMapMarker={this.state.isEditingMapMarker}
             setEditingProperty={this.setEditingProperty}
             setStateEventDataProperty={this.setStateEventDataProperty}
-            regionChanged={(r) => this.setState(r)}
+            regionChanged={(region) => this.setState({ regionPicked: region })}
           />
           <View style={{ marginTop: 20, marginBottom: 20, flex: 1 }}>
             <Button
@@ -313,8 +333,8 @@ class EventScreen extends React.Component {
    ********************************************************************************/
 
   getData = async () => {
-    let event = !isEmpty(this.props.route.params.eventData) ? this.props.route.params.eventData : this.state.eventData;
-    let eventId = (event.event.event_id == "") ? -1 : event.event.event_id;
+    let eventData = !isEmpty(this.props.route.params.eventData) ? this.props.route.params.eventData : this.state.eventData;
+    let eventId = (eventData.event.event_id == "") ? -1 : eventData.event.event_id;
     try {
       const eventData = await this.apiService.getSingleEntity("events", eventId)
       const action = {
@@ -332,13 +352,15 @@ class EventScreen extends React.Component {
       try {
         const data = await this.apiService.getSingleEntity("users/email", this.props.auth.user.email)
         let eventData = {
-          ...this.state.eventData,
+          ...newEmptyEvent,
           event: {
-            ...this.state.eventData.event,
+            ...newEmptyEvent.event,
             host_id: this.props.auth.user_id
           },
           host: data.data
         }
+        // console.log(eventData);
+
         const action = {
           type: "SAVE_EVENT_BEFORE_EDIT",
           value: eventData,
@@ -346,7 +368,7 @@ class EventScreen extends React.Component {
         this.props.dispatch(action);
         this.setState({
           refreshing: false,
-          editing: false
+          editing: true
         });
       } catch (error) {
         this.setState({
@@ -357,27 +379,27 @@ class EventScreen extends React.Component {
     }
   }
 
-  setEditingProperty = (property, doneornot) => {
+  setEditingProperty = (property, isEditing) => {
     switch (property) {
       case 'Sport':
-        this.setState({ isEditingSport: doneornot })
+        this.setState({ isEditingSport: isEditing })
         break;
       case 'Date':
-        this.setState({ isEditingDate: doneornot })
+        this.setState({ isEditingDate: isEditing })
         break;
       case 'Min':
       case 'Participants':
       case 'Max':
-        this.setState({ isEditingParticipantNumbers: doneornot })
+        this.setState({ isEditingParticipantNumbers: isEditing })
         break;
       case 'Description':
-        this.setState({ isEditingDescription: doneornot })
+        this.setState({ isEditingDescription: isEditing })
         break;
       case 'Level':
-        this.setState({ isEditingLevel: doneornot })
+        this.setState({ isEditingLevel: isEditing })
         break;
       case 'Localisation':
-        this.setState({ isEditingMapMarker: doneornot, regionPicked: this.state.initialRegion })
+        this.setState({ isEditingMapMarker: isEditing, regionPicked: this.state.initialRegion })
         break;
       case 'Visibility':
         this.setStateEventDataProperty('event', 'visibility', this.state.eventData.event.visibility == 'private' ? 'public' : 'private')
@@ -386,6 +408,7 @@ class EventScreen extends React.Component {
         break;
     }
   }
+
 
   setStateEventDataProperty = (parentProperty, property, value, dateValueIfDate = null) => {
     let newEventData = { ...this.state.eventData };
@@ -410,8 +433,8 @@ class EventScreen extends React.Component {
         this.setEditingProperty('Localisation', false);
         newValue = {
           ...this.state.eventData.spot,
-          spot_longitude: this.state.regionPicked.longitude,
-          spot_latitude: this.state.regionPicked.latitude
+          spot_longitude: value.longitude,
+          spot_latitude: value.latitude
         };
         break;
       default:
@@ -422,7 +445,6 @@ class EventScreen extends React.Component {
     else
       newEventData = { ...newEventData, [parentProperty]: { ...newEventData[parentProperty], [newProperty]: newValue } };
     // console.log(newEvent + '.' + parentProperty + '.' + newProperty + '=' + newValue)
-
     this.setState({ eventData: newEventData });
   }
 

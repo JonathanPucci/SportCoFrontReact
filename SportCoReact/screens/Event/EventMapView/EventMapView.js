@@ -50,10 +50,9 @@ export class EventMapView extends React.Component {
                             zoomEnabled={true}
                             scrollEnabled={false}
                             showsUserLocation={true}
-                            initialRegion={eventRegion}
+                            region={eventRegion}
                             provider={"google"}
                             customMapStyle={roadMapStyle}>
-
                             <MapView.Marker
                                 coordinate={eventRegion}
                                 onPress={() => { }}
@@ -66,9 +65,9 @@ export class EventMapView extends React.Component {
                     isVisible={this.props.isEditingMapMarker}
                     stopEditingMapMarker={() => this.props.setEditingProperty('Localisation', false)}
                     regionPicked={!isNaN(eventRegion.latitude) ? eventRegion : this.props.regionPicked}
-                    onRegionChange={(region) => { this.props.regionChanged({ regionPicked: region }) }}
-                    saveLocation={() => this.props.setStateEventProperty('spot', 'WHOLE', null)}
-                    selectedSpot={() => this.props.setStateEventProperty('spot', 'WHOLE', null)}
+                    onRegionChange={(region) => { this.props.regionChanged(region) }}
+                    saveLocation={(r) => this.props.setStateEventDataProperty('spot', 'WHOLE', r)}
+                    selectedSpot={(i,r) => this.props.setStateEventDataProperty('spot', 'WHOLE', r)}
                 />
             </View>
         )

@@ -25,8 +25,8 @@
       "**/*"
     ],
     "androidStatusBar": {
-			"barStyle": "dark-content"
-		},
+      "barStyle": "dark-content"
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.sportcoapp",
@@ -47,6 +47,9 @@
         "ACCESS_FINE_LOCATION"
       ]
     },
-    "description": ""
-  }
+    "description": "",
+    "entryPoint": "node_modules/expo/AppEntry.js"
+  },
+  "displayName": "SportCoReact",
+  "name": "SportCoReactEjected"
 }

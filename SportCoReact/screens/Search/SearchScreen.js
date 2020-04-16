@@ -16,6 +16,8 @@ import SportsAvailable from '../../components/SportsAvailable';
 import { FloatingAction } from "react-native-floating-action";
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 
+// import Geolocation from '@react-native-community/geolocation';
+
 
 //Effect to get Events at focus (after coming back from events)
 function FocusEffectComp({ navigation, handler }) {
@@ -55,7 +57,6 @@ class SearchScreen extends React.Component {
       moved: false,
       optionsVisible: false,
       interpolations: [],
-      addingEvent: true,
       isChoosingAFilter: false,
       firstSearch: true,
       sportsAccepted: ['basket', 'soccer', 'futsal', 'workout', 'running', 'volley', 'beachvolley', 'tennis']
@@ -201,8 +202,6 @@ class SearchScreen extends React.Component {
             animation={this.animation}
             myEventScrollList={(index) => { this.setState({ currentEventIndex: index, reloadCallout: true }) }}
             regionMoved={this.setRegionMoved.bind(this)}
-            addingEvent={this.state.addingEvent}
-            addingDone={this.addingDone.bind(this)}
             navigation={this.props.navigation}
             pressedMap={this.pressedMap.bind(this)}
           />
@@ -222,6 +221,8 @@ class SearchScreen extends React.Component {
                 onPress={this.pressedSearchHere.bind(this)} />
             </View>
           </Fade>
+        </View>
+        <View style={{ position: 'absolute', bottom: 0 }}>
           <EventScrollList
             ref={(ref) => this.myEventScrollList = ref}
             animation={this.animation}
@@ -229,6 +230,7 @@ class SearchScreen extends React.Component {
             markers={this.state.events}
           />
         </View>
+        {this.renderActionButton()}
         <Overlay
           isVisible={this.state.isChoosingAFilter}
           onBackdropPress={() => { this.setState({ isChoosingAFilter: false }) }}
@@ -246,8 +248,6 @@ class SearchScreen extends React.Component {
             />
           </View>
         </Overlay>
-        {this.renderActionButton()}
-
       </View>
     );
   }
@@ -270,18 +270,18 @@ class SearchScreen extends React.Component {
     return (
 
       <View style={styles.actionButton}>
-          <FloatingAction
-            position={'left'}
-            color="#2089dc"
-            visible={this.state.optionsVisible}
-            showBackground={false}
-            distanceToEdge={{ vertical: 0, horizontal: 0 }}
-            actions={actions}
-            buttonSize={60}
-            floatingIcon={(<IonIcon name="md-create" style={styles.actionButtonIcon} />)}
-            onPressItem={this.hitActionButton.bind(this)}
-          />
-        </View>
+        <FloatingAction
+          position={'left'}
+          color="#2089dc"
+          visible={this.state.optionsVisible}
+          showBackground={false}
+          distanceToEdge={{ vertical: 0, horizontal: 0 }}
+          actions={actions}
+          buttonSize={60}
+          floatingIcon={(<IonIcon name="md-create" style={styles.actionButtonIcon} />)}
+          onPressItem={this.hitActionButton.bind(this)}
+        />
+      </View>
     )
   }
 
@@ -292,14 +292,14 @@ class SearchScreen extends React.Component {
         break;
       case 'ADD':
         this.props.navigation.navigate('Event', {
-          event: {}
+          eventData: { event: { event_id: '' } }
         });
         break;
       default:
         break;
     }
   }
-  
+
   /*********************************************************************************
    *************************                 ***************************************
    ********************      REGION MOVE STUFF    **********************************
@@ -307,13 +307,18 @@ class SearchScreen extends React.Component {
    ********************************************************************************/
 
   setRegionMoved(region) {
-    this.setState({ moved: true, region: region, optionsVisible: true },
-      () => {
-        setTimeout(() => {
-          this.setState({ optionsVisible: false })
-        }, 2500)
-      }
-    );
+    if (this.regionMovedTimeout != undefined)
+      clearTimeout(this.regionMovedTimeout);
+
+    this.regionMovedTimeout = setTimeout(() => {
+      this.setState({ moved: true, region: region, optionsVisible: true },
+        () => {
+          this.optionsVisibleTimeout = setTimeout(() => {
+            this.setState({ optionsVisible: false })
+          }, 2500)
+        }
+      );
+    }, 100);
   }
 
   pressedSearchHere() {
@@ -413,9 +418,6 @@ class SearchScreen extends React.Component {
    ********************************************************************************/
 
 
-  addingDone() {
-    this.setState({ addingEvent: false })
-  }
 
   filterBySport() {
     let newEvents = [];

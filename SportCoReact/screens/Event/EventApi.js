@@ -28,9 +28,10 @@ export function updateEvent() {
                     }
                     this.apiService.addEntity('events', updatedEventWithSpot.event.event)
                         .then((res) => {
+                            let newEventId = res.data.data.event_id;
                             let eventP = {
-                                user_id: this.state.loggedUser_id,
-                                event_id: res.data.data.event_id
+                                user_id: this.props.auth.user_id,
+                                event_id: newEventId
                             }
                             this.apiService.addEntity('eventparticipant', eventP)
                                 .then((data) => {
@@ -40,7 +41,7 @@ export function updateEvent() {
                                             ...updatedEventWithSpot.event,
                                             event: {
                                                 ...updatedEventWithSpot.event.event,
-                                                event_id: res.data.data.event_id
+                                                event_id: newEventId
                                             }
                                         }
                                     };
@@ -49,7 +50,9 @@ export function updateEvent() {
                                             user_id: this.state.eventData.host.user_id,
                                             statToUpdate: this.state.eventData.event.sport + '_created',
                                         });
-                                    this.setState(newState, () => { this.getData(true) });
+                                    this.setState(newState, () => {
+                                        this.props.navigation.navigate('Event', { eventData: { event: { event_id: newEventId } } })
+                                    });
                                 })
                         })
                         .catch((error) => {
@@ -100,9 +103,9 @@ export function cancelEvent() {
 
 
 export function joinEvent() {
-    if (this.state.eventData.participants.length < this.state.eventData.event.participant_max) {
+    if (this.state.eventData.participants.length < this.state.eventData.event.participants_max) {
         let eventP = {
-            user_id: this.state.loggedUser_id,
+            user_id: this.props.auth.user_id,
             event_id: this.state.eventData.event.event_id
         }
         this.apiService.addEntity('eventparticipant', eventP)
@@ -111,7 +114,7 @@ export function joinEvent() {
             })
         this.apiService.editEntity('userstats',
             {
-                user_id: this.state.loggedUser_id,
+                user_id: this.props.auth.user_id,
                 statToUpdate: this.state.eventData.event.sport + '_joined'
             });
     } else {
@@ -121,7 +124,7 @@ export function joinEvent() {
 
 export function leaveEvent() {
     let eventP = {
-        user_id: this.state.loggedUser_id,
+        user_id: this.props.auth.user_id,
         event_id: this.state.eventData.event.event_id
     }
     this.apiService.deleteEntity('eventparticipant', eventP)
