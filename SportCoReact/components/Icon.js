@@ -6,7 +6,7 @@ import { Ionicons, MaterialCommunityIcons, Entypo } from 'react-native-vector-ic
 import { Component } from 'react';
 import Colors from '../constants/Colors';
 
-export default class Icon extends Component {
+export default class SportCoIcon extends Component {
 
   render() {
     let type = this.props.type;

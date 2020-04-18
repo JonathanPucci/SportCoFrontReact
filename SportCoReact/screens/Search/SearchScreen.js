@@ -351,6 +351,7 @@ class SearchScreen extends React.Component {
 
   showCallout(index) {
     this.mapViewRef['callout' + index].showCallout();
+    setTimeout(() => this.mapViewRef['callout' + index].hideCallout(), 4000);
   }
 
   /*********************************************************************************

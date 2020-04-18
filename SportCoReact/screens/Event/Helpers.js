@@ -1,6 +1,14 @@
 import { LEVELS } from '../../constants/DbConstants.js'
+import { format, formatDistanceToNow } from 'date-fns'
+import { NativeModules, Platform } from 'react-native';
+import { enGB, fr } from 'date-fns/locale'
 
-const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+const locales = { enGB, fr }
+
+const locale =
+    Platform.OS === 'ios'
+        ? NativeModules.SettingsManager.settings.AppleLocale
+        : NativeModules.I18nManager.localeIdentifier;
 
 export const seeProfile = (nav, email) => {
     nav.navigate('Profile', { email: email });
@@ -24,10 +32,13 @@ export function computeAlreadyJoined(userId, eventData) {
 
 export function computeDate(dateData) {
     let date = new Date(dateData);
-    let dateString = date.toLocaleDateString(undefined, dateOptions);
-    let time = date.toLocaleTimeString().split(':');
-    let hour = time[0] + 'h' + time[1];
-    return dateString.charAt(0).toUpperCase() + dateString.slice(1) + ' ' + hour;
+    let local = undefined;
+    if (locale != undefined) {
+        local = locale.toString().substring(0, 2);
+    }
+    return format(date, 'PPPPp', {
+        locale: locales[local] // or global.__localeId__
+    })
 }
 
 export function isEmpty(obj) {
@@ -39,31 +50,8 @@ export function isEmpty(obj) {
     return JSON.stringify(obj) === JSON.stringify({});
 }
 
-
 export function timeSince(date) {
-    let minute = 60;
-    let hour = minute * 60;
-    let day = hour * 24;
-    let month = day * 30;
-    let year = day * 365;
-
-    let suffix = ' ago';
-
-    let elapsed = Math.floor((Date.now() - date) / 1000);
-
-    if (elapsed < minute) {
-        return 'just now';
-    }
-
-    // get an array in the form of [number, string]
-    let a = elapsed < hour && [Math.floor(elapsed / minute), 'minute'] ||
-        elapsed < day && [Math.floor(elapsed / hour), 'hour'] ||
-        elapsed < month && [Math.floor(elapsed / day), 'day'] ||
-        elapsed < year && [Math.floor(elapsed / month), 'month'] ||
-        [Math.floor(elapsed / year), 'year'];
-
-    // pluralise and append suffix
-    return a[0] + ' ' + a[1] + (a[0] === 1 ? '' : 's') + suffix;
+    formatDistanceToNow(date)
 }
 
 export function convertUTCDateToLocalDate(date) {

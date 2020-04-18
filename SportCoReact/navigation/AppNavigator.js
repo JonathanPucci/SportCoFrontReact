@@ -94,18 +94,18 @@ class AppNavigator extends React.Component {
             console.log(Platform.OS + " token " + token);
             this.setState({ expoPushToken: token });
             let user = this.props.auth.user;
-            // user['user_id'] = this.props.auth.user_id;
-            // user['user_push_token'] = token;
             user = {
                 ...user,
                 user_id : this.props.auth.user_id,
                 user_push_token : token
             }
+            // TODO : check if already set maybe? 
+            // let userData = await this.apiService.getSingleEntity('users', user.user_id);
             this.apiService.editEntity('users', user)
                 .then((data) => { console.log('added token to user ' + user.user_id) })
                 .catch((err) => { console.log('error adding token to user ' + user.user_id); console.log(err) })
         } else {
-            alert('Must use physical device for Push Notifications');
+            //alert('Must use physical device for Push Notifications');
         }
 
         if (Platform.OS === 'android') {

@@ -4,10 +4,11 @@ import { connect } from 'react-redux'
 
 import { Callout, CalloutSubview } from 'react-native-maps';
 import { eventCalloutStyles } from './styles';
-import Icon from '../../components/Icon'
+import SportCoIcon from '../../components/Icon'
+import { Icon } from 'react-native-elements';
 import { mapSportIcon } from '../../helpers/mapper'
 import SportCoApi from '../../services/apiService';
-import {computeDate} from '../Event/Helpers';
+import { computeDate } from '../Event/Helpers';
 
 class CalloutEvent extends React.Component {
 
@@ -27,7 +28,7 @@ class CalloutEvent extends React.Component {
             <Callout onPress={this.goToEvent.bind(this, eventInfo)} >
                 <View style={eventCalloutStyles.eventContainer}>
                     <View style={{ flexDirection: 'row' }}>
-                        <Icon
+                        <SportCoIcon
                             name={icon.iconName}
                             type={icon.iconFamily}
                             size={30}
@@ -40,11 +41,11 @@ class CalloutEvent extends React.Component {
                         <View style={eventCalloutStyles.eventDescriptionView}>
                             <View style={eventCalloutStyles.eventDescription}>
                                 <Text h5 >Participants : {eventInfo.participants.length}/{eventInfo.event.participants_max}</Text>
-                                <Text h5 >{computeDate(eventInfo.event.date)} 14h-16h </Text>
+                                <Text h5 >{computeDate(eventInfo.event.date)}</Text>
                             </View>
                         </View>
-                        <View style={{ alignItems: 'center', justifyContent:'center' }}>
-                            <Text style={{textAlign:'center'}}>{eventInfo.host.user_name}</Text>
+                        <View style={{ alignItems: 'center', justifyContent: 'center',marginTop : 30 }}>
+                            <Text style={{ textAlign: 'center' }}>{eventInfo.host.user_name}</Text>
                             <View style={styles.imageContainer}>
                                 {photoUrl != undefined ? (
                                     <Image source={{ uri: photoUrl + '?type=large&width=500&height=500' }} style={styles.image} />
@@ -54,9 +55,16 @@ class CalloutEvent extends React.Component {
                             </View>
                         </View>
                     </View>
-                    <Text style={eventCalloutStyles.buttonStyle} >
+                    {/* <Text style={eventCalloutStyles.buttonStyle} >
                         Voir plus...
-                    </Text>
+                    </Text> */}
+                    <Icon
+                        style={eventCalloutStyles.buttonStyle}
+                        reverse
+                        color='blue'
+                        size={15}
+                        name='more-horiz'
+                    />
                 </View>
             </Callout>
         )
