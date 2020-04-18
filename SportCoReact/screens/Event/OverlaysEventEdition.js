@@ -307,6 +307,7 @@ export class MapViewSpotPicker extends React.Component {
                                                 pinColor={'blue'}
                                                 onPress={() => {
                                                     let newRegion = {
+                                                        spot_id :spot.spot_id,
                                                         longitude: spot.spot_longitude,
                                                         latitude: spot.spot_latitude
                                                     };

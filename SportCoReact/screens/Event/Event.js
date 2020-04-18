@@ -410,7 +410,7 @@ class EventScreen extends React.Component {
   }
 
 
-  setStateEventDataProperty = (parentProperty, property, value, dateValueIfDate = null) => {
+  setStateEventDataProperty = async (parentProperty, property, value, dateValueIfDate = null) => {
     let newEventData = { ...this.state.eventData };
     let newValue = value;
     let newProperty = property;
@@ -433,6 +433,7 @@ class EventScreen extends React.Component {
         this.setEditingProperty('Localisation', false);
         newValue = {
           ...this.state.eventData.spot,
+          spot_id: value.spot_id,
           spot_longitude: value.longitude,
           spot_latitude: value.latitude
         };
@@ -445,7 +446,7 @@ class EventScreen extends React.Component {
     else
       newEventData = { ...newEventData, [parentProperty]: { ...newEventData[parentProperty], [newProperty]: newValue } };
     // console.log(newEvent + '.' + parentProperty + '.' + newProperty + '=' + newValue)
-    this.setState({ eventData: newEventData });
+    return this.setState({ eventData: newEventData });
   }
 
   editEvent = () => {
