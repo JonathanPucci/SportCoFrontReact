@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, Animated, Text } from 'react-native';
+import { View, Animated, Text, Platform } from 'react-native';
 import { Overlay, Button, Icon } from 'react-native-elements'
 import { connect } from 'react-redux'
 import GoogleMapsAutoComplete from "../../components/GoogleMapsAutoComplete"
@@ -15,8 +15,8 @@ import { CARD_HEIGHT, CARD_WIDTH } from '../../components/CardEvent'
 import SportsAvailable from '../../components/SportsAvailable';
 import { FloatingAction } from "react-native-floating-action";
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+// import navigator.geolocation from 'react-native-geolocation-service';
 
-// import Geolocation from '@react-native-community/geolocation';
 
 
 //Effect to get Events at focus (after coming back from events)
@@ -63,17 +63,27 @@ class SearchScreen extends React.Component {
     }
     this.animation = new Animated.Value(0);
     this.sportCoApi = new SportCoApi();
-    this.watchId = navigator.geolocation.watchPosition(
-      this.retrieveEventsNearMe.bind(this),
-      this.retrieveEventsInInitialArea.bind(this),
-      { timeout: 1000 }
-    );
+    this.initMap();
   }
 
   static firstTime = true;
 
+  initMap = () => {
+    this.watchId = navigator.geolocation.watchPosition(
+      this.retrieveEventsNearMe.bind(this),
+      this.retrieveEventsInInitialArea.bind(this),
+      {
+        enableHighAccuracy: false,
+        timeout: 50,
+        maximumAge: 10
+      }
+    );
+  }
+
 
   retrieveEventsNearMe(position) {
+    console.log("got it, going to search");
+
     navigator.geolocation.clearWatch(this.watchId);
 
     this.setState(
@@ -84,11 +94,39 @@ class SearchScreen extends React.Component {
   }
 
   retrieveEventsInInitialArea() {
+    console.log("error going initial hardcoded")
     this.setState(
       { ...this.state, region: { ...this.state.region, latitude: 43.6, longitude: 7.1 } },
       this.getData.bind(this, true));
   }
 
+  goToCurrentLocation() {
+    navigator.geolocation.getCurrentPosition(
+      position => {
+        let region = {
+          latitude: parseFloat(position.coords.latitude),
+          longitude: parseFloat(position.coords.longitude),
+          latitudeDelta: 5,
+          longitudeDelta: 5
+        };
+        let initialRegion = region;
+        initialRegion["latitudeDelta"] = 0.005;
+        initialRegion["longitudeDelta"] = 0.005;
+        if (this.mapViewRef != undefined)
+          this.mapViewRef.mapView.animateToRegion(initialRegion, 2000);
+        else
+          retrieveEventsNearMe(position);
+      },
+      error => console.log(error),
+      {
+        enableHighAccuracy: false,
+        timeout: 4000,
+        maximumAge: 1000
+      }
+    );
+
+
+  }
 
   componentDidMount() {
 
@@ -108,6 +146,7 @@ class SearchScreen extends React.Component {
   }
 
   retrieveEventsInArea() {
+    console.log("go");
     this.sportCoApi.getEntities("events/area", this.state.region)
       .then((eventsdata) => {
         let events = eventsdata.data;
@@ -173,7 +212,7 @@ class SearchScreen extends React.Component {
 
   render() {
     return (
-      <View style={styles.container} contentContainerStyle={styles.contentContainer}>
+      <View style={[styles.container, { backgroundColor: 'purple' }]} contentContainerStyle={styles.contentContainer}>
         <FocusEffectComp navigation={this.props.navigation} handler={this.getData.bind(this, true)} />
         {this.renderMain()}
       </View>
@@ -184,6 +223,7 @@ class SearchScreen extends React.Component {
       return (
         <View>
           <Text>Loading</Text>
+          <Button onPress={this.initMap} title='Reload Position' />
         </View>
       );
     }
@@ -207,7 +247,7 @@ class SearchScreen extends React.Component {
           />
 
           <Fade isVisible={this.state.optionsVisible} style={styles.searchButton} >
-            <View>
+            <View >
               <Button
                 title={"  Search Here  "}
                 color='white'
@@ -222,14 +262,7 @@ class SearchScreen extends React.Component {
             </View>
           </Fade>
         </View>
-        <View style={{ position: 'absolute', bottom: 0 }}>
-          <EventScrollList
-            ref={(ref) => this.myEventScrollList = ref}
-            animation={this.animation}
-            currentIndex={this.state.currentEventIndex}
-            markers={this.state.events}
-          />
-        </View>
+
         {this.renderActionButton()}
         <Overlay
           isVisible={this.state.isChoosingAFilter}
@@ -248,6 +281,18 @@ class SearchScreen extends React.Component {
             />
           </View>
         </Overlay>
+        <View style={[
+          Platform.OS == 'ios' ?
+            { position: 'absolute', bottom: 0 } :
+            { elevation: 2 },
+        ]}>
+          <EventScrollList
+            ref={(ref) => this.myEventScrollList = ref}
+            animation={this.animation}
+            currentIndex={this.state.currentEventIndex}
+            markers={this.state.events}
+          />
+        </View>
       </View>
     );
   }
@@ -265,7 +310,15 @@ class SearchScreen extends React.Component {
         icon: (<MCIIcon name="filter" style={styles.actionButtonIcon} />),
         name: "FILTER",
         position: 2
-      }];
+      },
+      {
+        text: "",
+        icon: (<MCIIcon name="arch" style={styles.actionButtonIcon} />),
+        name: "CENTER",
+        position: 3
+      }
+
+    ];
 
     return (
 
@@ -294,6 +347,9 @@ class SearchScreen extends React.Component {
         this.props.navigation.navigate('Event', {
           eventData: { event: { event_id: '' } }
         });
+        break;
+      case 'CENTER':
+        this.goToCurrentLocation()
         break;
       default:
         break;

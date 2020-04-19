@@ -1,12 +1,11 @@
 import * as React from 'react';
 import { Text, View, Image, TouchableWithoutFeedback, RefreshControl, Button } from 'react-native';
-import { Divider } from 'react-native-elements'
+import { Divider, Icon } from 'react-native-elements'
 
 import { ScrollView } from 'react-native-gesture-handler';
 import { connect } from 'react-redux'
 import { styles, iconSize } from './styles'
 import SportCoApi from '../../services/apiService';
-import CustomIcon from '../../components/Icon';
 import Emoji from 'react-native-emoji';
 import { mapSportIcon } from '../../helpers/mapper';
 
@@ -137,24 +136,24 @@ class NotificationsScreen extends React.Component {
     switch (notif.message_type) {
       case 'EVENT_CHANGED':
         return (
-          <CustomIcon
-            type='Entypo'
+          <Icon
+            type='entypo'
             name='new-message'
             size={size == undefined ? iconSize : size}
           />
         )
       case 'NEW_EVENT':
         return (
-          <CustomIcon
-            type='Entypo'
+          <Icon
+            type='entypo'
             name='new'
             size={size == undefined ? iconSize : size}
           />
         )
       case 'EVENT_CANCELED':
         return (
-          <CustomIcon
-            type='Entypo'
+          <Icon
+            type='entypo'
             name='circle-with-cross'
             size={size == undefined ? iconSize : size}
           />
@@ -226,7 +225,7 @@ class NotificationsScreen extends React.Component {
               <Image source={require('../../assets/images/robot-dev.png')} style={styles.image} />
             )}
         </View>
-        <CustomIcon
+        <Icon
           name={iconSport.iconName}
           type={iconSport.iconFamily}
           size={30}

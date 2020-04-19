@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 
 import { Callout, CalloutSubview } from 'react-native-maps';
 import { eventCalloutStyles, markerStyles, CARD_WIDTH } from './styles';
-import Icon from '../../components/Icon'
+import { Icon } from 'react-native-elements'
 import { mapSportIcon } from '../../helpers/mapper'
 import CardEvent from '../../components/CardEvent'
 

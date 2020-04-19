@@ -35,7 +35,7 @@ export const styles = StyleSheet.create({
   },
   mapStyle: {
     width: Layout.window.width,
-    height: Layout.window.height,
+    height: Layout.window.height - 500,
   },
   searchButton: {
     position: "absolute",
@@ -71,10 +71,8 @@ export const markerStyles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-    bottom: 0,
-    left: 0,
-    right: 0,
     paddingVertical: 10,
+    elevation : 2
   },
   endPadding: {
     paddingRight: Layout.window.width - CARD_WIDTH,

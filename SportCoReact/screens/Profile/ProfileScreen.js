@@ -1,9 +1,8 @@
 import * as React from 'react';
 import * as firebase from 'firebase';
 import { Image, SafeAreaView, View, RefreshControl } from 'react-native';
-import { Divider, Text, Button } from 'react-native-elements'
+import { Divider, Text, Button , Icon} from 'react-native-elements'
 import { Social } from '../../components/social'
-import Icon from '../../components/Icon'
 import { ScrollView, TouchableWithoutFeedback } from 'react-native-gesture-handler';
 
 import { USER_LOGGED_OUT } from '../../Store/Actions'

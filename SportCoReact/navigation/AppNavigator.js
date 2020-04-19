@@ -14,7 +14,7 @@ import ProfileScreen from '../screens/Profile/ProfileScreen';
 import { connect } from 'react-redux';
 import SpotManager from '../screens/SpotManager/SpotManager';
 import SportCoApi from '../services/apiService';
-import { Notifications } from 'expo';
+// import { Notifications } from 'expo';
 import * as Permissions from 'expo-permissions';
 import * as LocationPermission from 'expo-location';
 import Constants from 'expo-constants';
@@ -67,7 +67,7 @@ class AppNavigator extends React.Component {
             (prevProps == undefined || prevProps.auth == undefined || prevProps.auth.user == undefined)
         ) {
             this.registerForPushNotificationsAsync();
-            this._notificationSubscription = Notifications.addListener(this._handleNotification);
+            // this._notificationSubscription = Notifications.addListener(this._handleNotification);
             //Add permission from Android
             this.grantLocationPermissionForAndroid();
             LocationPermission.requestPermissionsAsync();
@@ -108,14 +108,14 @@ class AppNavigator extends React.Component {
             //alert('Must use physical device for Push Notifications');
         }
 
-        if (Platform.OS === 'android') {
-            Notifications.createChannelAndroidAsync('default', {
-                name: 'default',
-                sound: true,
-                priority: 'max',
-                vibrate: [0, 250, 250, 250],
-            });
-        }
+        // if (Platform.OS === 'android') {
+        //     Notifications.createChannelAndroidAsync('default', {
+        //         name: 'default',
+        //         sound: true,
+        //         priority: 'max',
+        //         vibrate: [0, 250, 250, 250],
+        //     });
+        // }
     };
 
 

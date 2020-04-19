@@ -4,7 +4,6 @@ import { connect } from 'react-redux'
 import { styles } from './styles'
 import SportCoApi from '../../services/apiService';
 import { mapSportIcon } from '../../helpers/mapper';
-import CustomIcon from '../../components/Icon';
 import { Button, Icon } from 'react-native-elements'
 import { OverlayDateTimePicker, OverlayMinMaxParticipants, OverlayDescription, OverlayLevel, OverlaySport } from './OverlaysEventEdition'
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
@@ -275,7 +274,7 @@ class EventScreen extends React.Component {
 
         </View>
         <View style={{ flexDirection: 'column', alignSelf: 'center', alignItems: 'center' }}>
-          <CustomIcon
+          <Icon
             name={eventIcon.iconName}
             type={eventIcon.iconFamily}
             size={80}

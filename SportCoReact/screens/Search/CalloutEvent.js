@@ -4,7 +4,6 @@ import { connect } from 'react-redux'
 
 import { Callout, CalloutSubview } from 'react-native-maps';
 import { eventCalloutStyles } from './styles';
-import SportCoIcon from '../../components/Icon'
 import { Icon } from 'react-native-elements';
 import { mapSportIcon } from '../../helpers/mapper'
 import SportCoApi from '../../services/apiService';
@@ -28,7 +27,7 @@ class CalloutEvent extends React.Component {
             <Callout onPress={this.goToEvent.bind(this, eventInfo)} >
                 <View style={eventCalloutStyles.eventContainer}>
                     <View style={{ flexDirection: 'row' }}>
-                        <SportCoIcon
+                        <Icon
                             name={icon.iconName}
                             type={icon.iconFamily}
                             size={30}

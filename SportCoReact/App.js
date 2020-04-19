@@ -1,11 +1,8 @@
 import * as React from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
 import { Provider } from 'react-redux'
 import Store from './Store/configureStore'
 import AppNavigator from './navigation/AppNavigator'
-import {  Platform, KeyboardAvoidingView } from 'react-native';
-
-const Stack = createStackNavigator();
+import { Platform, KeyboardAvoidingView } from 'react-native';
 
 export default class App extends React.Component {
 
@@ -20,7 +17,7 @@ export default class App extends React.Component {
           <AppNavigator />
         </KeyboardAvoidingView>
       </Provider>
-    );
+    )
   }
 
   constructor() {
@@ -32,6 +29,6 @@ export default class App extends React.Component {
   }
 
 
-  
+
 
 }

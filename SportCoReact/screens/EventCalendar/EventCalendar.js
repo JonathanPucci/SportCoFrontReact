@@ -5,7 +5,7 @@ import { styles } from './styles'
 import { Agenda, LocaleConfig } from 'react-native-calendars';
 import SportCoApi from '../../services/apiService';
 import { mapSportIcon } from '../../helpers/mapper';
-import CustomIcon from '../../components/Icon';
+import {Icon} from 'react-native-elements'
 
 const testIDs = require('./testIDs');
 
@@ -102,7 +102,7 @@ class EventCalendar extends React.Component {
                         style={styles.imageSport}
                     />
                     <View style={styles.row}>
-                        <CustomIcon
+                        <Icon
                             name={eventIcon.iconName}
                             type={eventIcon.iconFamily}
                             size={30}

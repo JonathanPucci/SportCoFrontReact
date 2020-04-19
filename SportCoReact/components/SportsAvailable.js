@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { View, Image } from 'react-native';
 import { Text } from 'react-native'
-import Icon from './Icon'
+import {Icon} from 'react-native-elements'
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { StyleSheet } from 'react-native';
 import { LEVELS } from "../constants/DbConstants";
@@ -24,21 +24,21 @@ export default class SportsAvailable extends Component {
             <View >
                 <Text h4 style={styles.name} >Sports {this.props.showStats ? 'Stats' : ''}</Text>
                 <View style={styles.sportLine}>
-                    {this.renderSport('basket', 'ios-basketball', 'Ionicons')}
-                    {this.renderSport('tennis', 'ios-tennisball', 'Ionicons')}
+                    {this.renderSport('basket', 'ios-basketball', 'ionicon')}
+                    {this.renderSport('tennis', 'ios-tennisball', 'ionicon')}
                 </View>
                 <View style={styles.sportLine}>
-                    {this.renderSport('soccer', 'ios-football', 'Ionicons')}
-                    {this.renderSport('futsal', 'ios-football', 'Ionicons')}
+                    {this.renderSport('soccer', 'ios-football', 'ionicon')}
+                    {this.renderSport('futsal', 'ios-football', 'ionicon')}
                 </View>
                 <View style={styles.sportLine}>
-                    {this.renderSport('beachvolley', 'volleyball', 'MaterialCommunityIcons')}
-                    {this.renderSport('volley', 'volleyball', 'MaterialCommunityIcons')}
+                    {this.renderSport('beachvolley', 'volleyball', 'material-community')}
+                    {this.renderSport('volley', 'volleyball', 'material-community')}
                 </View>
 
                 <View style={styles.sportLine}>
-                    {this.renderSport('workout', 'ios-fitness', 'Ionicons')}
-                    {this.renderSport('running', 'run', 'MaterialCommunityIcons')}
+                    {this.renderSport('workout', 'ios-fitness', 'ionicon')}
+                    {this.renderSport('running', 'run', 'material-community')}
                 </View>
             </View>
         );

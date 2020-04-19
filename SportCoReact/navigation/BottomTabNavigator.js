@@ -1,12 +1,16 @@
 import * as React from 'react';
-import { View, Image,Platform } from 'react-native';
+import { View, Image, Platform } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import TabBarIcon from '../components/TabBarIcon';
+// import TabBarIcon from '../components/TabBarIcon';
 import HomeScreen from '../screens/Home/HomeScreen';
 import ProfileScreen from '../screens/Profile/ProfileScreen';
 import NotificationsScreen from '../screens/Notifications/NotificationsScreen';
 import SearchScreen from '../screens/Search/SearchScreen';
 import EventCalendar from '../screens/EventCalendar/EventCalendar';
+
+import { Ionicons } from 'react-native-vector-icons';
+
+import Colors from '../constants/Colors';
 
 const BottomTab = createBottomTabNavigator();
 const INITIAL_ROUTE_NAME = 'Home';
@@ -20,7 +24,7 @@ export default function BottomTabNavigator({ navigation, route }) {
   return (
     <BottomTab.Navigator
       initialRouteName={INITIAL_ROUTE_NAME}
-      tabBarOptions={{ style: { height: Platform.OS == 'android'?70 : 80 } }}
+      tabBarOptions={{ style: { height: Platform.OS == 'android' ? 70 : 80 } }}
     >
       <BottomTab.Screen
         name="Home"
@@ -65,6 +69,17 @@ export default function BottomTabNavigator({ navigation, route }) {
     </BottomTab.Navigator>
   );
 }
+
+function TabBarIcon(props) {
+  return <Ionicons
+    name={props.name}
+    size={30}
+    style={{ top: Platform.OS == 'android' ? 5 : 15 }}
+    color={props.focused ? Colors.tabIconSelected : Colors.tabIconDefault}
+  />
+
+}
+
 
 
 function LogoTitle() {

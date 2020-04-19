@@ -1,11 +1,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { StyleSheet, Text, TouchableHighlight, View } from 'react-native';
-import * as Facebook from 'expo-facebook';
+import { StyleSheet, Text, TouchableHighlight, TouchableOpacity, View } from 'react-native';
+// import * as Facebook from 'expo-facebook';
 import firebase from 'firebase';
 import SportCoApi from '../../services/apiService';
 import { StackActions } from '@react-navigation/native';
+import { LoginButton, AccessToken, LoginManager } from 'react-native-fbsdk';
 
 
 // Enter your Facebooko app ID here.
@@ -38,12 +39,12 @@ class FacebookLogin extends React.Component {
     };
   }
 
-  loginAction(user,id) {
+  loginAction(user, id) {
     console.log(id);
     const action = {
       type: USER_LOGGED,
       value: user,
-      additionalInfo : id
+      additionalInfo: id
     };
     this.props.dispatch(action);
   }
@@ -66,7 +67,11 @@ class FacebookLogin extends React.Component {
             apiService
               .editEntity('users/update', userDB)
               .then(data => {
-                loginAction(user,datauser.data.user_id);
+                console.log("==========")
+                console.log("logged with user ");
+                console.log(user);
+                console.log("==========")
+                loginAction(user, datauser.data.user_id);
               });
           })
           .catch((error) => {
@@ -77,7 +82,7 @@ class FacebookLogin extends React.Component {
                 apiService
                   .addEntity('userstats', datauser.data.data)
                   .then(data => {
-                    loginAction(user,datauser.data.data.user_id);
+                    loginAction(user, datauser.data.data.user_id);
                   });
               });
           })
@@ -89,47 +94,82 @@ class FacebookLogin extends React.Component {
   }
 
 
-  async handleFacebookButton() {
-    Facebook.initializeAsync(FACEBOOK_APP_ID, 'sportcoapp');
-    try {
-      const {
-        type,
-        token
-      } = await Facebook.logInWithReadPermissionsAsync(FACEBOOK_APP_ID, {
-        permissions: ['public_profile', 'email', 'user_birthday']
-      });
-      if (type === 'success') {
-        //Firebase credential is created with the Facebook access token.
-        const credential = firebase.auth.FacebookAuthProvider.credential(token);
-        auth.signInWithCredential(credential).catch(error => {
-          this.setState({ errorMessage: error.message });
-          console.log(error.message);
-        });
-      } else {
-        console.log("Type : " + type);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
+  // 
 
   render() {
+    return (
+      <View>
+        {this.renderFacebookButton()}
+      </View>
+    )
+  }
+
+  async FacebookLogin() {
+    const result = await LoginManager.logInWithPermissions([
+      "public_profile",
+      "email"
+    ]);
+
+    if (result.isCancelled) {
+      throw new Error("User cancelled the login process");
+    }
+    const data = await AccessToken.getCurrentAccessToken();
+
+    if (!data) {
+      throw new Error("Something went wrong obtaining access token");
+    }
+
+    const credential = firebase.auth.FacebookAuthProvider.credential(
+      data.accessToken
+    );
+
+    await firebase.auth().signInWithCredential(credential);
+    return;
+  }
+
+
+  renderFacebookButton() {
     return (
       <View style={styles.container}>
         <TouchableHighlight
           style={styles.facebookButton}
           name="Facebook"
           underlayColor={styles.facebookButton.backgroundColor}
-          onPress={() => this.handleFacebookButton()}
+          onPress={() => this.FacebookLogin()}
         >
           <Text style={styles.facebookButtonText}>
             Se connecter avec Facebook
-          </Text>
+            </Text>
         </TouchableHighlight>
         <View style={styles.space} />
       </View>
     );
   }
+
+
+  //async handleFacebookButton() {
+  //   Facebook.initializeAsync(FACEBOOK_APP_ID, 'com.sportcoapp');
+  //   try {
+  //     const {
+  //       type,
+  //       token
+  //     } = await Facebook.logInWithReadPermissionsAsync(FACEBOOK_APP_ID, {
+  //       permissions: ['public_profile', 'email', 'user_birthday']
+  //     });
+  //     if (type === 'success') {
+  //       //Firebase credential is created with the Facebook access token.
+  //       const credential = firebase.auth.FacebookAuthProvider.credential(token);
+  //       auth.signInWithCredential(credential).catch(error => {
+  //         this.setState({ errorMessage: error.message });
+  //         console.log(error.message);
+  //       });
+  //     } else {
+  //       console.log("Type : " + type);
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // }
 }
 
 const mapDispatchToProps = dispatch => {
