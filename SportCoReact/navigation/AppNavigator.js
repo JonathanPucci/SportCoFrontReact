@@ -16,7 +16,7 @@ import SpotManager from '../screens/SpotManager/SpotManager';
 import SportCoApi from '../services/apiService';
 // import { Notifications } from 'expo';
 import * as Permissions from 'expo-permissions';
-import * as LocationPermission from 'expo-location';
+// import * as LocationPermission from 'expo-location';
 import Constants from 'expo-constants';
 
 
@@ -70,8 +70,7 @@ class AppNavigator extends React.Component {
             // this._notificationSubscription = Notifications.addListener(this._handleNotification);
             //Add permission from Android
             this.grantLocationPermissionForAndroid();
-            LocationPermission.requestPermissionsAsync();
-
+            // LocationPermission.requestPermissionsAsync();
         }
     }
 
@@ -96,8 +95,8 @@ class AppNavigator extends React.Component {
             let user = this.props.auth.user;
             user = {
                 ...user,
-                user_id : this.props.auth.user_id,
-                user_push_token : token
+                user_id: this.props.auth.user_id,
+                user_push_token: token
             }
             // TODO : check if already set maybe? 
             // let userData = await this.apiService.getSingleEntity('users', user.user_id);
@@ -133,6 +132,7 @@ class AppNavigator extends React.Component {
             }
             else {
                 console.log("ACCESS_FINE_LOCATION permission denied")
+                PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION)
             }
         }
     }

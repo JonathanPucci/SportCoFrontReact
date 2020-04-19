@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { View, Image, Animated } from 'react-native';
 
-import MapView from "react-native-maps";
+import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 import { Marker } from "react-native-maps"
 import { styles, markerStyles, CARD_WIDTH } from './styles'
 import CalloutEvent from './CalloutEvent'
@@ -15,12 +15,20 @@ export default class CustomMapView extends React.Component {
         }
     }
 
+    // componentDidUpdate(props){
+    // for (let index = 0; index < props.events.length; index++) {
+    //     const eventData = props.events[index];
+    //     eventData['cluster'] = generateCluster(eventData);
+    // }
+    // }
+
     render() {
         return (
             <MapView
                 style={styles.mapStyle}
                 initialRegion={this.props.region}
                 zoomEnabled={true}
+                provider={PROVIDER_GOOGLE} // remove if not using Google Maps
                 followUserLocation={true}
                 showsUserLocation={true}
                 ref={ref => { this.mapView = ref; }}
@@ -38,7 +46,7 @@ export default class CustomMapView extends React.Component {
                                 longitude: parseFloat(event.spot.spot_longitude)
                             };
 
-                            let cluster = this.getCluster(event);
+                            let cluster = CustomMapView.generateCluster(event, this.props.events);
                             if (cluster == undefined || cluster.isInACluster == undefined) {
                                 return (<Marker
                                     key={'marker' + index}
@@ -48,6 +56,12 @@ export default class CustomMapView extends React.Component {
                                 >
                                     <Text>ERROR SORRY</Text>
                                 </Marker>)
+                            } else if (cluster.isInACluster &&
+                                cluster.sameEvents.findIndex((value, index) => value.event.event_id === event.event.event_id) > 0) {
+                                return <View
+                                    key={'marker' + index}
+                                    ref={(refCallout) => { this['callout' + index] = refCallout }}
+                                />
                             }
                             return (
                                 <Marker
@@ -60,13 +74,13 @@ export default class CustomMapView extends React.Component {
                                         <Animated.View style={[markerStyles.ring, this.calculateScaleStyle(index)]} />
                                         {cluster.isInACluster ? (
                                             <Image source={require('../../assets/images/map-multiEvent.gif')}
-                                                style={{ width: 33, resizeMode: 'contain', bottom: 18, left: 0.5 }}
+                                                style={{ width: 33, height : 25, resizeMode: 'contain', bottom: 10, right: 1 }}
                                             />
                                         )
                                             :
                                             (
                                                 <Image source={require('../../assets/images/map-pointer.gif')}
-                                                    style={{ width: 30, resizeMode: 'contain', bottom: 18, left: 0.5 }}
+                                                    style={{ width: 30, height : 25,resizeMode: 'contain', bottom: 10, left: 0.5 }}
                                                 />
                                             )
                                         }
@@ -146,19 +160,24 @@ export default class CustomMapView extends React.Component {
      *************************                 ***************************************
      ********************************************************************************/
 
-    getCluster(event) {
-        let result = { isInACluster: false, sameEvents: [event] }
-        for (let index = 0; index < this.props.events.length; index++) {
-            const eventItem = this.props.events[index];
+    static generateCluster(event,events) {
+        let result = { isInACluster: false, sameEvents: [] }
+        for (let index = 0; index < events.length; index++) {
+            const eventItem = events[index];
             if (eventItem != undefined &&
-                eventItem.event.event_id != event.event.event_id &&
-                eventItem.spot.spot_latitude == event.spot.spot_latitude &&
-                eventItem.spot.spot_longitude == event.spot.spot_longitude) {
-                result.isInACluster = true;
+                eventItem.spot.spot_id == event.spot.spot_id) {
+                eventItem['indexInEvents'] = index;
                 result.sameEvents.push(eventItem);
             }
         }
+        if (result.sameEvents.length > 1)
+            result.isInACluster = true;
         return result;
+    }
+
+    static getIndexOfClusterMaster(index, events) {
+        let cluster = CustomMapView.generateCluster(events[index], events);
+        return cluster.sameEvents[0].indexInEvents;
     }
 
 }

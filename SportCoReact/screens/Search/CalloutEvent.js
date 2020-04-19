@@ -8,6 +8,7 @@ import { Icon } from 'react-native-elements';
 import { mapSportIcon } from '../../helpers/mapper'
 import SportCoApi from '../../services/apiService';
 import { computeDate } from '../Event/Helpers';
+import Colors from '../../constants/Colors';
 
 class CalloutEvent extends React.Component {
 
@@ -32,7 +33,7 @@ class CalloutEvent extends React.Component {
                             type={icon.iconFamily}
                             size={30}
                             style={eventCalloutStyles.eventIcon}
-                            selected={false}
+                            color={Colors.tabIconDefault}
                         />
                         <Text h5 style={eventCalloutStyles.eventTitle}>{eventInfo.event.sport.toUpperCase()}</Text>
                     </View>

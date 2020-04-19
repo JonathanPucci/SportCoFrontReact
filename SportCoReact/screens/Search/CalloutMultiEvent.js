@@ -7,6 +7,7 @@ import { eventCalloutStyles, markerStyles, CARD_WIDTH } from './styles';
 import { Icon } from 'react-native-elements'
 import { mapSportIcon } from '../../helpers/mapper'
 import CardEvent from '../../components/CardEvent'
+import Colors from '../../constants/Colors';
 
 class CalloutMultiEvent extends React.Component {
 
@@ -28,8 +29,8 @@ class CalloutMultiEvent extends React.Component {
                                     type={icon.iconFamily}
                                     size={30}
                                     style={eventCalloutStyles.eventSports}
-                                    selected={false}
-                                />
+                                    color={Colors.tabIconDefault}
+                                    />
                             })
                             }
                         </View>)

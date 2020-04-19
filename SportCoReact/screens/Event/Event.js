@@ -18,7 +18,7 @@ import { EventMapView } from './EventMapView/EventMapView';
 import { Participants } from './Participants/Participants';
 import { Options } from './Options/Options';
 import { OptionIcon } from './OptionIcon';
-// import Geolocation from '@react-native-community/geolocation';
+import Geolocation from 'react-native-geolocation-service';
 
 const newEmptyEvent = {
   event: {
@@ -66,7 +66,7 @@ class EventScreen extends React.Component {
   }
 
   componentDidMount() {
-    this.watchId = navigator.geolocation.watchPosition(
+    this.watchId = Geolocation.watchPosition(
       this.setCurrentPosition,
       () => { console.log('setPosError') },
       {
@@ -82,7 +82,7 @@ class EventScreen extends React.Component {
   }
 
   setCurrentPosition = async (position) => {
-    navigator.geolocation.clearWatch(this.watchId);
+    Geolocation.clearWatch(this.watchId);
     let region = {
       latitude: position.coords.latitude,
       longitude: position.coords.longitude,

@@ -69,7 +69,7 @@ class FacebookLogin extends React.Component {
               .then(data => {
                 console.log("==========")
                 console.log("logged with user ");
-                console.log(user);
+                console.log(user.displayName);
                 console.log("==========")
                 loginAction(user, datauser.data.user_id);
               });

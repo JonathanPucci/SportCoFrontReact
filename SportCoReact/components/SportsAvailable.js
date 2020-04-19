@@ -6,6 +6,7 @@ import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { StyleSheet } from 'react-native';
 import { LEVELS } from "../constants/DbConstants";
 import { Rating, AirbnbRating } from 'react-native-ratings';
+import Colors from "../constants/Colors";
 
 
 const LEVEL_IMAGE = require('../assets/images/medal.png')
@@ -56,7 +57,7 @@ export default class SportsAvailable extends Component {
                                 name={icon}
                                 type={type}
                                 size={50}
-                                selected={this.isSportSelected(sport)}
+                                color={this.isSportSelected(sport) ? Colors.tabIconSelected : Colors.tabIconDefault}
                             />
                         </View>
                     </TouchableWithoutFeedback>

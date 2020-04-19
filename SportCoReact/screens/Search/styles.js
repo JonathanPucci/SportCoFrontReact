@@ -8,18 +8,12 @@ import { CARD_HEIGHT, CARD_WIDTH } from '../../components/CardEvent'
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#fff'
   },
 
   contentContainer: {
-    paddingTop: 0,
+    paddingTop: 0
   },
-  welcomeContainer: {
-    alignItems: 'center',
-    marginTop: 10,
-    marginBottom: 20,
-  },
-
   text: {
     fontSize: 17,
     color: 'rgba(96,100,109, 1)',
@@ -27,15 +21,18 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
   },
   mapContainer: {
-    flex: 1,
     backgroundColor: '#fff',
     alignItems: 'center',
     width: Layout.window.width,
-    height: Layout.window.height,
+    height: Layout.window.height ,
   },
   mapStyle: {
     width: Layout.window.width,
-    height: Layout.window.height - 500,
+    height: Layout.window.height ,
+     top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   searchButton: {
     position: "absolute",
@@ -45,14 +42,13 @@ export const styles = StyleSheet.create({
     marginTop: 10
   },
   actionButton: {
-    position: "relative",
+    position: "absolute",
     bottom: CARD_HEIGHT + 30,
     left: 20,
     height:60,
     width:60,
     borderRadius: 50,
     marginTop: 10,
-    flex: 1,
   },
   actionButtonIcon: {
     fontSize: 20,

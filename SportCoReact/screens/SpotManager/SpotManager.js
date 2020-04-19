@@ -4,7 +4,7 @@ import { Text, CheckBox, Input } from 'react-native-elements';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 import { styles } from './styles'
-import GoogleMapsAutoComplete from "../../components/GoogleMapsAutoComplete"
+import {GoogleMapsAutoComplete} from "../../components/GoogleMapsAutoComplete"
 import { MapViewSpotPicker } from '../Event/OverlaysEventEdition'
 import { ScrollView } from 'react-native-gesture-handler';
 import SportCoApi from '../../services/apiService';
@@ -12,7 +12,7 @@ import { connect } from 'react-redux'
 import { initialZoom } from '../../screens/Search/SearchScreen';
 import { OptionIcon} from '../../screens/Event/OptionIcon';
 import { SpotMap } from './SpotMap';
-// import Geolocation from '@react-native-community/geolocation';
+import Geolocation from 'react-native-geolocation-service';
 
 class SpotManager extends React.Component {
 
@@ -38,7 +38,7 @@ class SpotManager extends React.Component {
     }
 
     componentDidMount() {
-        this.watchId = navigator.geolocation.watchPosition(
+        this.watchId = Geolocation.watchPosition(
             this.setCurrentPosition.bind(this),
             (err) => { console.log('setPosError');console.log(err) },
             {
@@ -51,7 +51,7 @@ class SpotManager extends React.Component {
     }
 
     setCurrentPosition(position) {
-        navigator.geolocation.clearWatch(this.watchId);
+        Geolocation.clearWatch(this.watchId);
         this.setState(
             {
                 ...this.state,

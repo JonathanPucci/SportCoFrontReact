@@ -2,7 +2,7 @@ import * as React from 'react';
 import { View, Animated, Text, Platform } from 'react-native';
 import { Overlay, Button, Icon } from 'react-native-elements'
 import { connect } from 'react-redux'
-import GoogleMapsAutoComplete from "../../components/GoogleMapsAutoComplete"
+import { GoogleMapsAutoComplete } from "../../components/GoogleMapsAutoComplete"
 import Fade from "../../components/Fade"
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import MCIIcon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -15,22 +15,22 @@ import { CARD_HEIGHT, CARD_WIDTH } from '../../components/CardEvent'
 import SportsAvailable from '../../components/SportsAvailable';
 import { FloatingAction } from "react-native-floating-action";
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
-// import navigator.geolocation from 'react-native-geolocation-service';
+import Geolocation from 'react-native-geolocation-service';
 
 
 
 //Effect to get Events at focus (after coming back from events)
-function FocusEffectComp({ navigation, handler }) {
-  useFocusEffect(
-    React.useCallback(() => {
-      if (!SearchScreen.firstTime)
-        handler();
-      SearchScreen.firstTime = false;
-      return () => { };
-    }, [])
-  );
-  return null;
-}
+// function FocusEffectComp({ navigation, handler }) {
+//   useFocusEffect(
+//     React.useCallback(() => {
+//       if (!SearchScreen.firstTime)
+//         handler();
+//       SearchScreen.firstTime = false;
+//       return () => { };
+//     }, [])
+//   );
+//   return null;
+// }
 
 export const initialZoom = {
   latitudeDelta: 0.08,
@@ -63,28 +63,26 @@ class SearchScreen extends React.Component {
     }
     this.animation = new Animated.Value(0);
     this.sportCoApi = new SportCoApi();
-    this.initMap();
   }
 
-  static firstTime = true;
+  // static firstTime = true;
 
   initMap = () => {
-    this.watchId = navigator.geolocation.watchPosition(
-      this.retrieveEventsNearMe.bind(this),
-      this.retrieveEventsInInitialArea.bind(this),
+    this.watchId = Geolocation.getCurrentPosition(
+      this.retrieveEventsNearMe,
+      this.retrieveEventsInInitialArea,
       {
-        enableHighAccuracy: false,
-        timeout: 50,
-        maximumAge: 10
+        enableHighAccuracy: true,
+        timeout: 4000,
+        maximumAge: 4000
       }
     );
   }
 
 
-  retrieveEventsNearMe(position) {
-    console.log("got it, going to search");
-
-    navigator.geolocation.clearWatch(this.watchId);
+  retrieveEventsNearMe = (position) => {
+    console.log(Platform.OS + " got it, going to search");
+    // Geolocation.clearWatch(this.watchId);
 
     this.setState(
       { ...this.state, region: { ...this.state.region, latitude: position.coords.latitude, longitude: position.coords.longitude } },
@@ -93,15 +91,18 @@ class SearchScreen extends React.Component {
       });
   }
 
-  retrieveEventsInInitialArea() {
-    console.log("error going initial hardcoded")
+  retrieveEventsInInitialArea = (err) => {
+    console.log(Platform.OS + " error going initial hardcoded")
+    console.log("=============")
+    console.log(err)
+    console.log("=============")
     this.setState(
       { ...this.state, region: { ...this.state.region, latitude: 43.6, longitude: 7.1 } },
-      this.getData.bind(this, true));
+      this.getData);
   }
 
   goToCurrentLocation() {
-    navigator.geolocation.getCurrentPosition(
+    Geolocation.getCurrentPosition(
       position => {
         let region = {
           latitude: parseFloat(position.coords.latitude),
@@ -113,23 +114,21 @@ class SearchScreen extends React.Component {
         initialRegion["latitudeDelta"] = 0.005;
         initialRegion["longitudeDelta"] = 0.005;
         if (this.mapViewRef != undefined)
-          this.mapViewRef.mapView.animateToRegion(initialRegion, 2000);
+          this.mapViewRef.mapView.animateToRegion(initialRegion, 500);
         else
           retrieveEventsNearMe(position);
       },
       error => console.log(error),
       {
-        enableHighAccuracy: false,
+        enableHighAccuracy: true,
         timeout: 4000,
-        maximumAge: 1000
+        maximumAge: 2000
       }
     );
-
-
   }
 
   componentDidMount() {
-
+    this.initMap();
   }
 
   /*********************************************************************************
@@ -146,7 +145,7 @@ class SearchScreen extends React.Component {
   }
 
   retrieveEventsInArea() {
-    console.log("go");
+    console.log(Platform.OS + " retrieve In Area");
     this.sportCoApi.getEntities("events/area", this.state.region)
       .then((eventsdata) => {
         let events = eventsdata.data;
@@ -212,8 +211,8 @@ class SearchScreen extends React.Component {
 
   render() {
     return (
-      <View style={[styles.container, { backgroundColor: 'purple' }]} contentContainerStyle={styles.contentContainer}>
-        <FocusEffectComp navigation={this.props.navigation} handler={this.getData.bind(this, true)} />
+      <View style={styles.container} contentContainerStyle={styles.contentContainer}>
+        {/* <FocusEffectComp navigation={this.props.navigation} handler={this.getData} /> */}
         {this.renderMain()}
       </View>
     )
@@ -235,6 +234,7 @@ class SearchScreen extends React.Component {
 
         <View style={styles.mapContainer}>
           <CustomMapView
+            style={styles.mapContainer}
             ref={(ref) => { this.mapViewRef = ref }}
             region={this.state.region}
             events={this.state.events}
@@ -262,7 +262,6 @@ class SearchScreen extends React.Component {
             </View>
           </Fade>
         </View>
-
         {this.renderActionButton()}
         <Overlay
           isVisible={this.state.isChoosingAFilter}
@@ -282,9 +281,7 @@ class SearchScreen extends React.Component {
           </View>
         </Overlay>
         <View style={[
-          Platform.OS == 'ios' ?
-            { position: 'absolute', bottom: 0 } :
-            { elevation: 2 },
+          { position: 'absolute', bottom: 0, elevation: 2, overflow: 'hidden' }
         ]}>
           <EventScrollList
             ref={(ref) => this.myEventScrollList = ref}
@@ -406,8 +403,9 @@ class SearchScreen extends React.Component {
   }
 
   showCallout(index) {
-    this.mapViewRef['callout' + index].showCallout();
-    setTimeout(() => this.mapViewRef['callout' + index].hideCallout(), 4000);
+    let masterIndex = CustomMapView.getIndexOfClusterMaster(index, this.state.events);
+    this.mapViewRef['callout' + masterIndex].showCallout();
+    setTimeout(() => this.mapViewRef['callout' + masterIndex].hideCallout(), 4000);
   }
 
   /*********************************************************************************

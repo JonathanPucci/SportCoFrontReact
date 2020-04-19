@@ -1,19 +1,17 @@
 import * as React from 'react';
 import { View, Image, Platform } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-// import TabBarIcon from '../components/TabBarIcon';
 import HomeScreen from '../screens/Home/HomeScreen';
 import ProfileScreen from '../screens/Profile/ProfileScreen';
 import NotificationsScreen from '../screens/Notifications/NotificationsScreen';
 import SearchScreen from '../screens/Search/SearchScreen';
 import EventCalendar from '../screens/EventCalendar/EventCalendar';
-
-import { Ionicons } from 'react-native-vector-icons';
+import { Icon } from 'react-native-elements';
 
 import Colors from '../constants/Colors';
 
 const BottomTab = createBottomTabNavigator();
-const INITIAL_ROUTE_NAME = 'Home';
+const INITIAL_ROUTE_NAME = 'Search';
 
 export default function BottomTabNavigator({ navigation, route }) {
   // Set the header title on the parent stack navigator depending on the
@@ -24,7 +22,7 @@ export default function BottomTabNavigator({ navigation, route }) {
   return (
     <BottomTab.Navigator
       initialRouteName={INITIAL_ROUTE_NAME}
-      tabBarOptions={{ style: { height: Platform.OS == 'android' ? 70 : 80 } }}
+      tabBarOptions={{ style: { height: Platform.OS == 'android' ? 60 : 80 } }}
     >
       <BottomTab.Screen
         name="Home"
@@ -71,12 +69,18 @@ export default function BottomTabNavigator({ navigation, route }) {
 }
 
 function TabBarIcon(props) {
-  return <Ionicons
-    name={props.name}
-    size={30}
-    style={{ top: Platform.OS == 'android' ? 5 : 15 }}
-    color={props.focused ? Colors.tabIconSelected : Colors.tabIconDefault}
-  />
+  return (
+    <View
+      style={{ top:  10 }}
+    >
+      <Icon
+        name={props.name}
+        type='ionicon'
+        size={30}
+        color={props.focused ? Colors.tabIconSelected : Colors.tabIconDefault}
+      />
+    </View>
+  )
 
 }
 
