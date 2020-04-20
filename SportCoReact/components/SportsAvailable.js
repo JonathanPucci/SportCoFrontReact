@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { View, Image } from 'react-native';
+import { View, Image, TouchableOpacity } from 'react-native';
 import { Text } from 'react-native'
 import {Icon} from 'react-native-elements'
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
@@ -50,7 +50,7 @@ export default class SportsAvailable extends Component {
         return (
             <View >
                 <View style={{ flexDirection: 'row' }}>
-                    <TouchableWithoutFeedback onPress={() => this.toggleSport(sport)}>
+                    <TouchableOpacity  onPress={() => {this.toggleSport(sport)}}>
                         <View style={styles.sport}>
                             <Text>{sport.charAt(0).toUpperCase() + sport.slice(1)}</Text>
                             <Icon
@@ -60,7 +60,7 @@ export default class SportsAvailable extends Component {
                                 color={this.isSportSelected(sport) ? Colors.tabIconSelected : Colors.tabIconDefault}
                             />
                         </View>
-                    </TouchableWithoutFeedback>
+                    </TouchableOpacity>
                     {this.props.showStats && (
                         <View style={{ marginLeft: 20, flexDirection: 'column' }}>
                             <Text>Stats </Text>

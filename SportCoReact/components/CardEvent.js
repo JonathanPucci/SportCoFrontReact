@@ -3,8 +3,9 @@ import { StyleSheet, View, TouchableWithoutFeedback, Image, Text } from 'react-n
 import { mapSportIcon } from '../helpers/mapper'
 import Layout from '../constants/Layout'
 
-export const CARD_HEIGHT = Layout.window.height / 4;
-export const CARD_WIDTH = CARD_HEIGHT - 50;
+export const CARD_HEIGHT = (Layout.window.height - 40) / 4.5;
+export const CARD_WIDTH = (Layout.window.width) / 3;//CARD_HEIGHT*0.75;
+export const SPACE_BETWEEN = 10;
 
 export default class CardEvent extends React.Component {
 
@@ -32,12 +33,12 @@ export default class CardEvent extends React.Component {
                     />
                     <View style={markerStyles.textContent}>
                         <Text numberOfLines={1} style={markerStyles.cardtitle}>
-                            {item.event.sport.toUpperCase() + '  ' + dateString + '  ' + hour}
+                            {item.event.sport.toUpperCase() + '  ' + dateString}
                         </Text>
-                        <Text numberOfLines={1} style={markerStyles.cardDescription}></Text>
+                        <Text numberOfLines={1} style={markerStyles.cardDescription}>{hour}</Text>
                         <Text numberOfLines={1} style={markerStyles.cardDescription}>{item.event.description}</Text>
                         <Text numberOfLines={1} style={markerStyles.cardDescription}>
-                            {'Min.' + item.event.participants_min + ', Current. ' + item.participants.length + '/' + item.event.participants_min}</Text>
+                            {'Going : ' + item.participants.length + '/' + item.event.participants_max}</Text>
                     </View>
                 </View>
             </TouchableWithoutFeedback>
@@ -57,14 +58,11 @@ const markerStyles = StyleSheet.create({
         right: 0,
         paddingVertical: 10,
     },
-    endPadding: {
-        paddingRight: Layout.window.width - CARD_WIDTH,
-    },
     card: {
         padding: 0,
         elevation: 2,
         backgroundColor: "#BBB",
-        marginHorizontal: 10,
+        marginHorizontal: SPACE_BETWEEN,
         shadowColor: "#000",
         shadowRadius: 5,
         shadowOpacity: 0.3,
@@ -82,7 +80,7 @@ const markerStyles = StyleSheet.create({
         opacity: 0.6,
     },
     cardImage: {
-        flex: 2,
+        flex: 1,
         width: "100%",
         height: "100%",
         alignSelf: "center",
@@ -94,7 +92,6 @@ const markerStyles = StyleSheet.create({
     },
     cardtitle: {
         fontSize: 12,
-        marginTop: 5,
         fontWeight: "bold",
     },
     cardDescription: {

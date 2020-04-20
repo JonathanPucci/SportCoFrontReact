@@ -4,7 +4,7 @@ import { styles } from './styles'
 import MapView from 'react-native-maps';
 import { Button, Icon, Overlay } from 'react-native-elements'
 import DateTimePicker from '@react-native-community/datetimepicker';
-import GoogleMapsAutoComplete from "../../components/GoogleMapsAutoComplete"
+import {GoogleMapsAutoComplete} from "../../components/GoogleMapsAutoComplete"
 import SmoothPicker from "react-native-smooth-picker";
 import Bubble from './Bubble'
 import SportsAvailable from '../../components/SportsAvailable';

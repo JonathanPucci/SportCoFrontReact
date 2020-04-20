@@ -4,11 +4,15 @@ import {
     View,
     Animated,
     Image,
+    ScrollView,
+    Platform
 } from "react-native";
-import { markerStyles, CARD_WIDTH } from './styles'
+import { markerStyles } from './styles'
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import { mapSportIcon } from "../../helpers/mapper";
-import CardEvent from '../../components/CardEvent'
+import CardEvent, { CARD_WIDTH, CARD_HEIGHT, SPACE_BETWEEN } from '../../components/CardEvent'
+import Carousel from 'react-native-snap-carousel';
+import Layout from '../../constants/Layout'
 
 
 export default class EventMarkers extends Component {
@@ -18,7 +22,9 @@ export default class EventMarkers extends Component {
     }
 
     componentDidMount() {
-        this.scrollToElement();
+        setTimeout(() => {
+            this.scrollToElement(Platform.OS == 'ios' ? 0 : this.props.markers.length - 1);
+        }, 1500);
     }
 
     componentDidUpdate(prevProps) {
@@ -28,35 +34,22 @@ export default class EventMarkers extends Component {
     }
 
     render() {
+        let eventCards = this.props.markers;
         return (
-            <Animated.FlatList
-                horizontal
+            <Carousel
                 showsHorizontalScrollIndicator={false}
                 snapToInterval={CARD_WIDTH}
                 decelerationRate="fast"
                 ref={(ref) => this.myScroll = ref}
                 onScrollToIndexFailed={() => { }}
-                onScroll={Animated.event(
-                    [{
-                        nativeEvent: {
-                            contentOffset: {
-                                x: (this.props.animation),
-                            },
-                        },
-                    },
-                    ],
-                    {
-                        useNativeDriver: true,
-                        listener: event => {
-                            const offsetX = event.nativeEvent.contentOffset.x;
-                            this.setState({ currentOffset: offsetX });
-                        },
-                    }
-                )}
-                style={markerStyles.scrollView}
-                contentContainerStyle={markerStyles.endPadding}
-                data={this.props.markers}
+                enableMomentum={true}
+                onMomentumScrollEnd={()=>{this.props.scrollEnded()}}
+                style={[markerStyles.scrollView]}
+                contentContainerStyle={[{ /*paddingRight: 2 * CARD_WIDTH*/ }]}
+                data={eventCards}
                 keyExtractor={(item, index) => {
+                    if (item.isEmpty)
+                        return 'empty' + index;
                     if (item != undefined && item.event != undefined)
                         return item.event.event_id.toString();
                     else
@@ -65,17 +58,22 @@ export default class EventMarkers extends Component {
                 renderItem={({ item, index }) => {
                     return this.renderMarker(item, index);
                 }}
+                sliderWidth={2 * (CARD_WIDTH)}
+                itemWidth={CARD_WIDTH + 4 * SPACE_BETWEEN}
+                itemHeight={CARD_HEIGHT}
+                layout={'stack'}
+                layoutCardOffset={30}
             />
         )
     }
 
     renderMarker(item, index) {
-        if (item == undefined || item.event == undefined) {
-            return (<View />)
+        if (item == undefined || item.event == undefined || item.isEmpty) {
+            return (<View style={{ width: CARD_WIDTH, height: 10, borderColor: 'red', borderWidth: 2 }} />)
         }
         return (
             <CardEvent
-                pressedCard={this.scrollToElement.bind(this, index, true)}
+                pressedCard={() => { this.props.pressedCard(index) }}
                 item={item}
                 markerActive={this.props.currentIndex == index}
             />
@@ -84,11 +82,12 @@ export default class EventMarkers extends Component {
 
 
     scrollToElement(i = this.props.currentIndex, fromPress = false) {
-        if (fromPress && i==this.props.currentIndex) {
-            this.myScroll.getNode().scrollToOffset({ animated: false, offset: (this.state.currentOffset + (i == 0 ? 1 : -1)) });
-        }
-        if (this.props.markers.length != 0)
-            this.myScroll.getNode().scrollToIndex({ animated: fromPress, index: i });
+
+        // if (fromPress && i == this.props.currentIndex) {
+        //     this.myScroll.scrollTo({ animated: false, offset: (this.state.currentOffset + (i == 0 ? 1 : -1)) });
+        // }
+        // if (this.props.markers.length != 0)
+        //     this.myScroll.getNode().scrollToIndex({ animated: fromPress, index: i });
+        this.myScroll.snapToItem(i);
     }
 }
-

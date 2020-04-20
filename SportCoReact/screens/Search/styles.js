@@ -37,28 +37,20 @@ export const styles = StyleSheet.create({
   searchButton: {
     position: "absolute",
     top: 70,
-    left: Layout.window.width / 2 - 75,
+    alignSelf:'center',
     borderRadius: 10,
-    marginTop: 10
-  },
-  actionButton: {
-    position: "absolute",
-    bottom: CARD_HEIGHT + 30,
-    left: 20,
-    height:60,
-    width:60,
-    borderRadius: 50,
-    marginTop: 10,
   },
   actionButtonIcon: {
     fontSize: 20,
     alignSelf : 'center',
     alignItems : 'center',
     justifyContent : 'center',
-    color: 'white',
+    color: 'white'
   },
-  actionButtonItem: {
+  sports : {
+    flex :1
   }
+
 });
 
 export const markerStyles = StyleSheet.create({
@@ -66,12 +58,9 @@ export const markerStyles = StyleSheet.create({
     flex: 1,
   },
   scrollView: {
-    flex: 1,
+    flex:1,
     paddingVertical: 10,
-    elevation : 2
-  },
-  endPadding: {
-    paddingRight: Layout.window.width - CARD_WIDTH,
+    elevation : 2,
   },
   card: {
     padding: 0,

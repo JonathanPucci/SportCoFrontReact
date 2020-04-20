@@ -16,7 +16,7 @@ class CalloutMultiEvent extends React.Component {
         //     this.getData();
         // let eventInfo = this.state.event == undefined ? this.props.event : this.state.event;
         return (
-            <Callout onPress={this.goToEventLibrary.bind(this, this.props.events)} >
+            <Callout onPress={()=>this.goToEventLibrary(this.props.events)} >
                 <View style={eventCalloutStyles.eventContainer}>
                     <Text h5 style={eventCalloutStyles.eventTitle}>Plusieurs évènements ici !</Text>
                     {this.props.events != undefined &&
@@ -35,16 +35,20 @@ class CalloutMultiEvent extends React.Component {
                             }
                         </View>)
                     }
-                    <Text style={eventCalloutStyles.buttonStyle} >
-                        Voir plus...
-                    </Text>
+                   <Icon
+                        style={eventCalloutStyles.buttonStyle}
+                        reverse
+                        color='blue'
+                        size={15}
+                        name='more-horiz'
+                    />
                 </View>
             </Callout>
         )
     }
 
 
-    goToEventLibrary(events) {
+    goToEventLibrary = (events) => {
         this.props.navigation.navigate('Evenements', {
             events: events
         });

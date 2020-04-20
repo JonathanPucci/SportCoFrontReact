@@ -21,11 +21,9 @@ class CalloutEvent extends React.Component {
         if (this.props.reloadCallout)
             this.getData();
         let eventInfo = this.state.event == undefined ? this.props.event : this.state.event;
-        let photoUrl = eventInfo.host.photo_url;
-
         let icon = mapSportIcon(eventInfo.event.sport.toLowerCase());
         return (
-            <Callout onPress={this.goToEvent.bind(this, eventInfo)} >
+            <Callout onPress={()=> this.goToEvent(eventInfo)} >
                 <View style={eventCalloutStyles.eventContainer}>
                     <View style={{ flexDirection: 'row' }}>
                         <Icon
@@ -44,20 +42,17 @@ class CalloutEvent extends React.Component {
                                 <Text h5 >{computeDate(eventInfo.event.date)}</Text>
                             </View>
                         </View>
-                        <View style={{ alignItems: 'center', justifyContent: 'center',marginTop : 30 }}>
+                        <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: 30 }}>
                             <Text style={{ textAlign: 'center' }}>{eventInfo.host.user_name}</Text>
                             <View style={styles.imageContainer}>
-                                {photoUrl != undefined ? (
-                                    <Image source={{ uri: photoUrl + '?type=large&width=500&height=500' }} style={styles.image} />
-                                ) :
-                                    (<Image source={require('../../assets/images/robot-dev.png')} style={styles.image} />
-                                    )}
+                                {eventInfo.host.photo_url != undefined ?
+                                    <Image source={{ uri: eventInfo.host.photo_url + '?type=large&width=500&height=500' }} style={styles.image} />
+                                    :
+                                    <Image source={require('../../assets/images/robot-dev.png')} style={styles.image} />
+                                }
                             </View>
                         </View>
                     </View>
-                    {/* <Text style={eventCalloutStyles.buttonStyle} >
-                        Voir plus...
-                    </Text> */}
                     <Icon
                         style={eventCalloutStyles.buttonStyle}
                         reverse
@@ -70,7 +65,7 @@ class CalloutEvent extends React.Component {
         )
     }
 
-    goToEvent(event) {
+    goToEvent = (event) => {
         this.props.navigation.navigate('Event', {
             eventData: event
         });
@@ -94,15 +89,15 @@ const styles = StyleSheet.create({
 
     image: {
         alignSelf: 'center',
-        height: 75,
-        width: 75,
+        height: 60,
+        width: 60,
         borderWidth: 1,
-        borderRadius: 37,
+        borderRadius: 30,
 
     },
     imageContainer: {
-        alignSelf: 'flex-start',
-        marginLeft: 30
+        alignSelf: 'center',
+        // marginLeft: 30
     }
 
 });

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, Animated, Text, Platform } from 'react-native';
+import { View, Animated, Text, Platform, TouchableOpacity } from 'react-native';
 import { Overlay, Button, Icon } from 'react-native-elements'
 import { connect } from 'react-redux'
 import { GoogleMapsAutoComplete } from "../../components/GoogleMapsAutoComplete"
@@ -107,16 +107,12 @@ class SearchScreen extends React.Component {
         let region = {
           latitude: parseFloat(position.coords.latitude),
           longitude: parseFloat(position.coords.longitude),
-          latitudeDelta: 5,
-          longitudeDelta: 5
+          latitudeDelta: initialZoom.latitudeDelta,
+          longitudeDelta: initialZoom.longitudeDelta
         };
         let initialRegion = region;
-        initialRegion["latitudeDelta"] = 0.005;
-        initialRegion["longitudeDelta"] = 0.005;
         if (this.mapViewRef != undefined)
           this.mapViewRef.mapView.animateToRegion(initialRegion, 500);
-        else
-          retrieveEventsNearMe(position);
       },
       error => console.log(error),
       {
@@ -198,7 +194,6 @@ class SearchScreen extends React.Component {
       },
         () => {
           this.filterBySport();
-          this.setAnimationForScrollView();
         })
     }
   }
@@ -226,12 +221,13 @@ class SearchScreen extends React.Component {
         </View>
       );
     }
+
+
     return (
       <View style={styles.container} contentContainerStyle={styles.contentContainer}>
         <GoogleMapsAutoComplete
           handler={this.goToLocation.bind(this)}
         />
-
         <View style={styles.mapContainer}>
           <CustomMapView
             style={styles.mapContainer}
@@ -245,24 +241,37 @@ class SearchScreen extends React.Component {
             navigation={this.props.navigation}
             pressedMap={this.pressedMap.bind(this)}
           />
-
-          <Fade isVisible={this.state.optionsVisible} style={styles.searchButton} >
-            <View >
-              <Button
-                title={"  Search Here  "}
-                color='white'
-                icon={
-                  <Icon
-                    name="search"
-                    size={20}
-                    color="white"
-                  />
-                }
-                onPress={this.pressedSearchHere.bind(this)} />
-            </View>
-          </Fade>
         </View>
+        <Fade isVisible={this.state.optionsVisible} style={styles.searchButton} >
+          <View >
+            <Button
+              title={"  Search Here  "}
+              color='white'
+              icon={
+                <Icon
+                  name="search"
+                  size={20}
+                  color="white"
+                />
+              }
+              onPress={this.pressedSearchHere.bind(this)} />
+          </View>
+        </Fade>
         {this.renderActionButton()}
+
+        <View style={[
+          { position: 'absolute', bottom: 10, elevation: 2, flex: 1, },
+          Platform.OS == 'ios' ? { left: -50 } : { right: -50 }
+        ]}>
+          <EventScrollList
+            ref={(ref) => this.myEventScrollList = ref}
+            animation={this.animation}
+            currentIndex={this.state.currentEventIndex}
+            markers={this.state.events}
+            pressedCard={(index) => { this.showEventCardAndMarker(index) }}
+            scrollEnded={() => { this.scrollEnded() }}
+          />
+        </View>
         <Overlay
           isVisible={this.state.isChoosingAFilter}
           onBackdropPress={() => { this.setState({ isChoosingAFilter: false }) }}
@@ -274,23 +283,13 @@ class SearchScreen extends React.Component {
             />
             <Button
               titleStyle={{ fontSize: 20 }}
-              buttonStyle={{ marginTop: 100 }}
+              buttonStyle={{ marginTop: 50 }}
               title={'Filter'}
               onPress={() => { this.filterBySport() }}
             />
           </View>
         </Overlay>
-        <View style={[
-          { position: 'absolute', bottom: 0, elevation: 2, overflow: 'hidden' }
-        ]}>
-          <EventScrollList
-            ref={(ref) => this.myEventScrollList = ref}
-            animation={this.animation}
-            currentIndex={this.state.currentEventIndex}
-            markers={this.state.events}
-          />
-        </View>
-      </View>
+      </View >
     );
   }
 
@@ -319,19 +318,17 @@ class SearchScreen extends React.Component {
 
     return (
 
-      <View style={styles.actionButton}>
-        <FloatingAction
-          position={'left'}
-          color="#2089dc"
-          visible={this.state.optionsVisible}
-          showBackground={false}
-          distanceToEdge={{ vertical: 0, horizontal: 0 }}
-          actions={actions}
-          buttonSize={60}
-          floatingIcon={(<IonIcon name="md-create" style={styles.actionButtonIcon} />)}
-          onPressItem={this.hitActionButton.bind(this)}
-        />
-      </View>
+      <FloatingAction
+        position={Platform.OS == 'ios'?'left' : 'right'}
+        color="#2089dc"
+        visible={this.state.optionsVisible}
+        showBackground={false}
+        distanceToEdge={{ vertical: CARD_HEIGHT + 30, horizontal: 20 }}
+        actions={actions}
+        buttonSize={60}
+        floatingIcon={(<IonIcon name="md-create" style={styles.actionButtonIcon} />)}
+        onPressItem={this.hitActionButton.bind(this)}
+      />
     )
   }
 
@@ -404,8 +401,12 @@ class SearchScreen extends React.Component {
 
   showCallout(index) {
     let masterIndex = CustomMapView.getIndexOfClusterMaster(index, this.state.events);
-    this.mapViewRef['callout' + masterIndex].showCallout();
-    setTimeout(() => this.mapViewRef['callout' + masterIndex].hideCallout(), 4000);
+    if (this.mapViewRef['callout' + masterIndex] != null)
+      this.mapViewRef['callout' + masterIndex].showCallout();
+    setTimeout(() => {
+      if (this.mapViewRef['callout' + masterIndex] != null)
+        this.mapViewRef['callout' + masterIndex].hideCallout()
+    }, 4000);
   }
 
   /*********************************************************************************
@@ -414,35 +415,24 @@ class SearchScreen extends React.Component {
    *************************                 ***************************************
    ********************************************************************************/
 
-  setAnimationForScrollView() {
-    // We should detect when scrolling has stopped then animate
-    // We should just debounce the event listener here
-    this.animation.addListener(({ value }) => {
-      //TODO : Find a way to go less often this listener
-      let index = Math.floor(value / CARD_WIDTH + 0.3); // animate 30% away from landing on the next item
-      if (index >= this.state.events.length) {
-        index = this.state.events.length - 1;
-      }
-      if (index <= 0) {
-        index = 0;
-      }
-      clearTimeout(this.regionTimeout);
-      this.regionTimeout = setTimeout(() => {
-        const event = this.state.events[index];
-        let coordinateEvent = {
-          latitude: parseFloat(event.spot.spot_latitude),
-          longitude: parseFloat(event.spot.spot_longitude),
-          latitudeDelta: this.state.region.latitudeDelta,
-          longitudeDelta: this.state.region.longitudeDelta,
-        };
+  showEventCardAndMarker = (index) => {
+    const event = this.state.events[index];
+    let coordinateEvent = {
+      latitude: parseFloat(event.spot.spot_latitude),
+      longitude: parseFloat(event.spot.spot_longitude),
+      latitudeDelta: this.state.region.latitudeDelta,
+      longitudeDelta: this.state.region.longitudeDelta,
+    };
 
-        this.setState({ currentEventIndex: index });
-        this.mapViewRef.mapView.animateToRegion(coordinateEvent, 350);
-        this.showCallout(index);
-      }, 300);
-    });
+    this.setState({ currentEventIndex: index });
+    this.mapViewRef.mapView.animateToRegion(coordinateEvent, 350);
+    this.showCallout(index);
   }
 
+  scrollEnded = () => {
+    let index = this.myEventScrollList.myScroll.currentIndex;
+    this.showEventCardAndMarker(index);
+  }
 
   calculateInterpolations() {
     const interpolations = this.state.events.map((marker, index) => {
