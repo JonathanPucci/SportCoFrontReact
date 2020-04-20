@@ -81,9 +81,8 @@ class SearchScreen extends React.Component {
 
 
   retrieveEventsNearMe = (position) => {
-    console.log(Platform.OS + " got it, going to search");
+    // console.log(Platform.OS + " got it, going to search");
     // Geolocation.clearWatch(this.watchId);
-
     this.setState(
       { ...this.state, region: { ...this.state.region, latitude: position.coords.latitude, longitude: position.coords.longitude } },
       () => {
@@ -92,7 +91,7 @@ class SearchScreen extends React.Component {
   }
 
   retrieveEventsInInitialArea = (err) => {
-    console.log(Platform.OS + " error going initial hardcoded")
+    // console.log(Platform.OS + " error going initial hardcoded")
     console.log("=============")
     console.log(err)
     console.log("=============")
@@ -141,7 +140,7 @@ class SearchScreen extends React.Component {
   }
 
   retrieveEventsInArea() {
-    console.log(Platform.OS + " retrieve In Area");
+    // console.log(Platform.OS + " retrieve In Area");
     this.sportCoApi.getEntities("events/area", this.state.region)
       .then((eventsdata) => {
         let events = eventsdata.data;
@@ -233,6 +232,8 @@ class SearchScreen extends React.Component {
             style={styles.mapContainer}
             ref={(ref) => { this.mapViewRef = ref }}
             region={this.state.region}
+            currentLatitudeDelta={this.state.region.latitudeDelta}
+            currentLongitudeDelta={this.state.region.longitudeDelta}
             events={this.state.events}
             interpolations={this.state.interpolations}
             animation={this.animation}
@@ -240,6 +241,7 @@ class SearchScreen extends React.Component {
             regionMoved={this.setRegionMoved.bind(this)}
             navigation={this.props.navigation}
             pressedMap={this.pressedMap.bind(this)}
+
           />
         </View>
         <Fade isVisible={this.state.optionsVisible} style={styles.searchButton} >

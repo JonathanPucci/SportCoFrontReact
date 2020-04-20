@@ -101,10 +101,10 @@ export const markerStyles = StyleSheet.create({
     color: "#444",
   },
   markerWrap: {
-    width: 40,
-    height: 60,
+    width: 43,
+    height: 50,
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "flex-end",
   },
   marker: {
     width: 10,
@@ -114,6 +114,7 @@ export const markerStyles = StyleSheet.create({
   ring: {
     width: 10,
     height: 10,
+    bottom:0,
     borderRadius: 5,
     backgroundColor: "rgba(59, 118, 255 , 0.3)",
     position: "absolute",

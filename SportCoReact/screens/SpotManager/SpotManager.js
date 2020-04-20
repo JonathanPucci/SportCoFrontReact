@@ -38,7 +38,7 @@ class SpotManager extends React.Component {
     }
 
     componentDidMount() {
-        this.watchId = Geolocation.watchPosition(
+        this.watchId = Geolocation.getCurrentPosition(
             this.setCurrentPosition.bind(this),
             (err) => { console.log('setPosError');console.log(err) },
             {
@@ -51,7 +51,7 @@ class SpotManager extends React.Component {
     }
 
     setCurrentPosition(position) {
-        Geolocation.clearWatch(this.watchId);
+        // Geolocation.clearWatch(this.watchId);
         this.setState(
             {
                 ...this.state,

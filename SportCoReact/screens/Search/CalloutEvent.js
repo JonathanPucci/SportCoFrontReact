@@ -23,7 +23,7 @@ class CalloutEvent extends React.Component {
         let eventInfo = this.state.event == undefined ? this.props.event : this.state.event;
         let icon = mapSportIcon(eventInfo.event.sport.toLowerCase());
         return (
-            <Callout onPress={()=> this.goToEvent(eventInfo)} >
+            <Callout onPress={() => this.goToEvent(eventInfo)} >
                 <View style={eventCalloutStyles.eventContainer}>
                     <View style={{ flexDirection: 'row' }}>
                         <Icon
@@ -42,13 +42,17 @@ class CalloutEvent extends React.Component {
                                 <Text h5 >{computeDate(eventInfo.event.date)}</Text>
                             </View>
                         </View>
-                        <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: 30 }}>
-                            <Text style={{ textAlign: 'center' }}>{eventInfo.host.user_name}</Text>
+                        <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: 10 }}>
+                            <Text style={{ textAlign: 'center', marginBottom:10 }}>{eventInfo.host.user_name}</Text>
                             <View style={styles.imageContainer}>
                                 {eventInfo.host.photo_url != undefined ?
-                                    <Image source={{ uri: eventInfo.host.photo_url + '?type=large&width=500&height=500' }} style={styles.image} />
+                                    <Text  >
+                                        <Image source={{ uri: eventInfo.host.photo_url + '?type=large&width=500&height=500' }} style={styles.image} resizeMode="cover" />
+                                    </Text>
                                     :
-                                    <Image source={require('../../assets/images/robot-dev.png')} style={styles.image} />
+                                    <Text  >
+                                        <Image source={require('../../assets/images/robot-dev.png')} style={styles.image} resizeMode="cover" />
+                                    </Text>
                                 }
                             </View>
                         </View>

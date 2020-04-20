@@ -43,24 +43,14 @@ export default class CustomMapView extends React.Component {
                             }
                             let coordinateEvent = {
                                 latitude: parseFloat(event.spot.spot_latitude),
-                                longitude: parseFloat(event.spot.spot_longitude)
+                                longitude: parseFloat(event.spot.spot_longitude),
                             };
 
                             let cluster = CustomMapView.generateCluster(event, this.props.events);
-                            if (cluster == undefined || cluster.isInACluster == undefined) {
-                                return (<Marker
-                                    key={'marker' + index}
-                                    coordinate={coordinateEvent}
-                                    ref={(refCallout) => { this['callout' + index] = refCallout }}
-                                    onPress={() => { this.pressedEvent(index) }}
-                                >
-                                    <Text>ERROR SORRY</Text>
-                                </Marker>)
-                            } else if (cluster.isInACluster &&
+                            if (cluster.isInACluster &&
                                 cluster.sameEvents.findIndex((value, index) => value.event.event_id === event.event.event_id) > 0) {
                                 return <View
                                     key={'marker' + index}
-                                    ref={(refCallout) => { this['callout' + index] = refCallout }}
                                 />
                             }
                             return (
@@ -70,21 +60,21 @@ export default class CustomMapView extends React.Component {
                                     ref={(refCallout) => { this['callout' + index] = refCallout }}
                                     onPress={() => { this.pressedEvent(index) }}
                                 >
-                                    <Animated.View style={[markerStyles.markerWrap, this.calculateOpacityStyle(index)]}>
+                                    <View style={markerStyles.markerWrap}>
                                         <Animated.View style={[markerStyles.ring, this.calculateScaleStyle(index)]} />
                                         {cluster.isInACluster ? (
                                             <Image source={require('../../assets/images/map-multiEvent.gif')}
-                                                style={{ width: 33, height : 25, resizeMode: 'contain', bottom: 10, right: 1 }}
+                                                style={{ width: 33, height : 25, resizeMode: 'contain', bottom: 3, right: 1 }}
                                             />
                                         )
                                             :
                                             (
                                                 <Image source={require('../../assets/images/map-pointer.gif')}
-                                                    style={{ width: 30, height : 25,resizeMode: 'contain', bottom: 10, left: 0.5 }}
+                                                    style={{ width: 30, height : 25,resizeMode: 'contain', bottom: 3, left: 0.5 }}
                                                 />
                                             )
                                         }
-                                    </Animated.View>
+                                    </View>
                                     {cluster.isInACluster ? (
                                         <CalloutMultiEvent
                                             reloadCallout={this.state.reloadCallout}
