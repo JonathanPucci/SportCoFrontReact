@@ -27,7 +27,7 @@ export default class CustomMapView extends React.Component {
                 style={styles.mapStyle}
                 initialRegion={this.props.region}
                 zoomEnabled={true}
-                provider={Platform.OS == 'android'?PROVIDER_GOOGLE : null} // remove if not using Google Maps
+                provider={PROVIDER_GOOGLE} // remove if not using Google Maps
                 followUserLocation={true}
                 showsUserLocation={true}
                 ref={ref => { this.mapView = ref; }}
@@ -67,9 +67,7 @@ export default class CustomMapView extends React.Component {
                                             <Image source={require('../../assets/images/map-multiEvent.gif')}
                                                 style={{ width: 33, height: 25, resizeMode: 'contain', bottom: 3, right: 1 }}
                                             />
-                                        )
-                                            :
-                                            (
+                                        ) : (
                                                 <Image source={require('../../assets/images/map-pointer.gif')}
                                                     style={{ width: 30, height: 25, resizeMode: 'contain', bottom: 3, left: 0.5 }}
                                                 />
@@ -82,9 +80,7 @@ export default class CustomMapView extends React.Component {
                                             events={cluster.sameEvents}
                                             navigation={this.props.navigation}
                                             index={index} />
-                                    )
-                                        :
-                                        (
+                                    ) : (
                                             <CalloutEvent
                                                 reloadCallout={this.state.reloadCallout}
                                                 navigation={this.props.navigation}

@@ -46,7 +46,7 @@ class CalloutEvent extends React.Component {
                             <Text style={{ textAlign: 'center', marginBottom:10 }}>{eventInfo.host.user_name}</Text>
                             <View style={styles.imageContainer}>
                                 {eventInfo.host.photo_url != undefined ?
-                                    <Text  >
+                                    <Text>
                                         <Image source={{ uri: eventInfo.host.photo_url + '?type=large&width=500&height=500' }} style={styles.image} resizeMode="cover" />
                                     </Text>
                                     :
@@ -101,6 +101,8 @@ const styles = StyleSheet.create({
     },
     imageContainer: {
         alignSelf: 'center',
+        height: 60,
+        width: 60,
         // marginLeft: 30
     }
 

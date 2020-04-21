@@ -19,8 +19,6 @@ import * as Permissions from 'expo-permissions';
 // import * as LocationPermission from 'expo-location';
 import Constants from 'expo-constants';
 
-
-
 function LogoTitle() {
     return (
         <View >

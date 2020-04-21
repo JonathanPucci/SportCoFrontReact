@@ -3,6 +3,7 @@ import { Provider } from 'react-redux'
 import Store from './Store/configureStore'
 import AppNavigator from './navigation/AppNavigator'
 import { Platform, KeyboardAvoidingView } from 'react-native';
+import {APP_URL} from './constants/AppConstants'
 
 export default class App extends React.Component {
 
@@ -14,7 +15,7 @@ export default class App extends React.Component {
           style={{ flex: 1 }}
           keyboardVerticalOffset={Platform.OS == "ios" ? -1000 : -500}
         >
-          <AppNavigator />
+          <AppNavigator uriPrefix={APP_URL} />
         </KeyboardAvoidingView>
       </Provider>
     )

@@ -87,7 +87,7 @@ class ProfileScreen extends React.Component {
             <Divider style={styles.divider} />
             <Text style={styles.desc}>
               {`Me : As everyone else, need to get out of this containment, let's play a basketball game once it's all over.
-              \rPure squatteur.`}
+              \rOh yeah.`}
             </Text>
             <Divider style={styles.divider} />
             <View style={styles.sports}>

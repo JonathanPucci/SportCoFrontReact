@@ -38,7 +38,6 @@ export default class EventMarkers extends Component {
         return (
             <Carousel
                 showsHorizontalScrollIndicator={false}
-                snapToInterval={CARD_WIDTH}
                 decelerationRate="fast"
                 ref={(ref) => this.myScroll = ref}
                 onScrollToIndexFailed={() => { }}

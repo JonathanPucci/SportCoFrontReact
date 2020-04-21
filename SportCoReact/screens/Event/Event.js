@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Text, View, Image, RefreshControl, Platform, Share, Linking } from 'react-native';
+import { Text, View, Image, RefreshControl, Platform, Linking } from 'react-native';
 import { connect } from 'react-redux'
 import { styles } from './styles'
 import SportCoApi from '../../services/apiService';
@@ -19,6 +19,8 @@ import { Participants } from './Participants/Participants';
 import { Options } from './Options/Options';
 import { OptionIcon } from './OptionIcon';
 import Geolocation from 'react-native-geolocation-service';
+import { APP_URL } from '../../constants/AppConstants'
+import Share from 'react-native-share';
 
 const newEmptyEvent = {
   event: {
@@ -309,11 +311,20 @@ class EventScreen extends React.Component {
     // let redirectUrl = await Linking.makeUrl('exp://127.0.0.1:19000', { event: { event_id: '1' } });
     // console.log(redirectUrl);
     try {
-      const result = await Share.share({
-        message:
-          'You should have a look at this event !',
-        url: 'exp://localhost:19000?event_id=' + this.state.eventData.event.event_id
-      });
+      const initialUrl = APP_URL;
+      let url = initialUrl + this.state.eventData.event.event_id;
+      let title = 'You should have a look at this event !';
+      let message = `Click here to see the event ` + url
+
+      const options = {
+        title,
+        subject: title,
+        message: `${message}`,
+      }
+
+      const result = await Share.open(options);
+      // const result = Linking.openURL('fb-messenger://share?link=www.google.com');
+      console.log(result)
 
       if (result.action === Share.sharedAction) {
         if (result.activityType) {
@@ -325,9 +336,10 @@ class EventScreen extends React.Component {
         // dismissed
       }
     } catch (error) {
-      alert(error.message);
+      console.log(error);
     }
   };
+
 
   /*********************************************************************************
    ********************      DATA  **  STUFF    ************************************
@@ -389,7 +401,7 @@ class EventScreen extends React.Component {
         this.setState({ isEditingDate: isEditing })
         this.setState({ isEditingTime: isEditing })
         break;
-        case 'Time':
+      case 'Time':
         this.setState({ isEditingTime: isEditing })
         break;
       case 'Min':
