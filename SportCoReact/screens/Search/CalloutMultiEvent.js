@@ -16,26 +16,30 @@ class CalloutMultiEvent extends React.Component {
         //     this.getData();
         // let eventInfo = this.state.event == undefined ? this.props.event : this.state.event;
         return (
-            <Callout onPress={()=>this.goToEventLibrary(this.props.events)} >
+            <Callout onPress={() => this.goToEventLibrary(this.props.events)} >
                 <View style={eventCalloutStyles.eventContainer}>
                     <Text h5 style={eventCalloutStyles.eventTitle}>Plusieurs évènements ici !</Text>
                     {this.props.events != undefined &&
                         (<View style={eventCalloutStyles.eventSports}>
                             {this.props.events.map((item, index) => {
                                 let icon = mapSportIcon(item.event.sport.toLowerCase());
-                                return <Icon
+                                return (
+                                    <View 
                                     key={'key' + index}
-                                    name={icon.iconName}
-                                    type={icon.iconFamily}
-                                    size={30}
-                                    style={eventCalloutStyles.eventSports}
-                                    color={Colors.tabIconDefault}
-                                    />
+                                    style={eventCalloutStyles.eventSport}>
+                                        <Icon
+                                            name={icon.iconName}
+                                            type={icon.iconFamily}
+                                            size={30}
+                                            color={Colors.tabIconDefault}
+                                        />
+                                    </View>
+                                )
                             })
                             }
                         </View>)
                     }
-                   <Icon
+                    <Icon
                         style={eventCalloutStyles.buttonStyle}
                         reverse
                         color='blue'

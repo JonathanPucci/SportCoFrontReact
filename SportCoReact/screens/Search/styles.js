@@ -146,11 +146,11 @@ export const eventCalloutStyles = StyleSheet.create({
   eventSports: {
     flex: 1,
     alignItems: 'center',
-    flexDirection: 'row'
+    flexDirection: 'row',
+    marginTop : 20
   },
   eventSport: {
-    flex: 1,
-    margin: 10,
+    marginLeft: 10,
   },
   eventTitle: {
     alignSelf: "center",

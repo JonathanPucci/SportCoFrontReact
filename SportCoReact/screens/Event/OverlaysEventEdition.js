@@ -4,7 +4,7 @@ import { styles } from './styles'
 import MapView from 'react-native-maps';
 import { Button, Icon, Overlay } from 'react-native-elements'
 import DateTimePicker from '@react-native-community/datetimepicker';
-import {GoogleMapsAutoComplete} from "../../components/GoogleMapsAutoComplete"
+import { GoogleMapsAutoComplete } from "../../components/GoogleMapsAutoComplete"
 import SmoothPicker from "react-native-smooth-picker";
 import Bubble from './Bubble'
 import SportsAvailable from '../../components/SportsAvailable';
@@ -42,34 +42,73 @@ export class OverlayDateTimePicker extends React.Component {
 
     render() {
         return (
-            <Overlay
-                isVisible={this.props.isEditingDate}
-                onBackdropPress={() => { this.props.stopEditingDate() }}
-            >
-                <View>
-                    <Text style={{ alignSelf: 'center', fontSize: 20, fontWeight: 'bold' }}>Date</Text>
-                    <DateTimePicker
-                        testID="dateTimePicker"
-                        value={this.props.event.event.date}
-                        mode={'date'}
-                        is24Hour={true}
-                        onChange={this.props.onDateChange}
-                    />
-                    <Text style={{ alignSelf: 'center', fontSize: 20, fontWeight: 'bold' }}>Heure</Text>
-                    <DateTimePicker
-                        testID="dateTimePicker"
-                        value={this.props.event.event.date}
-                        mode={'time'}
-                        is24Hour={true}
-                        onChange={this.props.onDateTimeChange}
-                    />
-                    <SaveButton
-                        title={`| Enregister?`}
-                        callback={this.props.saveDate}
-                    />
-                </View>
-            </Overlay>
+            <View>
+                {Platform.OS == 'ios' ? (
+                    <Overlay
+                        isVisible={this.props.isEditingDate}
+                        onBackdropPress={() => { this.props.stopEditingDate() }}
+                    >
+                        <View style={{ elevation: 3 }}>
+                            <Text style={{ alignSelf: 'center', fontSize: 20, fontWeight: 'bold' }}>Date</Text>
+                            <DateTimePicker
+                                testID="dateTimePicker"
+                                value={new Date(this.props.event.event.date)}
+                                mode={'date'}
+                                is24Hour={true}
+                                onChange={this.props.onDateChange}
+                            />
+                            <Text style={{ alignSelf: 'center', fontSize: 20, fontWeight: 'bold' }}>Heure</Text>
+                            <DateTimePicker
+                                testID="dateTimePicker"
+                                value={new Date(this.props.event.event.date)}
+                                mode={'time'}
+                                is24Hour={true}
+                                onChange={this.props.onDateTimeChange}
+                            />
+                            <SaveButton
+                                title={`| Enregister?`}
+                                callback={this.props.saveDate}
+                            />
+                        </View>
+                    </Overlay>
+                ) : (
+                        <View>
+                            {this.props.isEditingTime && (
+                                <DateTimePicker
+                                    testID="dateTimePicker"
+                                    value={new Date(this.props.event.event.date)}
+                                    mode={'time'}
+                                    is24Hour={true}
+                                    onChange={this.onDateTimeChange}
+                                />
+                            )}
+                            {this.props.isEditingDate && (
+                                <DateTimePicker
+                                    testID="dateTimePicker"
+                                    value={new Date(this.props.event.event.date)}
+                                    mode={'date'}
+                                    is24Hour={true}
+                                    onChange={this.onDateChange}
+                                />
+                            )}
+                        </View>
+                    )}
+            </View>
         )
+    }
+
+    onDateChange = (e, d) => {
+        if (e.type != 'dismissed')
+            this.props.onDateChange(e, d);
+            else
+            this.props.stopEditingDate()
+    }
+
+    onDateTimeChange = (e, d) => {
+        if (e.type != 'dismissed')
+            this.props.onDateTimeChange(e, d);
+            else
+            this.props.stopEditingDate()
     }
 }
 
@@ -96,8 +135,8 @@ export class OverlayDescription extends React.Component {
                                 alignItems: 'center',
                                 overflow: "hidden",
                                 alignSelf: 'center',
-                                textAlign:'center',
-                                height : 100
+                                textAlign: 'center',
+                                height: 100
                             }}
                             autoFocus
                             onChangeText={this.props.onDescriptionChange}
@@ -123,7 +162,7 @@ export class OverlayLevel extends React.Component {
                 isVisible={this.props.isEditingLevel}
                 onBackdropPress={() => { this.props.stopEditingLevel() }}
             >
-                <View style={{ flex: 1}}>
+                <View style={{ flex: 1 }}>
                     <Text style={{ flex: 0.1, alignSelf: 'center', fontSize: 20, fontWeight: 'bold' }}>
                         Level
                     </Text>
@@ -307,13 +346,13 @@ export class MapViewSpotPicker extends React.Component {
                                                 pinColor={'blue'}
                                                 onPress={() => {
                                                     let newRegion = {
-                                                        spot_id :spot.spot_id,
+                                                        spot_id: spot.spot_id,
                                                         longitude: spot.spot_longitude,
                                                         latitude: spot.spot_latitude
                                                     };
                                                     this.props.onRegionChange(newRegion);
                                                     if (this.props.selectedSpot != undefined)
-                                                        this.props.selectedSpot(index,newRegion)
+                                                        this.props.selectedSpot(index, newRegion)
                                                     this.setState({ markerRegion: newRegion });
                                                 }}
                                             />
@@ -328,7 +367,7 @@ export class MapViewSpotPicker extends React.Component {
                     </View>
                     <SaveButton
                         title={`| Enregistrer?`}
-                        callback={()=>{this.props.saveLocation(this.state.markerRegion)}}
+                        callback={() => { this.props.saveLocation(this.state.markerRegion) }}
                     />
                 </View>
             </Overlay>

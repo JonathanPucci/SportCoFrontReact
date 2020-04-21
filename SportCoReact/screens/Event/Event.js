@@ -47,6 +47,7 @@ class EventScreen extends React.Component {
       editing: false,
       isEditingSport: false,
       isEditingDate: false,
+      isEditingTime: false,
       isEditingParticipantNumbers: false,
       isEditingDescription: false,
       isEditingMapMarker: false,
@@ -157,6 +158,7 @@ class EventScreen extends React.Component {
               />
               <OverlayDateTimePicker
                 isEditingDate={this.state.isEditingDate}
+                isEditingTime={this.state.isEditingTime}
                 stopEditingDate={() => this.setEditingProperty('Date', false)}
                 event={eventData}
                 onDateChange={(e, d) => this.setStateEventDataProperty('event', 'date', null, d)}
@@ -385,6 +387,10 @@ class EventScreen extends React.Component {
         break;
       case 'Date':
         this.setState({ isEditingDate: isEditing })
+        this.setState({ isEditingTime: isEditing })
+        break;
+        case 'Time':
+        this.setState({ isEditingTime: isEditing })
         break;
       case 'Min':
       case 'Participants':
@@ -421,11 +427,17 @@ class EventScreen extends React.Component {
         newDate.setMinutes(currentDate.getMinutes());
         newDate.setSeconds(currentDate.getSeconds());
         newValue = newDate;
+        if (Platform.OS == 'android')
+          this.setEditingProperty('Date', false);
         break;
       case 'datetime':
         newDate.setDate(currentDate.getDate());
+        newDate.setFullYear(currentDate.getFullYear());
         newValue = newDate;
         newProperty = 'date';
+        if (Platform.OS == 'android')
+          this.setEditingProperty('Time', false);
+
         break;
       case 'WHOLE':
         //Only for map picking location so far

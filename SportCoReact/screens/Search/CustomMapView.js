@@ -1,8 +1,7 @@
 import * as React from 'react';
 import { View, Image, Animated } from 'react-native';
 
-import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
-import { Marker } from "react-native-maps"
+import MapView, { PROVIDER_GOOGLE, Marker } from "react-native-maps";
 import { styles, markerStyles, CARD_WIDTH } from './styles'
 import CalloutEvent from './CalloutEvent'
 import CalloutMultiEvent from './CalloutMultiEvent'
@@ -28,7 +27,7 @@ export default class CustomMapView extends React.Component {
                 style={styles.mapStyle}
                 initialRegion={this.props.region}
                 zoomEnabled={true}
-                provider={PROVIDER_GOOGLE} // remove if not using Google Maps
+                provider={Platform.OS == 'android'?PROVIDER_GOOGLE : null} // remove if not using Google Maps
                 followUserLocation={true}
                 showsUserLocation={true}
                 ref={ref => { this.mapView = ref; }}
@@ -59,18 +58,20 @@ export default class CustomMapView extends React.Component {
                                     coordinate={coordinateEvent}
                                     ref={(refCallout) => { this['callout' + index] = refCallout }}
                                     onPress={() => { this.pressedEvent(index) }}
+                                    calloutOffset={{ x: 0, y: 20 }}
+                                    calloutAnchor={{ x: 0.5, y: 0.5 }}
                                 >
                                     <View style={markerStyles.markerWrap}>
                                         <Animated.View style={[markerStyles.ring, this.calculateScaleStyle(index)]} />
                                         {cluster.isInACluster ? (
                                             <Image source={require('../../assets/images/map-multiEvent.gif')}
-                                                style={{ width: 33, height : 25, resizeMode: 'contain', bottom: 3, right: 1 }}
+                                                style={{ width: 33, height: 25, resizeMode: 'contain', bottom: 3, right: 1 }}
                                             />
                                         )
                                             :
                                             (
                                                 <Image source={require('../../assets/images/map-pointer.gif')}
-                                                    style={{ width: 30, height : 25,resizeMode: 'contain', bottom: 3, left: 0.5 }}
+                                                    style={{ width: 30, height: 25, resizeMode: 'contain', bottom: 3, left: 0.5 }}
                                                 />
                                             )
                                         }
@@ -150,7 +151,7 @@ export default class CustomMapView extends React.Component {
      *************************                 ***************************************
      ********************************************************************************/
 
-    static generateCluster(event,events) {
+    static generateCluster(event, events) {
         let result = { isInACluster: false, sameEvents: [] }
         for (let index = 0; index < events.length; index++) {
             const eventItem = events[index];
