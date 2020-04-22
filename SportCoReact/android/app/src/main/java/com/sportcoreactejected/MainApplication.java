@@ -25,6 +25,7 @@ import java.util.List;
 
 // import com.airbnb.android.react.maps.MapsPackage;
 // import com.facebook.reactnative.androidsdk.FBSDKPackage;
+// import com.wix.reactnativenotifications.RNNotificationsPackage;
 
 
 
@@ -42,15 +43,12 @@ public class MainApplication extends Application implements ReactApplication {
 
     @Override
     protected List<ReactPackage> getPackages() {
-      List<ReactPackage> packages = new PackageList(this).getPackages();
-      // return Arrays.<ReactPackage>asList(
-      //   new ModuleRegistryAdapter(mModuleRegistryProvider),
-      //   new MapsPackage(),
-      //   new FBSDKPackage()
-      //   );
-      // packages.add(new ModuleRegistryAdapter(mModuleRegistryProvider));
-      // packages.add(new MapsPackage());
-      // packages.add(new FBSDKPackage());
+      @SuppressWarnings("UnnecessaryLocalVariable")
+       List<ReactPackage> packages = new PackageList(this).getPackages();
+       // ... 
+       // Add the following line: 
+      //  packages.add(new RNNotificationsPackage(MainApplication.this)); 
+
       
                 
       return packages;
@@ -72,4 +70,5 @@ public class MainApplication extends Application implements ReactApplication {
     super.onCreate();
     SoLoader.init(this, /* native exopackage */ false);
   }
+  
 }

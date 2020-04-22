@@ -15,9 +15,9 @@ import { connect } from 'react-redux';
 import SpotManager from '../screens/SpotManager/SpotManager';
 import SportCoApi from '../services/apiService';
 // import { Notifications } from 'expo';
-import * as Permissions from 'expo-permissions';
+// import * as Permissions from 'expo-permissions';
 // import * as LocationPermission from 'expo-location';
-import Constants from 'expo-constants';
+// import Constants from 'expo-constants';
 
 function LogoTitle() {
     return (
@@ -64,7 +64,7 @@ class AppNavigator extends React.Component {
             this.props.auth.user != undefined &&
             (prevProps == undefined || prevProps.auth == undefined || prevProps.auth.user == undefined)
         ) {
-            this.registerForPushNotificationsAsync();
+            // this.registerForPushNotificationsAsync();
             // this._notificationSubscription = Notifications.addListener(this._handleNotification);
             //Add permission from Android
             this.grantLocationPermissionForAndroid();
@@ -72,38 +72,38 @@ class AppNavigator extends React.Component {
         }
     }
 
-    registerForPushNotificationsAsync = async () => {
-        if (Constants.isDevice) {
-            const { status: existingStatus } = await Permissions.getAsync(Permissions.NOTIFICATIONS);
-            let finalStatus = existingStatus;
+    // registerForPushNotificationsAsync = async () => {
+    //     if (Constants.isDevice) {
+    //         const { status: existingStatus } = await Permissions.getAsync(Permissions.NOTIFICATIONS);
+    //         let finalStatus = existingStatus;
 
-            if (finalStatus !== 'granted') {
-                const { status2 } = await Permissions.askAsync(Permissions.USER_FACING_NOTIFICATIONS);
-                const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
-                finalStatus = status2 ? status2 : status;
-            }
-            if (finalStatus !== 'granted') {
-                alert('Failed to get push token for push notification!');
-                return;
-            }
+    //         if (finalStatus !== 'granted') {
+    //             const { status2 } = await Permissions.askAsync(Permissions.USER_FACING_NOTIFICATIONS);
+    //             const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
+    //             finalStatus = status2 ? status2 : status;
+    //         }
+    //         if (finalStatus !== 'granted') {
+    //             alert('Failed to get push token for push notification!');
+    //             return;
+    //         }
 
-            token = await Notifications.getExpoPushTokenAsync();
-            console.log(Platform.OS + " token " + token);
-            this.setState({ expoPushToken: token });
-            let user = this.props.auth.user;
-            user = {
-                ...user,
-                user_id: this.props.auth.user_id,
-                user_push_token: token
-            }
-            // TODO : check if already set maybe? 
-            // let userData = await this.apiService.getSingleEntity('users', user.user_id);
-            this.apiService.editEntity('users', user)
-                .then((data) => { console.log('added token to user ' + user.user_id) })
-                .catch((err) => { console.log('error adding token to user ' + user.user_id); console.log(err) })
-        } else {
-            //alert('Must use physical device for Push Notifications');
-        }
+    //         token = await Notifications.getExpoPushTokenAsync();
+    //         console.log(Platform.OS + " token " + token);
+    //         this.setState({ expoPushToken: token });
+    //         let user = this.props.auth.user;
+    //         user = {
+    //             ...user,
+    //             user_id: this.props.auth.user_id,
+    //             user_push_token: token
+    //         }
+    //         // TODO : check if already set maybe? 
+    //         // let userData = await this.apiService.getSingleEntity('users', user.user_id);
+    //         this.apiService.editEntity('users', user)
+    //             .then((data) => { console.log('added token to user ' + user.user_id) })
+    //             .catch((err) => { console.log('error adding token to user ' + user.user_id); console.log(err) })
+    //     } else {
+    //         //alert('Must use physical device for Push Notifications');
+    //     }
 
         // if (Platform.OS === 'android') {
         //     Notifications.createChannelAndroidAsync('default', {
@@ -113,14 +113,14 @@ class AppNavigator extends React.Component {
         //         vibrate: [0, 250, 250, 250],
         //     });
         // }
-    };
+    // };
 
 
-    _handleNotification = notification => {
-        Vibration.vibrate();
-        // console.log(notification);
-        this.setState({ notification: notification });
-    };
+    // _handleNotification = notification => {
+    //     Vibration.vibrate();
+    //     // console.log(notification);
+    //     this.setState({ notification: notification });
+    // };
 
     async grantLocationPermissionForAndroid() {
         if (Platform.OS == 'android') {
