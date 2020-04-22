@@ -130,6 +130,7 @@ class EventScreen extends React.Component {
         style={styles.container}
         contentContainerStyle={styles.contentContainer}
         keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl refreshing={this.state.refreshing} onRefresh={this.getData} />
         }>

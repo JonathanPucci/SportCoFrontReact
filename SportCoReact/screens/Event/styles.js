@@ -30,7 +30,7 @@ export const styles = StyleSheet.create({
     bottom:5
   },
   imageSport: {
-    width: 180,
+    width: Layout.window.width/2 -30,
     height: 240,
     flex: 1,
     borderRadius: 20

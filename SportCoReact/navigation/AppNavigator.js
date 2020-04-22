@@ -54,8 +54,12 @@ class AppNavigator extends React.Component {
         ) {
             var url = new URL(event.url);
             let event_id = event.url.substring(event.url.indexOf("event_id=") + 9, event.url.length)
-            RootNavigation.navigate('Event', { eventData: { event: { event_id: event_id } } });
+            this.goToEventId(event_id);
         }
+    }
+
+    goToEventId(event_id){
+        RootNavigation.navigate('Event', { eventData: { event: { event_id: event_id } } });
     }
 
     componentDidUpdate(prevProps) {

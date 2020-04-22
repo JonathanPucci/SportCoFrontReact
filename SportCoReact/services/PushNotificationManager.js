@@ -4,6 +4,7 @@ import { Platform, View } from 'react-native'
 import { Notifications } from 'react-native-notifications'
 import { connect } from 'react-redux'
 import messaging from '@react-native-firebase/messaging';
+import * as RootNavigation from '../navigation/RootNavigation.js';
 
 async function requestUserPermission() {
     const settings = await messaging().requestPermission();
@@ -36,11 +37,24 @@ class PushNotificationManager extends React.Component {
 
     registerIosFirebaseEvents() {
         messaging().onMessage(async remoteMessage => {
+            console.log(JSON.stringify(remoteMessage))
             alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
         });
         messaging().setBackgroundMessageHandler(async remoteMessage => {
             console.log('Message handled in the background!', remoteMessage);
         });
+        messaging().onNotificationOpenedApp(remoteMessage => {
+            console.log(
+              'Notification caused app to open from background state:',
+              remoteMessage,
+            );
+            this.goToEventId(remoteMessage.data.data_value);
+
+          });
+    }
+
+    goToEventId(event_id){
+        RootNavigation.navigate('Event', { eventData: { event: { event_id: event_id } } });
     }
 
     registerAndroidDevice = () => {
