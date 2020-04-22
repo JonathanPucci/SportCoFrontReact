@@ -111,7 +111,7 @@ export function joinEvent() {
         }
         this.apiService.addEntity('eventparticipant', eventP)
             .then(() => {
-                this.getData(false);
+                this.getData();
             })
         this.apiService.editEntity('userstats',
             {

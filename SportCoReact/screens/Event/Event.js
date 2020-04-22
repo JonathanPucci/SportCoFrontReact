@@ -69,15 +69,24 @@ class EventScreen extends React.Component {
   }
 
   componentDidMount() {
-    this.watchId = Geolocation.watchPosition(
+
+    this.watchId = Geolocation.getCurrentPosition(
       this.setCurrentPosition,
-      () => { console.log('setPosError') },
+      this.setDefaultPosition,
       {
         enableHighAccuracy: true,
-        timeout: 1000,
-        maximumAge: 0
+        timeout: 2000,
+        maximumAge: 2000
       }
     );
+  }
+
+  setDefaultPosition = (err) => {
+    // console.log(Platform.OS + " error going initial hardcoded")
+    console.log("=============")
+    console.log(err)
+    console.log("=============")
+    this.setCurrentPosition({ coords: { latitude: 43.6, longitude: 7.1 } });
   }
 
   getInitEventData = () => {
@@ -85,7 +94,7 @@ class EventScreen extends React.Component {
   }
 
   setCurrentPosition = async (position) => {
-    Geolocation.clearWatch(this.watchId);
+    // Geolocation.clearWatch(this.watchId);
     let region = {
       latitude: position.coords.latitude,
       longitude: position.coords.longitude,

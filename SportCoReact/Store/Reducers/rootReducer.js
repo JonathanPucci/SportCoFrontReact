@@ -6,7 +6,8 @@ import {
   DONE_WAITING,
   RETRIEVED_USER_INFO,
   USER_LOGGED_OUT,
-  SAVE_EVENT_BEFORE_EDIT
+  SAVE_EVENT_BEFORE_EDIT,
+  SAVE_DEVICE_TOKEN
 } from '../Actions';
 
 const options = {
@@ -82,10 +83,27 @@ function eventSaved(state = {}, action) {
 }
 
 
+function notifications(state = {}, action) {
+  switch (action.type) {
+
+    case SAVE_DEVICE_TOKEN:
+      var nextState = {
+        ...state,
+        deviceToken: action.value
+      };
+      return nextState;
+    default:
+      return state;
+  }
+
+}
+
+
 
 const rootReducer = combineReducers({
   auth,
-  eventSaved
+  eventSaved,
+  notifications
 });
 
 export default rootReducer;

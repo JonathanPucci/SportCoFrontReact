@@ -64,12 +64,29 @@ class AppNavigator extends React.Component {
             this.props.auth.user != undefined &&
             (prevProps == undefined || prevProps.auth == undefined || prevProps.auth.user == undefined)
         ) {
+
             // this.registerForPushNotificationsAsync();
             // this._notificationSubscription = Notifications.addListener(this._handleNotification);
             //Add permission from Android
             this.grantLocationPermissionForAndroid();
+            this.saveDeviceTokenForNotifications();
             // LocationPermission.requestPermissionsAsync();
+
         }
+    }
+
+    saveDeviceTokenForNotifications() {
+        let user = this.props.auth.user;
+        user = {
+            ...user,
+            user_id: this.props.auth.user_id,
+            user_push_token: this.props.notifications.deviceToken
+        }
+        // TODO : check if already set maybe? 
+        // let userData = await this.apiService.getSingleEntity('users', user.user_id);
+        this.apiService.editEntity('users', user)
+            .then((data) => { console.log('added token to user ' + user.user_id) })
+            .catch((err) => { console.log('error adding token to user ' + user.user_id); console.log(err) })
     }
 
     // registerForPushNotificationsAsync = async () => {
@@ -105,14 +122,14 @@ class AppNavigator extends React.Component {
     //         //alert('Must use physical device for Push Notifications');
     //     }
 
-        // if (Platform.OS === 'android') {
-        //     Notifications.createChannelAndroidAsync('default', {
-        //         name: 'default',
-        //         sound: true,
-        //         priority: 'max',
-        //         vibrate: [0, 250, 250, 250],
-        //     });
-        // }
+    // if (Platform.OS === 'android') {
+    //     Notifications.createChannelAndroidAsync('default', {
+    //         name: 'default',
+    //         sound: true,
+    //         priority: 'max',
+    //         vibrate: [0, 250, 250, 250],
+    //     });
+    // }
     // };
 
 
