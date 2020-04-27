@@ -3,7 +3,7 @@ import * as firebase from 'firebase';
 import { Image, SafeAreaView, View, RefreshControl, TextInput } from 'react-native';
 import { Divider, Text, Button, Icon, Overlay } from 'react-native-elements'
 import { Social } from '../../components/social'
-import { ScrollView, TouchableWithoutFeedback, TouchableHighlight } from 'react-native-gesture-handler';
+import { ScrollView, TouchableWithoutFeedback } from 'react-native-gesture-handler';
 
 import { USER_LOGGED_OUT } from '../../Store/Actions'
 import { connect } from 'react-redux'
@@ -15,6 +15,7 @@ import SportsAvailable from '../../components/SportsAvailable';
 import Emoji from 'react-native-emoji';
 import { SaveButton } from '../Event/OverlaysEventEdition';
 import { mapSportIcon } from '../../helpers/mapper';
+import * as RootNavigation from '../../navigation/RootNavigation.js';
 
 
 class ProfileScreen extends React.Component {
@@ -64,8 +65,6 @@ class ProfileScreen extends React.Component {
       return <View />
     return (
       <View style={styles.container}>
-                    
-
         <ScrollView
           style={styles.container}
           contentContainerStyle={styles.contentContainer}
@@ -84,12 +83,7 @@ class ProfileScreen extends React.Component {
                 </Text>
                 <View style={[styles.desc, { flexDirection: 'row' }]}>
                   <Icon name='suitcase' type='font-awesome' color='#5E5E5E' size={20} />
-                  <Text style={{
-                    color: '#5E5E5E',
-                    marginTop: 3,
-                    marginHorizontal: 5,
-                    fontSize: 14,
-                  }}>
+                  <Text style={styles.title}>
                     : {this.state.user.user_title}
                   </Text>
                 </View>
@@ -129,11 +123,15 @@ class ProfileScreen extends React.Component {
             <Text style={styles.desc}>
               Last Events Created
               </Text>
+              {this.state.user.eventsCreated.length == 0 && (<Text style={{marginLeft:25}}> (None yet, but I'll create one !)</Text>)}
             <View style={{ marginTop: 10, marginLeft: 5, flexDirection: 'row' }}>
               {this.state.user.eventsCreated.slice(0, MAX_ON_LINE).map((item, index) => {
                 let eventIcon = mapSportIcon(item.sport.toLowerCase());
                 return (
-                  <View key={'userEvent' + index} style={{ marginLeft: 15 }}>
+                  <TouchableWithoutFeedback 
+                  key={'userEvent' + index} 
+                  style={{ marginLeft: 15 }}
+                  onPress={()=> { RootNavigation.navigateToEvent(item.event_id)}}>
                     <Image
                       source={eventIcon.image}
                       style={styles.imageUserEvent}
@@ -141,19 +139,23 @@ class ProfileScreen extends React.Component {
                     <View style={styles.iconOnEvent}>
                       <Icon name='record-voice-over' color='white' size={10} />
                     </View>
-                  </View>
+                  </TouchableWithoutFeedback>
                 )
               })}
             </View>
             <Divider style={styles.divider} />
             <Text style={styles.desc}>
-              Last Events Joined
+              Last Events Joined  
               </Text>
+              {this.state.user.eventsCreated.length == 0 && (<Text style={{marginLeft:25}}> (On my way !)</Text>)}
             <View style={{ marginTop: 10, marginLeft: 5, flexDirection: 'row' }}>
               {this.state.user.eventsJoined.slice(0, MAX_ON_LINE).map((item, index) => {
                 let eventIcon = mapSportIcon(item.sport.toLowerCase());
                 return (
-                  <View key={'userEvent' + index} style={{ marginLeft: 15 }}>
+                  <TouchableWithoutFeedback 
+                  key={'userJoined' + index} 
+                  style={{ marginLeft: 15 }}
+                  onPress={()=> { RootNavigation.navigateToEvent(item.event_id)}}>
                     <Image
                       source={eventIcon.image}
                       style={styles.imageUserEvent}
@@ -161,7 +163,7 @@ class ProfileScreen extends React.Component {
                     <View style={styles.iconOnEvent}>
                       <Icon name='fast-rewind' color='white' size={10} />
                     </View >
-                  </View>
+                  </TouchableWithoutFeedback>
                 )
               })}
             </View>

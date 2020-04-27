@@ -22,8 +22,19 @@ export const styles = StyleSheet.create({
         alignContent: 'space-around'
     },
     basicInfo: {
+        flex: 1,
         flexDirection: 'column',
         marginTop: 20
+    },
+    imageContainer: {
+        marginRight: 25
+    },
+    title: {
+        width: Layout.window.width * 0.5,
+        color: '#5E5E5E',
+        marginTop: 3,
+        marginHorizontal: 5,
+        fontSize: 14,
     },
     name: {
         marginLeft: 30
@@ -47,23 +58,23 @@ export const styles = StyleSheet.create({
         width: Layout.window.width / MAX_ON_LINE,
         borderRadius: Layout.window.width / (MAX_ON_LINE * 2)
     },
-    iconOnEvent : { 
-        height: 14, 
-        width: 14, 
+    iconOnEvent: {
+        height: 14,
+        width: 14,
         borderRadius: 7,
-         backgroundColor: 'rgb(52,27,252)', 
-         justifyContent : 'center',
-        position : 'absolute',
-        bottom : 5,
-        right : 5
-     },
+        backgroundColor: 'rgb(52,27,252)',
+        justifyContent: 'center',
+        position: 'absolute',
+        bottom: 5,
+        right: 5
+    },
     desc: {
         color: '#5E5E5E',
         alignSelf: 'flex-start',
         marginTop: 5,
         marginHorizontal: 30,
         fontSize: 14,
-        width: Layout.window.width / 2
+        width: Layout.window.width * 0.75
     },
     divider: {
         backgroundColor: '#C0C0C0',

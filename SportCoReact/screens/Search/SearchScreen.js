@@ -214,9 +214,9 @@ class SearchScreen extends React.Component {
   renderMain() {
     if (this.state.loading) {
       return (
-        <View>
-          <Text>Loading</Text>
-          <Button onPress={this.initMap} title='Reload Position' />
+        <View style={{marginTop : 200,alignSelf : "center", justifyContent:'center', alignItems:'center'}}>
+          <Text style={{alignSelf : "center", justifyContent:'center', alignItems:'center', textAlign:'center'}}>Loading</Text>
+          <Button onPress={this.initMap} title='Reload Position' style={{alignSelf : "center", justifyContent:'center', alignItems:'center'}} />
         </View>
       );
     }

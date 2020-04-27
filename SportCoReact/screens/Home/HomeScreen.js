@@ -48,7 +48,7 @@ class HomeScreen extends React.Component {
           </View>
 
           <View style={styles.welcomeContainer}>
-            <Text style={styles.text}>Welcome to SportCoNow </Text>
+            <Text style={styles.text}>Welcome to Timaka </Text>
             <Text style={[styles.text, { textDecorationLine: 'underline' }]}>Amazing sport sessions ahead !</Text>
             <Text style={styles.text}>{`\nFrom this tab, you can help the community \nby adding your favorite spots \nto the database via this button`} </Text>
           </View>
