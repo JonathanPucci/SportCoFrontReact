@@ -8,6 +8,7 @@ import { styles, iconSize } from './styles'
 import SportCoApi from '../../services/apiService';
 import Emoji from 'react-native-emoji';
 import { mapSportIcon } from '../../helpers/mapper';
+import { formatDistanceToNow } from 'date-fns'
 
 
 class NotificationsScreen extends React.Component {
@@ -71,11 +72,12 @@ class NotificationsScreen extends React.Component {
 
   checkIfAllEventsRetrieved(notifData) {
     if (this.state.eventsInNotificationsSoFar.length == notifData.length) {
+      let sortedNotifs = notifData.sort((a, b) => { if ((new Date(a.date)) > (new Date(b.date))) return -1 });
       this.setState({
         loading: false,
         refreshing: false,
         eventsInNotifications: this.state.eventsInNotificationsSoFar,
-        notificationHistory: notifData
+        notificationHistory: sortedNotifs
       });
     }
   }
@@ -112,8 +114,8 @@ class NotificationsScreen extends React.Component {
                 <View
                   style={styles.notificationView}>
 
-                  <View style={{ alignSelf: 'center',marginLeft:10 }}>
-                    {this.renderIcon(item)}
+                  <View style={{ alignSelf: 'center', marginLeft: 10 }}>
+                    {this.renderIcon(item, event)}
                   </View>
                   <View style={styles.notifDescription}>
                     {this.renderDescriptionText(item, event)}
@@ -121,7 +123,7 @@ class NotificationsScreen extends React.Component {
                   {this.renderEventInfo(event, isCanceled)}
 
                   <View style={styles.notifDate}>
-                    <Text style={styles.notifDateText}>{this.timeSince(new Date(item.date))}</Text>
+                    <Text style={styles.notifDateText}>{formatDistanceToNow(new Date(item.date))}</Text>
                   </View>
                 </View>
               </TouchableWithoutFeedback>
@@ -132,38 +134,66 @@ class NotificationsScreen extends React.Component {
     );
   }
 
-  renderIcon(notif, size = undefined) {
+  renderIcon(notif, event, size = undefined) {
+    let iconName = '';
+    let photoUrl = event.host.photo_url;
+
     switch (notif.message_type) {
       case 'EVENT_CHANGED':
-        return (
-          <Icon
-            type='entypo'
-            name='new-message'
-            size={size == undefined ? iconSize : size}
-          />
-        )
+        iconName = 'new-message';
+        break;
       case 'NEW_EVENT':
-        return (
-          <Icon
-            type='entypo'
-            name='new'
-            size={size == undefined ? iconSize : size}
-          />
-        )
+        iconName = 'new'
+        break;
       case 'EVENT_CANCELED':
-        return (
-          <Icon
-            type='entypo'
-            name='circle-with-cross'
-            size={size == undefined ? iconSize : size}
-          />
-        )
+        iconName = 'circle-with-cross'
+        break;
+      case 'PARTICIPANT_JOINED':
+        iconName = 'add-user';
+        photoUrl = notif.data_value2;
+
+        break;
+      case 'PARTICIPANT_LEFT':
+        iconName = 'remove-user';
+        photoUrl = notif.data_value2;
+
+        break;
       default:
         break;
     }
+
+
+    return (
+      <View style={styles.imageContainer}>
+        {photoUrl != undefined ? (
+          <Image source={{ uri: photoUrl + '?type=large&width=500&height=500' }} style={styles.image} />
+        ) : (
+            <Image source={require('../../assets/images/robot-dev.png')} style={styles.image} />
+          )}
+
+
+        <View style={{
+          position: 'absolute',
+          top: 30,
+          right: 20,
+          width: iconSize + 10,
+          height: iconSize + 10,
+          borderRadius: (iconSize + 10) / 2,
+          backgroundColor: 'rgb(21,103,212)',
+          justifyContent: 'center'
+        }}>
+          <Icon
+            type='entypo'
+            name={iconName}
+            color={'white'}
+            size={size == undefined ? iconSize : size}
+          />
+        </View>
+      </View>
+    )
   }
 
-  renderDescriptionText(notif, event) {
+  renderDescriptionText(notif) {
     let messageBody = '';
     let emojiName = '';
     let additionalInfo = '';
@@ -172,27 +202,35 @@ class NotificationsScreen extends React.Component {
       case 'EVENT_CHANGED':
         messageBody = ` Event has changed, check it out !`;
         emojiName = 'man-raising-hand';
-        break
+        break;
       case 'NEW_EVENT':
         messageBody = '  New event nearby, interested?';
         emojiName = 'man-bowing';
-        break
+        break;
       case 'EVENT_CANCELED':
         let eventData = JSON.parse(notif.data_value);
-        let dateString = (new Date(eventData.date).toLocaleDateString()); 
+        let dateString = (new Date(eventData.date).toLocaleDateString());
         // let sport = eventData.sport.charAt(0).toUpperCase() + eventData.sport.slice(1)
         messageBody = `  Event has been canceled, sorry !`;
-        additionalInfo =  dateString + ' : ' + eventData.description + `\n`+  eventData.sport.toUpperCase() ;
+        additionalInfo = dateString + ' : ' + eventData.description + `\n` + eventData.sport.toUpperCase();
         emojiName = 'man-shrugging';
-        break
+        break;
+      case 'PARTICIPANT_JOINED':
+        messageBody = '  New participant to your event';
+        emojiName = 'man-running';
+        break;
+      case 'PARTICIPANT_LEFT':
+        messageBody = '  Participant left your event';
+        emojiName = 'man-running';
+        break;
       default:
         break;
     }
     return (
       <View style={{ flexDirection: 'column' }}>
         <View style={styles.descriptionText}>
-          <Emoji name={emojiName} style={{ fontSize: 15 }} />
-          <Text numberOfLines={1} style={{ flex: 1 }}>{messageBody}</Text>
+          <Emoji name={emojiName} style={{ fontSize: 15, marginTop: 15 }} />
+          <Text numberOfLines={1} style={{ flex: 1, marginTop: 15 }}>{messageBody}</Text>
         </View>
         {additionalInfo != '' &&
           <Text numberOfLines={2} style={{ fontSize: 11 }}>{additionalInfo}</Text>
@@ -206,7 +244,7 @@ class NotificationsScreen extends React.Component {
     if (isCanceled)
       return (
         <View style={[styles.eventInfo, { right: 10 }]}>
-          {this.renderIcon({ message_type: 'EVENT_CANCELED' }, iconSize / 2)}
+          {this.renderIcon({ message_type: 'EVENT_CANCELED' }, event, iconSize / 2)}
           <Text style={{ fontSize: 10, textAlign: 'center', justifyContent: 'center' }}>
             {`Event has been \ncanceled\nor does not\nexist anymore`}
           </Text>
@@ -214,21 +252,14 @@ class NotificationsScreen extends React.Component {
       )
 
     let iconSport = mapSportIcon(event.event.sport);
-    let photoUrl = event.host.photo_url;
 
     return (
       <View style={styles.eventInfo}>
-        <View style={styles.imageContainer}>
-          {photoUrl != undefined ? (
-            <Image source={{ uri: photoUrl + '?type=large&width=500&height=500' }} style={styles.image} />
-          ) : (
-              <Image source={require('../../assets/images/robot-dev.png')} style={styles.image} />
-            )}
-        </View>
         <Icon
           name={iconSport.iconName}
           type={iconSport.iconFamily}
           size={30}
+          color={'rgb(21,103,212)'}
           style={{ alignSelf: 'center' }}
           selected={false}
         />
@@ -252,35 +283,6 @@ class NotificationsScreen extends React.Component {
       this.props.navigation.navigate('Event', {
         event: event
       });
-  }
-
-
-
-
-  timeSince(date) {
-    let minute = 60;
-    let hour = minute * 60;
-    let day = hour * 24;
-    let month = day * 30;
-    let year = day * 365;
-
-    let suffix = ' ago';
-
-    let elapsed = Math.floor((Date.now() - date) / 1000);
-
-    if (elapsed < minute) {
-      return 'just now';
-    }
-
-    // get an array in the form of [number, string]
-    let a = elapsed < hour && [Math.floor(elapsed / minute), 'minute'] ||
-      elapsed < day && [Math.floor(elapsed / hour), 'hour'] ||
-      elapsed < month && [Math.floor(elapsed / day), 'day'] ||
-      elapsed < year && [Math.floor(elapsed / month), 'month'] ||
-      [Math.floor(elapsed / year), 'year'];
-
-    // pluralise and append suffix
-    return a[0] + ' ' + a[1] + (a[0] === 1 ? '' : 's') + suffix;
   }
 
 }

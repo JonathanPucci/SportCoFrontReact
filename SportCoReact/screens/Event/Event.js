@@ -93,6 +93,11 @@ class EventScreen extends React.Component {
     return { ...this.props.eventDataFromStore };
   }
 
+  setInitEventData = () => {
+    const initEventData = this.getInitEventData();
+    this.setState({ eventData: initEventData });
+  }
+
   setCurrentPosition = async (position) => {
     // Geolocation.clearWatch(this.watchId);
     let region = {
@@ -132,7 +137,7 @@ class EventScreen extends React.Component {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={this.state.refreshing} onRefresh={this.getData} />
+          <RefreshControl refreshing={this.state.refreshing} onRefresh={() => { this.getData().then(() => { this.setInitEventData() }) }} />
         }>
 
         {this.renderHostHeader(eventData, photoUrl, eventIcon)}

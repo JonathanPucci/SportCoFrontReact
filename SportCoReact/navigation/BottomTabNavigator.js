@@ -86,12 +86,13 @@ function TabBarIcon(props) {
 
 
 
-function LogoTitle() {
+export function LogoTitle() {
   return (
-    <View >
+    <View style={{ overflow:'hidden'}} >
       <Image
-        style={{ width: 120, height: 30 }}
-        source={require('../assets/images/BakeryFontLogo.png')}
+        style={{ width: 200, height: 45}}
+        resizeMode='stretch'
+        source={require('../assets/images/TimakaWritten.png')}
       />
     </View>
   );

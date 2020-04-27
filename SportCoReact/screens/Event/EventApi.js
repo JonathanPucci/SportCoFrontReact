@@ -82,7 +82,7 @@ export async function updateEvent() {
             this.getData(true);
         }
     } catch (err) {
-        console.log("2" + error)
+        console.log("2" + err)
     }
 }
 
@@ -103,35 +103,40 @@ export function cancelEvent() {
  ********************************************************************************/
 
 
-export function joinEvent() {
+export async function joinEvent() {
     if (this.state.eventData.participants.length < this.state.eventData.event.participants_max) {
         let eventP = {
             user_id: this.props.auth.user_id,
             event_id: this.state.eventData.event.event_id
         }
-        this.apiService.addEntity('eventparticipant', eventP)
-            .then(() => {
-                this.getData();
-            })
+        await this.apiService.addEntity('eventparticipant', eventP);
+        await this.getData();
+        this.setInitEventData();
         this.apiService.editEntity('userstats',
             {
                 user_id: this.props.auth.user_id,
-                statToUpdate: this.state.eventData.event.sport + '_joined'
+                statToUpdate: this.state.eventData.event.sport + '_joined',
+                adding: true
             });
     } else {
         alert('Event is full, sorry !')
     }
 }
 
-export function leaveEvent() {
+export async function leaveEvent() {
     let eventP = {
         user_id: this.props.auth.user_id,
         event_id: this.state.eventData.event.event_id
     }
-    this.apiService.deleteEntity('eventparticipant', eventP)
-        .then(() => {
-            this.getData(false);
-        })
+    await this.apiService.deleteEntity('eventparticipant', eventP)
+    await this.getData();
+    this.setInitEventData();
+    this.apiService.editEntity('userstats',
+        {
+            user_id: this.props.auth.user_id,
+            statToUpdate: this.state.eventData.event.sport + '_joined',
+            adding: false
+        });
 }
 
 
@@ -171,7 +176,8 @@ export async function validateComment() {
     let ec = this.state.eventData.comments[this.state.eventData.comments.length - 1];
     ec.date = convertUTCDateToLocalDate(new Date());
     const data = await apiService.addEntity('eventcomment', ec)
-    this.getData();
+    await this.getData();
+    this.setInitEventData();
 }
 
 export function cancelComment() {

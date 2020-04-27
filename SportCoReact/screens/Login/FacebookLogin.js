@@ -41,6 +41,7 @@ class FacebookLogin extends React.Component {
 
   loginAction(user, id) {
     console.log(id);
+    user['photo_url'] = user.photoURL;
     const action = {
       type: USER_LOGGED,
       value: user,
@@ -105,25 +106,29 @@ class FacebookLogin extends React.Component {
   }
 
   async FacebookLogin() {
-    const result = await LoginManager.logInWithPermissions([
-      "public_profile",
-      "email"
-    ]);
+    try {
+      const result = await LoginManager.logInWithPermissions([
+        "public_profile",
+        "email"
+      ]);
+      console.log(result);
+      if (result.isCancelled) {
+        throw new Error("User cancelled the login process");
+      }
+      const data = await AccessToken.getCurrentAccessToken();
 
-    if (result.isCancelled) {
-      throw new Error("User cancelled the login process");
+      if (!data) {
+        throw new Error("Something went wrong obtaining access token");
+      }
+
+      const credential = firebase.auth.FacebookAuthProvider.credential(
+        data.accessToken
+      );
+
+      await firebase.auth().signInWithCredential(credential);
+    } catch (err) {
+      console.log(err)
     }
-    const data = await AccessToken.getCurrentAccessToken();
-
-    if (!data) {
-      throw new Error("Something went wrong obtaining access token");
-    }
-
-    const credential = firebase.auth.FacebookAuthProvider.credential(
-      data.accessToken
-    );
-
-    await firebase.auth().signInWithCredential(credential);
     return;
   }
 

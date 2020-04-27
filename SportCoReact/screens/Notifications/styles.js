@@ -3,7 +3,7 @@ import Layout from '../../constants/Layout'
 
 const NotificationHeight = 80;
 const marginLeftFromIcon = 15;
-export const iconSize = 40;
+export const iconSize = 15;
 
 export const styles = StyleSheet.create({
   container: {
@@ -70,19 +70,21 @@ export const styles = StyleSheet.create({
   eventInfo:{ 
     position : 'absolute', 
     right : 30,
+    alignSelf : 'center',
     flexDirection: 'column', 
     alignItems: 'center' 
   },
   image: {
     alignSelf: 'center',
-    height: 30,
-    width: 30,
+    height: 46,
+    width: 46,
     borderWidth: 1,
-    borderRadius: 10,
+    borderRadius: 23,
 
   },
   imageContainer : {
     alignSelf:'flex-start',
+    marginBottom:10
   },
   divider: {
     marginTop: 1,

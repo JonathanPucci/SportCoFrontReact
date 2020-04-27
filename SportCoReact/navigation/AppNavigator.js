@@ -5,7 +5,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { navigationRef } from './RootNavigation';
 import * as RootNavigation from './RootNavigation.js';
 
-import BottomTabNavigator from './BottomTabNavigator';
+import BottomTabNavigator, {LogoTitle} from './BottomTabNavigator';
 import LoginScreen from '../screens/Login/LoginScreen';
 import EventScreen from '../screens/Event/Event';
 import { MultiEventScreen } from '../screens/Search/CalloutMultiEvent';
@@ -19,16 +19,6 @@ import SportCoApi from '../services/apiService';
 // import * as LocationPermission from 'expo-location';
 // import Constants from 'expo-constants';
 
-function LogoTitle() {
-    return (
-        <View >
-            <Image
-                style={{ width: 120, height: 30 }}
-                source={require('../assets/images/BakeryFontLogo.png')}
-            />
-        </View>
-    );
-}
 
 const Stack = createStackNavigator();
 

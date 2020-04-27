@@ -1,12 +1,13 @@
 import React, { Component } from "react";
 import { View, Image, TouchableOpacity } from 'react-native';
 import { Text } from 'react-native'
-import {Icon} from 'react-native-elements'
+import { Icon } from 'react-native-elements'
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { StyleSheet } from 'react-native';
 import { LEVELS } from "../constants/DbConstants";
 import { Rating, AirbnbRating } from 'react-native-ratings';
 import Colors from "../constants/Colors";
+import { connect } from 'react-redux'
 
 
 const LEVEL_IMAGE = require('../assets/images/medal.png')
@@ -14,8 +15,7 @@ const WATER_IMAGE = require('../assets/images/water.png')
 
 
 
-
-export default class SportsAvailable extends Component {
+class SportsAvailable extends Component {
 
     state = {
     }
@@ -50,7 +50,7 @@ export default class SportsAvailable extends Component {
         return (
             <View >
                 <View style={{ flexDirection: 'row' }}>
-                    <TouchableOpacity  onPress={() => {this.toggleSport(sport)}}>
+                    <TouchableOpacity onPress={() => { this.toggleSport(sport) }}>
                         <View style={styles.sport}>
                             <Text>{sport.charAt(0).toUpperCase() + sport.slice(1)}</Text>
                             <Icon
@@ -63,43 +63,45 @@ export default class SportsAvailable extends Component {
                     </TouchableOpacity>
                     {this.props.showStats && (
                         <View style={{ marginLeft: 20, flexDirection: 'column' }}>
-                            <Text>Stats </Text>
                             <View style={{ marginTop: 10, flexDirection: 'column' }}>
                                 <Text>Created : {this.props.stats[sport].created}</Text>
                                 <Text>Joined : {this.props.stats[sport].joined} </Text>
+                                {this.props.showStats && (
+                                    <View style={{ marginTop: 5, flexDirection: 'row' }}>
+                                        <TouchableWithoutFeedback
+                                            onPress={this.ratingCompleted.bind(this, sport)}>
+                                            <View>
+                                                <Rating
+                                                    readonly={(this.props.auth.user_id != this.props.user_id)}
+                                                    type='custom'
+                                                    ratingImage={LEVEL_IMAGE}
+                                                    ratingColor='#3498db'
+                                                    ratingBackgroundColor='#c8c7c8'
+                                                    ratingCount={LEVELS.length}
+                                                    imageSize={25}
+                                                    startingValue={this.mapScore(this.props.stats[sport].level)}
+                                                    onFinishRating={() => { }}
+                                                />
+                                            </View>
+                                        </TouchableWithoutFeedback>
+
+                                    </View>
+                                )}
                             </View>
                         </View>
                     )}
                 </View>
-                {this.props.showStats && (
-                    <View style={{ marginLeft: 5, flexDirection: 'row' }}>
-                        <Text style={{ marginRight: 10 }}>Level </Text>
-                        <TouchableWithoutFeedback
-                            onPress={this.ratingCompleted.bind(this, sport)}>
-                            <View>
-                                <Rating
-                                    type='custom'
-                                    ratingImage={LEVEL_IMAGE}
-                                    ratingColor='#3498db'
-                                    ratingBackgroundColor='#c8c7c8'
-                                    ratingCount={LEVELS.length}
-                                    imageSize={25}
-                                    startingValue={this.mapScore(this.props.stats[sport].level)}
-                                    onFinishRating={() => { }}
-                                />
-                            </View>
-                        </TouchableWithoutFeedback>
 
-                    </View>
-                )}
             </View>
         );
     }
 
     ratingCompleted(sport) {
-        let level = this.mapScore(this.props.stats[sport].level);
-        level = this.mapScore((level)%LEVELS.length, true);
-        this.props.ratingCompleted(sport, level);
+        if ((this.props.auth.user_id == this.props.user_id)) {
+            let level = this.mapScore(this.props.stats[sport].level);
+            level = this.mapScore((level) % LEVELS.length, true);
+            this.props.ratingCompleted(sport, level);
+        }
     }
 
     mapScore(ratingOrLevel, isRating = false) {
@@ -153,6 +155,15 @@ export default class SportsAvailable extends Component {
         }
     }
 }
+
+
+const mapStateToProps = (state) => {
+    return state
+}
+
+export default connect(mapStateToProps)(SportsAvailable)
+
+
 
 
 export const styles = StyleSheet.create({

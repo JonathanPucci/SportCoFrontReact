@@ -26,6 +26,7 @@ import java.util.List;
 // import com.airbnb.android.react.maps.MapsPackage;
 // import com.facebook.reactnative.androidsdk.FBSDKPackage;
 // import com.wix.reactnativenotifications.RNNotificationsPackage;
+import io.invertase.firebase.messaging.ReactNativeFirebaseMessagingPackage;
 
 
 
@@ -48,6 +49,7 @@ public class MainApplication extends Application implements ReactApplication {
        // ... 
        // Add the following line: 
       //  packages.add(new RNNotificationsPackage(MainApplication.this)); 
+      // packages.add(new ReactNativeFirebaseMessagingPackage());
 
       
                 

@@ -36,8 +36,9 @@ export class Options extends React.Component {
                 )}
             </View>
           ) : (
-              !alreadyJoined ?
-                <Button title={"Rejoindre l'évènement !"} onPress={this.props.joinEvent} />
+            <View style={{marginTop:10}}>
+              {!alreadyJoined ?
+                <Button title={"Join event !"} onPress={this.props.joinEvent} />
                 :
                 <Button buttonStyle={{ backgroundColor: 'green' }} icon={
                   <Icon
@@ -45,7 +46,9 @@ export class Options extends React.Component {
                     size={15}
                     color="white"
                     type='font-awesome'
-                  />} title={`| Annuler?`} onPress={this.props.leaveEvent} />
+                  />} title={`| Not going?`} onPress={this.props.leaveEvent} />
+                }
+                </View>
             )}
         </View>
       </View>

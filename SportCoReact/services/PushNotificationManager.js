@@ -5,6 +5,7 @@ import { Notifications } from 'react-native-notifications'
 import { connect } from 'react-redux'
 import messaging from '@react-native-firebase/messaging';
 import * as RootNavigation from '../navigation/RootNavigation.js';
+import { withInAppNotification } from 'react-native-in-app-notification';
 
 async function requestUserPermission() {
     const settings = await messaging().requestPermission();
@@ -16,18 +17,12 @@ async function requestUserPermission() {
 
 class PushNotificationManager extends React.Component {
     componentDidMount() {
-        if (Platform.OS == 'ios') {
-            requestUserPermission();
-            this.registerIosDevice();
-            this.registerIosFirebaseEvents();
-        } else {
-            this.registerAndroidDevice()
-            this.registerAndroidNotificationEvents()
-
-        }
+        requestUserPermission();
+        this.registerDevice();
+        this.registerFirebaseEvents();
     }
 
-    registerIosDevice() {
+    registerDevice() {
         messaging()
             .getToken()
             .then(token => {
@@ -35,39 +30,35 @@ class PushNotificationManager extends React.Component {
             });
     }
 
-    registerIosFirebaseEvents() {
+    registerFirebaseEvents() {
         messaging().onMessage(async remoteMessage => {
             console.log(JSON.stringify(remoteMessage))
-            alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
+            this.props.showNotification({
+                title: remoteMessage.notification.title,
+                message: remoteMessage.notification.body,
+                onPress: () => {
+                    let event_id = remoteMessage.data.data_value;
+                    if (event_id != undefined)
+                        this.goToEventId(event_id)
+                },
+                additionalProps: { type: 'error' }
+            })
         });
         messaging().setBackgroundMessageHandler(async remoteMessage => {
             console.log('Message handled in the background!', remoteMessage);
         });
         messaging().onNotificationOpenedApp(remoteMessage => {
             console.log(
-              'Notification caused app to open from background state:',
-              remoteMessage,
+                'Notification caused app to open from background state:',
+                remoteMessage,
             );
             this.goToEventId(remoteMessage.data.data_value);
 
-          });
+        });
     }
 
-    goToEventId(event_id){
+    goToEventId(event_id) {
         RootNavigation.navigate('Event', { eventData: { event: { event_id: event_id } } });
-    }
-
-    registerAndroidDevice = () => {
-        Notifications.events().registerRemoteNotificationsRegistered(event => {
-            // TODO: Send the token to my server so it could send back push notifications...
-            console.log(Platform.OS + 'Device Token Received', event.deviceToken)
-            console.log(new Date())
-            this.saveTokenToProps(event.deviceToken)
-        })
-        Notifications.events().registerRemoteNotificationsRegistrationFailed(event => {
-            console.error(event)
-        })
-        Notifications.registerRemoteNotifications()
     }
 
     saveTokenToProps = (token) => {
@@ -76,33 +67,6 @@ class PushNotificationManager extends React.Component {
             value: token,
         };
         this.props.dispatch(action);
-    }
-
-    registerAndroidNotificationEvents = () => {
-        Notifications.events().registerNotificationReceivedForeground((notification, completion) => {
-            console.log(Platform.OS + 'Notification Received - Foreground', notification)
-            // Calling completion on iOS with `alert: true` will present the native iOS inApp notification.
-            completion({ alert: true, sound: false, badge: false })
-        })
-
-        Notifications.events().registerNotificationOpened((notification, completion) => {
-            console.log(Platform.OS + 'Notification opened by device user', notification)
-            console.log(Platform.OS + `Notification opened with an action identifier: ${notification.identifier}`)
-            completion()
-        })
-
-        Notifications.events().registerNotificationReceivedBackground((notification, completion) => {
-            console.log(Platform.OS + 'Notification Received - Background', notification)
-
-            // Calling completion on iOS with `alert: true` will present the native iOS inApp notification.
-            completion({ alert: true, sound: true, badge: false })
-        })
-
-        Notifications.getInitialNotification()
-            .then(notification => {
-                console.log(Platform.OS + 'Initial notification was:', notification || 'N/A')
-            })
-            .catch(err => console.error(Platform.OS + 'getInitialNotifiation() failed', err))
     }
 
     render() {
@@ -124,5 +88,5 @@ const mapStateToProps = (state) => ({
     eventDataFromStore: state.eventSaved.eventData
 })
 
-export default connect(mapStateToProps, mapDispatchToProps)(PushNotificationManager)
+export default connect(mapStateToProps, mapDispatchToProps)(withInAppNotification(PushNotificationManager))
 

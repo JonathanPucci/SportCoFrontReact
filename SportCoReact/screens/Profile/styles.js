@@ -1,6 +1,9 @@
 import { StyleSheet } from 'react-native';
 import Layout from '../../constants/Layout'
 
+
+export const MAX_ON_LINE = 6;
+
 export const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -22,8 +25,8 @@ export const styles = StyleSheet.create({
         flexDirection: 'column',
         marginTop: 20
     },
-    name:{
-        marginLeft : 30
+    name: {
+        marginLeft: 30
     },
     text: {
         fontSize: 17,
@@ -39,21 +42,36 @@ export const styles = StyleSheet.create({
         borderRadius: 60,
 
     },
-    
+    imageUserEvent: {
+        height: Layout.window.width / MAX_ON_LINE,
+        width: Layout.window.width / MAX_ON_LINE,
+        borderRadius: Layout.window.width / (MAX_ON_LINE * 2)
+    },
+    iconOnEvent : { 
+        height: 14, 
+        width: 14, 
+        borderRadius: 7,
+         backgroundColor: 'rgb(52,27,252)', 
+         justifyContent : 'center',
+        position : 'absolute',
+        bottom : 5,
+        right : 5
+     },
     desc: {
         color: '#5E5E5E',
         alignSelf: 'flex-start',
         marginTop: 5,
         marginHorizontal: 30,
         fontSize: 14,
+        width: Layout.window.width / 2
     },
     divider: {
         backgroundColor: '#C0C0C0',
         width: Layout.window.width - 60,
         margin: 20,
     },
-    bottom:{
-        flex:1,
+    bottom: {
+        flex: 1,
         justifyContent: 'flex-end',
     },
     socialLinks: {
@@ -68,8 +86,8 @@ export const styles = StyleSheet.create({
         paddingVertical: 15,
     },
     sports: {
-        flex:1,
+        flex: 1,
         flexDirection: 'column'
     },
-  
+
 });

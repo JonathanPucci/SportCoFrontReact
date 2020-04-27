@@ -1,17 +1,21 @@
 import * as React from 'react';
 import * as firebase from 'firebase';
-import { Image, SafeAreaView, View, RefreshControl } from 'react-native';
-import { Divider, Text, Button , Icon} from 'react-native-elements'
+import { Image, SafeAreaView, View, RefreshControl, TextInput } from 'react-native';
+import { Divider, Text, Button, Icon, Overlay } from 'react-native-elements'
 import { Social } from '../../components/social'
-import { ScrollView, TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import { ScrollView, TouchableWithoutFeedback, TouchableHighlight } from 'react-native-gesture-handler';
 
 import { USER_LOGGED_OUT } from '../../Store/Actions'
 import { connect } from 'react-redux'
 
 import SportCoApi from '../../services/apiService';
 
-import { styles } from './styles'
+import { styles, MAX_ON_LINE } from './styles'
 import SportsAvailable from '../../components/SportsAvailable';
+import Emoji from 'react-native-emoji';
+import { SaveButton } from '../Event/OverlaysEventEdition';
+import { mapSportIcon } from '../../helpers/mapper';
+
 
 class ProfileScreen extends React.Component {
 
@@ -19,8 +23,9 @@ class ProfileScreen extends React.Component {
     super();
     this.state = {
       user: undefined,
-      sportsSelected: ['Tennis'],
-      refreshing: false
+      sportsSelected: [''],
+      refreshing: false,
+      isEditingProfile: false
     }
     this.apiService = new SportCoApi()
   }
@@ -43,7 +48,10 @@ class ProfileScreen extends React.Component {
             .then(stats => {
               this.setState({
                 user: res.data,
+                titleDraft: res.data.user_title,
+                descriptionDraft: res.data.user_description,
                 userstats: stats.data,
+                isEditingProfile: false,
                 refreshing: false
               });
             });
@@ -56,9 +64,11 @@ class ProfileScreen extends React.Component {
       return <View />
     return (
       <View style={styles.container}>
-        <ScrollView 
-        style={styles.container} 
-        contentContainerStyle={styles.contentContainer}
+                    
+
+        <ScrollView
+          style={styles.container}
+          contentContainerStyle={styles.contentContainer}
           refreshControl={
             <RefreshControl refreshing={this.state.refreshing} onRefresh={this.getData.bind(this)} />
           }
@@ -72,7 +82,17 @@ class ProfileScreen extends React.Component {
                 <Text h5 style={styles.name}>
                   25 ans
                 </Text>
-                <Text style={styles.desc}>Developer at DreamTeam & Co.</Text>
+                <View style={[styles.desc, { flexDirection: 'row' }]}>
+                  <Icon name='suitcase' type='font-awesome' color='#5E5E5E' size={20} />
+                  <Text style={{
+                    color: '#5E5E5E',
+                    marginTop: 3,
+                    marginHorizontal: 5,
+                    fontSize: 14,
+                  }}>
+                    : {this.state.user.user_title}
+                  </Text>
+                </View>
               </View>
               <View style={styles.imageContainer}>
                 {this.state.user.photo_url != null ?
@@ -85,13 +105,70 @@ class ProfileScreen extends React.Component {
               </View>
             </View>
             <Divider style={styles.divider} />
+
+            <View style={{ flexDirection: 'row' }}>
+              <Text style={styles.desc}>
+                Bio :  {this.state.user.user_description}
+                {this.state.user.user_description == 'Oh yeah' && (
+                  <Emoji name={'man_dancing'} style={{ fontSize: 15 }} />
+                )}
+              </Text>
+              {(this.state.user.user_id == this.props.auth.user_id) && (
+                <View style={{ position: 'absolute', right: 30, top: -15 }}>
+                  <Icon
+                    raised
+                    name='edit'
+                    type='font-awesome'
+                    color='orange'
+                    size={15}
+                    onPress={() => { this.setState({ isEditingProfile: true }) }} />
+                </View>
+              )}
+            </View>
+            <Divider style={styles.divider} />
             <Text style={styles.desc}>
-              {`Me : As everyone else, need to get out of this containment, let's play a basketball game once it's all over.
-              \rOh yeah.`}
-            </Text>
+              Last Events Created
+              </Text>
+            <View style={{ marginTop: 10, marginLeft: 5, flexDirection: 'row' }}>
+              {this.state.user.eventsCreated.slice(0, MAX_ON_LINE).map((item, index) => {
+                let eventIcon = mapSportIcon(item.sport.toLowerCase());
+                return (
+                  <View key={'userEvent' + index} style={{ marginLeft: 15 }}>
+                    <Image
+                      source={eventIcon.image}
+                      style={styles.imageUserEvent}
+                    />
+                    <View style={styles.iconOnEvent}>
+                      <Icon name='record-voice-over' color='white' size={10} />
+                    </View>
+                  </View>
+                )
+              })}
+            </View>
+            <Divider style={styles.divider} />
+            <Text style={styles.desc}>
+              Last Events Joined
+              </Text>
+            <View style={{ marginTop: 10, marginLeft: 5, flexDirection: 'row' }}>
+              {this.state.user.eventsJoined.slice(0, MAX_ON_LINE).map((item, index) => {
+                let eventIcon = mapSportIcon(item.sport.toLowerCase());
+                return (
+                  <View key={'userEvent' + index} style={{ marginLeft: 15 }}>
+                    <Image
+                      source={eventIcon.image}
+                      style={styles.imageUserEvent}
+                    />
+                    <View style={styles.iconOnEvent}>
+                      <Icon name='fast-rewind' color='white' size={10} />
+                    </View >
+                  </View>
+                )
+              })}
+            </View>
             <Divider style={styles.divider} />
             <View style={styles.sports}>
               <SportsAvailable
+                user_id={this.state.user.user_id}
                 showStats={true}
                 stats={this.state.userstats}
                 sportsSelected={this.state.sportsSelected}
@@ -111,10 +188,87 @@ class ProfileScreen extends React.Component {
               <Button title={'Logout'} onPress={() => this.Logout()} />
             </View>
           </SafeAreaView>
+          <Overlay
+            isVisible={this.state.isEditingProfile}
+            onBackdropPress={() => { this.setState({ isEditingProfile: false }) }}
+          >
+            <View>
+              <Text style={{ alignSelf: 'center', fontSize: 20, fontWeight: 'bold' }}>Job / Title</Text>
+              <View style={{
+                width: "90%",
+                borderColor: 'gray',
+                borderWidth: 1,
+                borderRadius: 20,
+                marginVertical: 30,
+                alignSelf: 'center'
+
+              }}>
+                <TextInput
+                  style={{
+                    alignItems: 'center',
+                    overflow: "hidden",
+                    alignSelf: 'center',
+                    textAlign: 'center',
+                    height: 100
+                  }}
+                  autoFocus
+                  onChangeText={this.onTitleChange}
+                  defaultValue={this.state.user.user_title}
+                  placeholder='Title here ...'
+                  multiline
+                />
+              </View>
+              <Text style={{ alignSelf: 'center', fontSize: 20, fontWeight: 'bold' }}>Bio</Text>
+              <View style={{
+                width: "90%",
+                borderColor: 'gray',
+                borderWidth: 1,
+                borderRadius: 20,
+                marginVertical: 30,
+                alignSelf: 'center'
+
+              }}>
+                <TextInput
+                  style={{
+                    alignItems: 'center',
+                    overflow: "hidden",
+                    alignSelf: 'center',
+                    textAlign: 'center',
+                    height: 100
+                  }}
+                  autoFocus
+                  onChangeText={this.onDescriptionChange}
+                  defaultValue={this.state.user.user_description}
+                  placeholder='Description here ...'
+                  multiline
+                />
+              </View>
+              <SaveButton
+                title={`| Enregister?`}
+                callback={this.saveProfile}
+              />
+            </View>
+          </Overlay>
 
         </ScrollView>
-      </View>
+      </View >
     );
+  }
+
+  onTitleChange = (text) => {
+    this.setState({ titleDraft: text });
+  }
+
+  onDescriptionChange = (text) => {
+    this.setState({ descriptionDraft: text });
+  }
+
+  saveProfile = async () => {
+    let editedUser = this.state.user;
+    editedUser.user_title = this.state.titleDraft;
+    editedUser.user_description = this.state.descriptionDraft;
+    const data = await this.apiService.editEntity('users', editedUser);
+    this.getData();
   }
 
   ratingCompleted(sport, level) {

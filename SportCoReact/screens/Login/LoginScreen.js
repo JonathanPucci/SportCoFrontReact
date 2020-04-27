@@ -54,8 +54,8 @@ class LoginScreen extends React.Component {
       <KeyboardAwareScrollView>
         <ScrollView>
           <Image
-            style={{ width: '100%', height: 400 }}
-            source={require('../../assets/images/basketCourt.jpg')}
+            style={{  margin : 40,height: 400, resizeMode:'contain', alignSelf: 'center' }}
+            source={require('../../assets/images/TimakaLogo.png')}
           />
           <View style={{ marginVertical: 10, flex: 1 }}>
             <FacebookLogin navigation={this.props.navigation} />
@@ -66,9 +66,9 @@ class LoginScreen extends React.Component {
           <View style={{ flex: 1, alignSelf: 'center' }}>
           <Image
             style={{ width: 100, height: 100, alignSelf:'center' }}
-            source={require('../../assets/images/Logo.png')}
+            source={require('../../assets/images/logomultisports.png')}
           />
-            <Text>By SportCo crew</Text>
+            <Text>By Monkeys' crew</Text>
           </View>
         </ScrollView>
       </KeyboardAwareScrollView>
