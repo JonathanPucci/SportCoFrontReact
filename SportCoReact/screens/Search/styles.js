@@ -1,4 +1,4 @@
-import Layout from '../../constants/Layout'
+import { Layout, BOTTOM_TAB_HEIGHT, TOP_NAV_BAR_HEIGHT } from '../../constants/Layout'
 import {
   StyleSheet
 } from "react-native";
@@ -24,12 +24,12 @@ export const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     width: Layout.window.width,
-    height: Layout.window.height ,
+    height: Layout.window.height - BOTTOM_TAB_HEIGHT - TOP_NAV_BAR_HEIGHT,
   },
   mapStyle: {
     width: Layout.window.width,
-    height: Layout.window.height ,
-     top: 0,
+    height: Layout.window.height - BOTTOM_TAB_HEIGHT - TOP_NAV_BAR_HEIGHT,
+    top: 0,
     left: 0,
     right: 0,
     bottom: 0,
@@ -37,18 +37,27 @@ export const styles = StyleSheet.create({
   searchButton: {
     position: "absolute",
     top: 70,
-    alignSelf:'center',
+    alignSelf: 'center',
     borderRadius: 10,
   },
   actionButtonIcon: {
     fontSize: 20,
-    alignSelf : 'center',
-    alignItems : 'center',
-    justifyContent : 'center',
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
     color: 'white'
   },
-  sports : {
-    flex :1
+  sports: {
+    flex: 1
+  },
+  actionButton: {
+    position: 'absolute',
+    right: 15,
+    borderRadius: 10,
+    backgroundColor: 'rgba(0,0,0,0.2)',
+    width: 50,
+    height: 50,
+    justifyContent: 'center'
   }
 
 });
@@ -58,9 +67,9 @@ export const markerStyles = StyleSheet.create({
     flex: 1,
   },
   scrollView: {
-    flex:1,
+    flex: 1,
     paddingVertical: 10,
-    elevation : 2,
+    elevation: 2,
   },
   card: {
     padding: 0,
@@ -114,7 +123,7 @@ export const markerStyles = StyleSheet.create({
   ring: {
     width: 10,
     height: 10,
-    bottom:0,
+    bottom: 0,
     borderRadius: 5,
     backgroundColor: "rgba(59, 118, 255 , 0.3)",
     position: "absolute",
@@ -147,7 +156,7 @@ export const eventCalloutStyles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     flexDirection: 'row',
-    marginTop : 20
+    marginTop: 20
   },
   eventSport: {
     marginLeft: 10,

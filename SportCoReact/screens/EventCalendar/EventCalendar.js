@@ -6,6 +6,7 @@ import { Agenda, LocaleConfig } from 'react-native-calendars';
 import SportCoApi from '../../services/apiService';
 import { mapSportIcon } from '../../helpers/mapper';
 import {Icon} from 'react-native-elements'
+import * as RootNavigation from '../../navigation/RootNavigation.js';
 
 const testIDs = require('./testIDs');
 
@@ -93,7 +94,7 @@ class EventCalendar extends React.Component {
         return (
             <TouchableOpacity
                 style={calendarStyles.item}
-                onPress={() => { this.props.navigation.navigate('Event', { event: { event: item } }) }}
+                onPress={() => { RootNavigation.navigateToEvent(item.event_id) }}
             >
                 <View style={styles.itemInfos}>
                     <Text>{item.description}</Text>

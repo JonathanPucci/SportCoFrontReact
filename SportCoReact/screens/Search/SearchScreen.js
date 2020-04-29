@@ -16,21 +16,25 @@ import SportsAvailable from '../../components/SportsAvailable';
 import { FloatingAction } from "react-native-floating-action";
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import Geolocation from 'react-native-geolocation-service';
+import { SPORTS } from '../../constants/DbConstants';
 
 
 
-//Effect to get Events at focus (after coming back from events)
-// function FocusEffectComp({ navigation, handler }) {
-//   useFocusEffect(
-//     React.useCallback(() => {
-//       if (!SearchScreen.firstTime)
-//         handler();
-//       SearchScreen.firstTime = false;
-//       return () => { };
-//     }, [])
-//   );
-//   return null;
-// }
+// Effect to get Events at focus (after coming back from events)
+function FetchData({ onFocus }) {
+  useFocusEffect(
+    React.useCallback(() => {
+      if (SearchScreen.firstTime) {
+        SearchScreen.firstTime = false;
+      }
+      else
+        onFocus();
+      return () => { };
+    }, [])
+  );
+
+  return null;
+}
 
 export const initialZoom = {
   latitudeDelta: 0.08,
@@ -40,10 +44,11 @@ export const initialZoom = {
 
 class SearchScreen extends React.Component {
 
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       loading: true,
+      fetchingData : true,
       events: [],
       eventsRetrieved: [],
       eventsFetchedSoFar: [],
@@ -58,14 +63,13 @@ class SearchScreen extends React.Component {
       optionsVisible: false,
       interpolations: [],
       isChoosingAFilter: false,
-      firstSearch: true,
       sportsAccepted: ['basket', 'soccer', 'futsal', 'workout', 'running', 'volley', 'beachvolley', 'tennis']
     }
     this.animation = new Animated.Value(0);
     this.sportCoApi = new SportCoApi();
   }
 
-  // static firstTime = true;
+  static firstTime = true;
 
   initMap = () => {
     this.watchId = Geolocation.getCurrentPosition(
@@ -84,9 +88,9 @@ class SearchScreen extends React.Component {
     // console.log(Platform.OS + " got it, going to search");
     // Geolocation.clearWatch(this.watchId);
     this.setState(
-      { ...this.state, region: { ...this.state.region, latitude: position.coords.latitude, longitude: position.coords.longitude } },
+      { ...this.state, loading: true, region: { ...this.state.region, latitude: position.coords.latitude, longitude: position.coords.longitude } },
       () => {
-        this.getData(true)
+        this.getData()
       });
   }
 
@@ -104,14 +108,13 @@ class SearchScreen extends React.Component {
     Geolocation.getCurrentPosition(
       position => {
         let region = {
-          latitude: parseFloat(position.coords.latitude),
+          latitude: parseFloat(position.coords.latitude) - 0.015,
           longitude: parseFloat(position.coords.longitude),
           latitudeDelta: initialZoom.latitudeDelta,
           longitudeDelta: initialZoom.longitudeDelta
         };
-        let initialRegion = region;
         if (this.mapViewRef != undefined)
-          this.mapViewRef.mapView.animateToRegion(initialRegion, 500);
+          this.mapViewRef.mapView.animateToRegion(region, 500);
       },
       error => console.log(error),
       {
@@ -126,6 +129,7 @@ class SearchScreen extends React.Component {
     this.initMap();
   }
 
+
   /*********************************************************************************
    *************************                 ***************************************
    ********************        DATA STUFF       ************************************
@@ -133,19 +137,19 @@ class SearchScreen extends React.Component {
    ********************************************************************************/
 
 
-  getData(fromFocus = false) {
-    this.setState({ events: [], eventsRetrieved: [], eventsFetchedSoFar: [], currentEventIndex: 0, loading: true }, () => {
+  getData() {
+    this.setState({ events: [], eventsRetrieved: [], eventsFetchedSoFar: [], currentEventIndex: 0, fetchingData : true }, () => {
       this.retrieveEventsInArea();
     })
   }
 
-  retrieveEventsInArea() {
+  retrieveEventsInArea = () => {
     // console.log(Platform.OS + " retrieve In Area");
     this.sportCoApi.getEntities("events/area", this.state.region)
       .then((eventsdata) => {
         let events = eventsdata.data;
         if (events.length == 0) {
-          this.setState({ firstSearch: false, loading: false, moved: false, optionsVisible: false })
+          this.setState({ loading: false, moved: false, optionsVisible: false })
         }
         if (events.length == 0)
           return
@@ -157,9 +161,9 @@ class SearchScreen extends React.Component {
               .then(event => {
                 let newArray = [...this.state.eventsFetchedSoFar];
                 newArray[index] = event.data;
-                this.calculateInterpolations();
-                this.setState({ eventsFetchedSoFar: newArray })
-                this.checkAllDataFetchedBeforeSetState();
+                this.setState({ eventsFetchedSoFar: newArray }, () => {
+                  this.checkAllDataFetchedBeforeSetState();
+                })
               })
           }
         })
@@ -168,7 +172,7 @@ class SearchScreen extends React.Component {
 
   checkAllDataFetchedBeforeSetState() {
     //already done loading --> stop
-    if (!this.state.loading)
+    if (!this.state.fetchingData)
       return
     let eventsFetchedSoFar = this.state.eventsFetchedSoFar;
     //not even retrieved all events --> stop
@@ -186,13 +190,13 @@ class SearchScreen extends React.Component {
       this.setState({
         eventsRetrieved: eventsFetchedSoFar,
         events: eventsFetchedSoFar,
-        firstSearch: false,
         loading: false,
+        fetchingData : false,
         moved: false,
         optionsVisible: false
       },
         () => {
-          this.filterBySport();
+          this.filterBySport(true);
         })
     }
   }
@@ -206,7 +210,9 @@ class SearchScreen extends React.Component {
   render() {
     return (
       <View style={styles.container} contentContainerStyle={styles.contentContainer}>
-        {/* <FocusEffectComp navigation={this.props.navigation} handler={this.getData} /> */}
+        <FetchData
+          onFocus={this.getData.bind(this)}
+        />
         {this.renderMain()}
       </View>
     )
@@ -214,9 +220,9 @@ class SearchScreen extends React.Component {
   renderMain() {
     if (this.state.loading) {
       return (
-        <View style={{marginTop : 200,alignSelf : "center", justifyContent:'center', alignItems:'center'}}>
-          <Text style={{alignSelf : "center", justifyContent:'center', alignItems:'center', textAlign:'center'}}>Loading</Text>
-          <Button onPress={this.initMap} title='Reload Position' style={{alignSelf : "center", justifyContent:'center', alignItems:'center'}} />
+        <View style={{ marginTop: 200, alignSelf: "center", justifyContent: 'center', alignItems: 'center' }}>
+          <Text style={{ alignSelf: "center", justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>Loading</Text>
+          <Button onPress={this.initMap} title='Reload Position' style={{ alignSelf: "center", justifyContent: 'center', alignItems: 'center' }} />
         </View>
       );
     }
@@ -226,6 +232,8 @@ class SearchScreen extends React.Component {
       <View style={styles.container} contentContainerStyle={styles.contentContainer}>
         <GoogleMapsAutoComplete
           handler={this.goToLocation.bind(this)}
+          stylesContainer={{ width: "80%", marginTop: 5 }}
+          stylesInput={{ height: 40 }}
         />
         <View style={styles.mapContainer}>
           <CustomMapView
@@ -241,10 +249,21 @@ class SearchScreen extends React.Component {
             regionMoved={this.setRegionMoved.bind(this)}
             navigation={this.props.navigation}
             pressedMap={this.pressedMap.bind(this)}
-
           />
         </View>
-        <Fade isVisible={this.state.optionsVisible} style={styles.searchButton} >
+        <View style={[styles.actionButton, { top : 15}]}>
+          <Icon name='settings' color='#555' type='octicon' size={25} onPress={() => { this.hitActionButton('FILTER') }} />
+        </View>
+        <View style={[styles.actionButton, { top : 70}]}>
+          <Icon name='cursor' color='#555' type='simple-line-icon' size={25} onPress={() => { this.hitActionButton('CENTER') }} />
+        </View>
+        <View style={[styles.actionButton, { top : 125}]}>
+          <Icon name='search' color='#555' type='material' size={30} onPress={this.pressedSearchHere.bind(this)} />
+        </View>
+        <View style={[{ position: 'absolute', bottom: 30 }, Platform.OS == 'ios' ? { right: 15 } : { left: 15 }]}>
+          <Icon name='add' raised color='#2089dc' size={25} onPress={() => { this.hitActionButton('ADD') }} />
+        </View>
+        {/* <Fade isVisible={this.state.optionsVisible} style={styles.searchButton}>
           <View >
             <Button
               title={"  Search Here  "}
@@ -258,8 +277,7 @@ class SearchScreen extends React.Component {
               }
               onPress={this.pressedSearchHere.bind(this)} />
           </View>
-        </Fade>
-        {this.renderActionButton()}
+        </Fade> */}
 
         <View style={[
           { position: 'absolute', bottom: 10, elevation: 2, flex: 1, },
@@ -281,13 +299,19 @@ class SearchScreen extends React.Component {
           <View style={styles.sports}>
             <SportsAvailable
               sportsSelected={this.state.sportsAccepted}
-              sportsSelectedChanged={(newsports) => { this.setState({ sportsAccepted: newsports }) }}
+              sportsSelectedChanged={(newsports) => { this.setState({ sportsAccepted: newsports }); this.filterBySport(); }}
             />
             <Button
               titleStyle={{ fontSize: 20 }}
               buttonStyle={{ marginTop: 50 }}
-              title={'Filter'}
-              onPress={() => { this.filterBySport() }}
+              title={'Select All'}
+              onPress={() => { this.selectAllSports(); this.filterBySport() }}
+            />
+            <Button
+              titleStyle={{ fontSize: 20 }}
+              buttonStyle={{ marginTop: 50, backgroundColor: 'green' }}
+              title={'Yep, all good'}
+              onPress={() => { this.filterBySport(true) }}
             />
           </View>
         </Overlay>
@@ -321,7 +345,7 @@ class SearchScreen extends React.Component {
     return (
 
       <FloatingAction
-        position={Platform.OS == 'ios'?'left' : 'right'}
+        position={Platform.OS == 'ios' ? 'left' : 'right'}
         color="#2089dc"
         visible={this.state.optionsVisible}
         showBackground={false}
@@ -359,22 +383,22 @@ class SearchScreen extends React.Component {
    ********************************************************************************/
 
   setRegionMoved(region) {
-    if (this.regionMovedTimeout != undefined)
-      clearTimeout(this.regionMovedTimeout);
+    // if (this.regionMovedTimeout != undefined)
+    //   clearTimeout(this.regionMovedTimeout);
 
-    this.regionMovedTimeout = setTimeout(() => {
-      this.setState({ moved: true, region: region, optionsVisible: true },
-        () => {
-          this.optionsVisibleTimeout = setTimeout(() => {
-            this.setState({ optionsVisible: false })
-          }, 2500)
-        }
-      );
-    }, 100);
+    // this.regionMovedTimeout = setTimeout(() => {
+    this.setState({ moved: true, region: region, optionsVisible: true }
+      // , () => {
+      //   this.optionsVisibleTimeout = setTimeout(() => {
+      //     this.setState({ optionsVisible: false })
+      //   }, 2500)
+      // }
+    );
+    // }, 100);
   }
 
-  pressedSearchHere() {
-    this.getData(true);
+  pressedSearchHere = () => {
+    this.getData();
   }
 
   pressedMap() {
@@ -397,7 +421,7 @@ class SearchScreen extends React.Component {
       , () => {
         this.mapViewRef.mapView.animateToRegion(this.state.region, 1500);
 
-        this.getData(true);
+        this.getData();
       });
   }
 
@@ -422,8 +446,8 @@ class SearchScreen extends React.Component {
     let coordinateEvent = {
       latitude: parseFloat(event.spot.spot_latitude),
       longitude: parseFloat(event.spot.spot_longitude),
-      latitudeDelta: this.state.region.latitudeDelta,
-      longitudeDelta: this.state.region.longitudeDelta,
+      latitudeDelta: initialZoom.latitudeDelta,
+      longitudeDelta: initialZoom.longitudeDelta,
     };
 
     this.setState({ currentEventIndex: index });
@@ -436,28 +460,6 @@ class SearchScreen extends React.Component {
     this.showEventCardAndMarker(index);
   }
 
-  calculateInterpolations() {
-    const interpolations = this.state.events.map((marker, index) => {
-      const inputRange = [
-        (index - 1) * CARD_WIDTH,
-        index * CARD_WIDTH,
-        ((index + 1) * CARD_WIDTH),
-      ];
-      const scale = this.animation.interpolate({
-        inputRange,
-        outputRange: [1, 2.5, 1],
-        extrapolate: "clamp",
-      });
-      const opacity = this.animation.interpolate({
-        inputRange,
-        outputRange: [0.35, 1, 0.35],
-        extrapolate: "clamp",
-      });
-      return { scale, opacity };
-    });
-    this.setState({ interpolations: interpolations });
-  }
-
   /*********************************************************************************
    *************************                 ***************************************
    ********************      CREATION  STUFF    ************************************
@@ -465,15 +467,19 @@ class SearchScreen extends React.Component {
    ********************************************************************************/
 
 
+  selectAllSports() {
+    let newsports = SPORTS;
+    this.setState({ sportsAccepted: newsports });
+  }
 
-  filterBySport() {
+  filterBySport(exit = false) {
     let newEvents = [];
     for (let index = 0; index < this.state.eventsRetrieved.length; index++) {
       const event = this.state.eventsRetrieved[index];
       if (this.state.sportsAccepted.includes(event.event.sport))
         newEvents.push(event);
     }
-    this.setState({ events: [], isChoosingAFilter: false }, () => { this.setState({ events: newEvents }) });
+    this.setState({ events: [], isChoosingAFilter: !exit }, () => { this.setState({ events: newEvents }) });
   }
 
 }

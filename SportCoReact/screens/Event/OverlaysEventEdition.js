@@ -52,14 +52,16 @@ export class OverlayDateTimePicker extends React.Component {
                             <Text style={{ alignSelf: 'center', fontSize: 20, fontWeight: 'bold' }}>Date</Text>
                             <DateTimePicker
                                 testID="dateTimePicker"
+                                minimumDate={new Date()}
                                 value={new Date(this.props.event.event.date)}
                                 mode={'date'}
                                 is24Hour={true}
                                 onChange={this.props.onDateChange}
-                            />
+                                />
                             <Text style={{ alignSelf: 'center', fontSize: 20, fontWeight: 'bold' }}>Heure</Text>
                             <DateTimePicker
                                 testID="dateTimePicker"
+                                minimumDate={new Date()}
                                 value={new Date(this.props.event.event.date)}
                                 mode={'time'}
                                 is24Hour={true}

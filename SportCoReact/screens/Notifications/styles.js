@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import Layout from '../../constants/Layout'
+import {Layout} from '../../constants/Layout'
 
 const NotificationHeight = 80;
 const marginLeftFromIcon = 15;

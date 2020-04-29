@@ -31,7 +31,7 @@ export default class CustomMapView extends React.Component {
                 followUserLocation={true}
                 showsUserLocation={true}
                 ref={ref => { this.mapView = ref; }}
-                onRegionChangeComplete={(region) => { this.props.regionMoved(region); }}
+                onRegionChange={(region) => { this.props.regionMoved(region); }}
                 onPress={this.onMapPress.bind(this)}
             >
                 {this.props.events != undefined && this.props.events.length != 0 && (

@@ -28,19 +28,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     textAlign: 'center'
   },
-  button: {
-    flex: 1,
-    backgroundColor: 'red',
-    width: '70%',
-    marginVertical: 10,
-    marginLeft: '15%'
-  },
-  buttonRegister: {
-    backgroundColor: 'white',
-    width: '70%',
-    marginTop: 0,
-    marginLeft: '15%'
-  },
   buttonText: {
     color: 'white',
     fontWeight: 'bold',

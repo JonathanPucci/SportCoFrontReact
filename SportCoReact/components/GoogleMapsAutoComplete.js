@@ -17,8 +17,11 @@ export class GoogleMapsAutoComplete extends React.Component {
                 onSelect={place => {
                     Keyboard.dismiss();
                     this.props.handler(place.result.geometry.location.lat,place.result.geometry.location.lng)
+
                 }}
                 iconResult={<Icon name="md-pin" type='ionicon' size={15}  />}
+                stylesContainer={this.props.stylesContainer}
+                stylesInput={this.props.stylesInput}
             />)
     }
 

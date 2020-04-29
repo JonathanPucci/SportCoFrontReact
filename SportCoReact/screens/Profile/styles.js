@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import Layout from '../../constants/Layout'
+import {Layout} from '../../constants/Layout'
 
 
 export const MAX_ON_LINE = 6;
@@ -100,5 +100,21 @@ export const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'column'
     },
+    textInput: {
+        alignItems: 'center',
+        overflow: "hidden",
+        alignSelf: 'center',
+        textAlign: 'center',
+        height: 100
+    },
+    inputView : {
+        width : '90%',
+        borderColor: 'gray',
+        borderWidth: 1,
+        borderRadius: 20,
+        marginVertical: 30,
+        alignSelf: 'center'
+
+      }
 
 });

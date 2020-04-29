@@ -196,55 +196,32 @@ class ProfileScreen extends React.Component {
           >
             <View>
               <Text style={{ alignSelf: 'center', fontSize: 20, fontWeight: 'bold' }}>Job / Title</Text>
-              <View style={{
-                width: "90%",
-                borderColor: 'gray',
-                borderWidth: 1,
-                borderRadius: 20,
-                marginVertical: 30,
-                alignSelf: 'center'
-
-              }}>
+              <TouchableWithoutFeedback style={styles.inputView}
+              onPress={()=>{this.titleInput.focus()}}>
                 <TextInput
-                  style={{
-                    alignItems: 'center',
-                    overflow: "hidden",
-                    alignSelf: 'center',
-                    textAlign: 'center',
-                    height: 100
-                  }}
+                  style={styles.textInput}
+                  ref={(input) => { this.titleInput = input; }}
                   autoFocus
                   onChangeText={this.onTitleChange}
                   defaultValue={this.state.user.user_title}
                   placeholder='Title here ...'
                   multiline
                 />
-              </View>
+              </TouchableWithoutFeedback>
               <Text style={{ alignSelf: 'center', fontSize: 20, fontWeight: 'bold' }}>Bio</Text>
-              <View style={{
-                width: "90%",
-                borderColor: 'gray',
-                borderWidth: 1,
-                borderRadius: 20,
-                marginVertical: 30,
-                alignSelf: 'center'
-
-              }}>
+              <TouchableWithoutFeedback style={styles.inputView}
+              onPress={()=>{this.descInput.focus()}}>
                 <TextInput
-                  style={{
-                    alignItems: 'center',
-                    overflow: "hidden",
-                    alignSelf: 'center',
-                    textAlign: 'center',
-                    height: 100
-                  }}
+                  style={styles.textInput}
+                  ref={(input) => { this.descInput = input; }}
+
                   autoFocus
                   onChangeText={this.onDescriptionChange}
                   defaultValue={this.state.user.user_description}
                   placeholder='Description here ...'
                   multiline
                 />
-              </View>
+              </TouchableWithoutFeedback>
               <SaveButton
                 title={`| Enregister?`}
                 callback={this.saveProfile}

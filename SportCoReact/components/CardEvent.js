@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, TouchableWithoutFeedback, Image, Text } from 'react-native';
 import { mapSportIcon } from '../helpers/mapper'
-import Layout from '../constants/Layout'
+import {Layout} from '../constants/Layout'
 
 export const CARD_HEIGHT = (Layout.window.height - 40) / 4.5;
 export const CARD_WIDTH = (Layout.window.width) / 3;//CARD_HEIGHT*0.75;

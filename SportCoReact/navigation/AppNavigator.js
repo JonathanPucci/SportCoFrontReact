@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { Platform, StatusBar, StyleSheet, View, Image, Linking, Vibration, PermissionsAndroid } from 'react-native';
+import { Platform, StatusBar, StyleSheet,SafeAreaView, View, Image, Linking, Vibration, PermissionsAndroid } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { navigationRef } from './RootNavigation';
-import * as RootNavigation from './RootNavigation.js';
+import {navigateToEvent} from './RootNavigation';
 
 import BottomTabNavigator, {LogoTitle} from './BottomTabNavigator';
 import LoginScreen from '../screens/Login/LoginScreen';
@@ -14,10 +14,7 @@ import ProfileScreen from '../screens/Profile/ProfileScreen';
 import { connect } from 'react-redux';
 import SpotManager from '../screens/SpotManager/SpotManager';
 import SportCoApi from '../services/apiService';
-// import { Notifications } from 'expo';
-// import * as Permissions from 'expo-permissions';
-// import * as LocationPermission from 'expo-location';
-// import Constants from 'expo-constants';
+import * as RootNavigation from '../navigation/RootNavigation.js';
 
 
 const Stack = createStackNavigator();
@@ -42,14 +39,9 @@ class AppNavigator extends React.Component {
             this.props.auth != undefined &&
             this.props.auth.user != undefined
         ) {
-            var url = new URL(event.url);
-            let event_id = event.url.substring(event.url.indexOf("event_id=") + 9, event.url.length)
-            this.goToEventId(event_id);
+            let event_id = event.url.split('event_link=')[1];
+            navigateToEvent(event_id)
         }
-    }
-
-    goToEventId(event_id){
-        RootNavigation.navigate('Event', { eventData: { event: { event_id: event_id } } });
     }
 
     componentDidUpdate(prevProps) {
@@ -58,14 +50,9 @@ class AppNavigator extends React.Component {
             this.props.auth.user != undefined &&
             (prevProps == undefined || prevProps.auth == undefined || prevProps.auth.user == undefined)
         ) {
-
-            // this.registerForPushNotificationsAsync();
-            // this._notificationSubscription = Notifications.addListener(this._handleNotification);
             //Add permission from Android
             this.grantLocationPermissionForAndroid();
             this.saveDeviceTokenForNotifications();
-            // LocationPermission.requestPermissionsAsync();
-
         }
     }
 
@@ -83,56 +70,6 @@ class AppNavigator extends React.Component {
             .catch((err) => { console.log('error adding token to user ' + user.user_id); console.log(err) })
     }
 
-    // registerForPushNotificationsAsync = async () => {
-    //     if (Constants.isDevice) {
-    //         const { status: existingStatus } = await Permissions.getAsync(Permissions.NOTIFICATIONS);
-    //         let finalStatus = existingStatus;
-
-    //         if (finalStatus !== 'granted') {
-    //             const { status2 } = await Permissions.askAsync(Permissions.USER_FACING_NOTIFICATIONS);
-    //             const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
-    //             finalStatus = status2 ? status2 : status;
-    //         }
-    //         if (finalStatus !== 'granted') {
-    //             alert('Failed to get push token for push notification!');
-    //             return;
-    //         }
-
-    //         token = await Notifications.getExpoPushTokenAsync();
-    //         console.log(Platform.OS + " token " + token);
-    //         this.setState({ expoPushToken: token });
-    //         let user = this.props.auth.user;
-    //         user = {
-    //             ...user,
-    //             user_id: this.props.auth.user_id,
-    //             user_push_token: token
-    //         }
-    //         // TODO : check if already set maybe? 
-    //         // let userData = await this.apiService.getSingleEntity('users', user.user_id);
-    //         this.apiService.editEntity('users', user)
-    //             .then((data) => { console.log('added token to user ' + user.user_id) })
-    //             .catch((err) => { console.log('error adding token to user ' + user.user_id); console.log(err) })
-    //     } else {
-    //         //alert('Must use physical device for Push Notifications');
-    //     }
-
-    // if (Platform.OS === 'android') {
-    //     Notifications.createChannelAndroidAsync('default', {
-    //         name: 'default',
-    //         sound: true,
-    //         priority: 'max',
-    //         vibrate: [0, 250, 250, 250],
-    //     });
-    // }
-    // };
-
-
-    // _handleNotification = notification => {
-    //     Vibration.vibrate();
-    //     // console.log(notification);
-    //     this.setState({ notification: notification });
-    // };
-
     async grantLocationPermissionForAndroid() {
         if (Platform.OS == 'android') {
             const granted = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION);
@@ -148,7 +85,7 @@ class AppNavigator extends React.Component {
 
     render() {
         return (
-            <View style={styles.container}>
+            <SafeAreaView style={styles.container}>
                 {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
                 <NavigationContainer ref={navigationRef}>
                     <Stack.Navigator>
@@ -168,7 +105,7 @@ class AppNavigator extends React.Component {
                         <Stack.Screen name="SpotManager" component={SpotManager} />
                     </Stack.Navigator>
                 </NavigationContainer>
-            </View>
+            </SafeAreaView>
         );
     }
 

@@ -11,7 +11,7 @@ const styles = {
   },
   container: {
     position: 'absolute',
-    top: isIphoneX() && getStatusBarHeight(),
+    top: 0,//isIphoneX() && getStatusBarHeight(),
     bottom: 0,
     left: 0,
     right: 0,

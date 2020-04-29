@@ -9,6 +9,7 @@ import EventCalendar from '../screens/EventCalendar/EventCalendar';
 import { Icon } from 'react-native-elements';
 
 import Colors from '../constants/Colors';
+import { TOP_NAV_BAR_HEIGHT, BOTTOM_TAB_HEIGHT } from '../constants/Layout';
 
 const BottomTab = createBottomTabNavigator();
 const INITIAL_ROUTE_NAME = 'Search';
@@ -17,12 +18,15 @@ export default function BottomTabNavigator({ navigation, route }) {
   // Set the header title on the parent stack navigator depending on the
   // currently active tab. Learn more in the documentation:
   // https://reactnavigation.org/docs/en/screen-options-resolution.html
-  navigation.setOptions({ headerTitle: props => <LogoTitle {...props} /> });
+  navigation.setOptions({ 
+    headerTitle: props => <LogoTitle {...props} /> ,
+    headerStyle : {height : TOP_NAV_BAR_HEIGHT}
+  });
 
   return (
     <BottomTab.Navigator
       initialRouteName={INITIAL_ROUTE_NAME}
-      tabBarOptions={{ style: { height: Platform.OS == 'android' ? 60 : 80 } }}
+      tabBarOptions={{ style: { height: BOTTOM_TAB_HEIGHT }}}
     >
       <BottomTab.Screen
         name="Home"
@@ -88,12 +92,10 @@ function TabBarIcon(props) {
 
 export function LogoTitle() {
   return (
-    <View style={{ overflow:'hidden'}} >
       <Image
         style={{ width: 200, height: 45}}
         resizeMode='stretch'
         source={require('../assets/images/TimakaWritten.png')}
       />
-    </View>
   );
 }

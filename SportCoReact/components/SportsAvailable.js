@@ -4,43 +4,56 @@ import { Text } from 'react-native'
 import { Icon } from 'react-native-elements'
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { StyleSheet } from 'react-native';
-import { LEVELS } from "../constants/DbConstants";
+import { LEVELS, SPORTS } from "../constants/DbConstants";
 import { Rating, AirbnbRating } from 'react-native-ratings';
 import Colors from "../constants/Colors";
 import { connect } from 'react-redux'
+import { mapSportIcon } from "../helpers/mapper";
 
 
 const LEVEL_IMAGE = require('../assets/images/medal.png')
 const WATER_IMAGE = require('../assets/images/water.png')
 
 
-
 class SportsAvailable extends Component {
 
-    state = {
+    constructor() {
+        super();
+        let index = 0;
+        let pairs = [];
+        while (index <= SPORTS.length - 2) {
+            const sport1 = SPORTS[index];
+            const sport2 = SPORTS[index + 1];
+            pairs.push({
+                first: {
+                    sport: sport1,
+                    icon: mapSportIcon(sport1)
+                },
+                second: {
+                    sport: sport2,
+                    icon: mapSportIcon(sport2)
+                }
+            })
+            index += 2;
+        }
+        this.state = {
+            sportPairs: pairs
+        }
+
     }
 
     render() {
         return (
             <View >
                 <Text h4 style={styles.name} >Sports {this.props.showStats ? 'Stats' : ''}</Text>
-                <View style={styles.sportLine}>
-                    {this.renderSport('basket', 'ios-basketball', 'ionicon')}
-                    {this.renderSport('tennis', 'ios-tennisball', 'ionicon')}
-                </View>
-                <View style={styles.sportLine}>
-                    {this.renderSport('soccer', 'ios-football', 'ionicon')}
-                    {this.renderSport('futsal', 'ios-football', 'ionicon')}
-                </View>
-                <View style={styles.sportLine}>
-                    {this.renderSport('beachvolley', 'volleyball', 'material-community')}
-                    {this.renderSport('volley', 'volleyball', 'material-community')}
-                </View>
-
-                <View style={styles.sportLine}>
-                    {this.renderSport('workout', 'ios-fitness', 'ionicon')}
-                    {this.renderSport('running', 'run', 'material-community')}
-                </View>
+                {this.state.sportPairs.map((item, index) => {
+                    return (
+                        <View key={"pairSport" + index} style={styles.sportLine}>
+                            {this.renderSport(item.first.sport, item.first.icon.iconName, item.first.icon.iconFamily)}
+                            {this.renderSport(item.second.sport, item.second.icon.iconName, item.second.icon.iconFamily)}
+                        </View>
+                    )
+                })}
             </View>
         );
     }
@@ -142,6 +155,7 @@ class SportsAvailable extends Component {
             this.props.sportsSelected.includes(sport);
     }
 
+
     toggleSport(sport) {
         if (this.props.maxOne) {
             this.props.sportsSelectedChanged([sport]);
@@ -149,7 +163,11 @@ class SportsAvailable extends Component {
         else if (!this.props.showStats) {
             let newsports = this.props.sportsSelected;
             this.isSportSelected(sport) ?
-                newsports.splice(newsports.indexOf(sport), 1) :
+                (this.props.sportsSelected.length == SPORTS.length ?
+                    newsports = [sport]
+                    :
+                    newsports.splice(newsports.indexOf(sport), 1)
+                ) :
                 newsports.push(sport);
             this.props.sportsSelectedChanged(newsports);
         }
