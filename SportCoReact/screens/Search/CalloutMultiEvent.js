@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { ScrollView, View, Image, Text, TouchableWithoutFeedback } from 'react-native';
 import { connect } from 'react-redux'
+import { useFocusEffect } from '@react-navigation/native';
 
 import { Callout, CalloutSubview } from 'react-native-maps';
 import { eventCalloutStyles, markerStyles, CARD_WIDTH } from './styles';
@@ -8,6 +9,7 @@ import { Icon } from 'react-native-elements'
 import { mapSportIcon } from '../../helpers/mapper'
 import CardEvent from '../../components/CardEvent'
 import Colors from '../../constants/Colors';
+import SportCoApi from '../../services/apiService';
 
 class CalloutMultiEvent extends React.Component {
 
@@ -16,6 +18,7 @@ class CalloutMultiEvent extends React.Component {
         //     this.getData();
         // let eventInfo = this.state.event == undefined ? this.props.event : this.state.event;
         return (
+
             <Callout onPress={() => this.goToEventLibrary(this.props.events)} >
                 <View style={eventCalloutStyles.eventContainer}>
                     <Text h5 style={eventCalloutStyles.eventTitle}>Plusieurs évènements ici !</Text>
@@ -24,9 +27,9 @@ class CalloutMultiEvent extends React.Component {
                             {this.props.events.map((item, index) => {
                                 let icon = mapSportIcon(item.event.sport.toLowerCase());
                                 return (
-                                    <View 
-                                    key={'key' + index}
-                                    style={eventCalloutStyles.eventSport}>
+                                    <View
+                                        key={'key' + index}
+                                        style={eventCalloutStyles.eventSport}>
                                         <Icon
                                             name={icon.iconName}
                                             type={icon.iconFamily}
@@ -60,18 +63,58 @@ class CalloutMultiEvent extends React.Component {
 
 }
 
+// Effect to get Events at focus (after coming back from events)
+function FetchData({ onFocus }) {
+    useFocusEffect(
+        React.useCallback(() => {
+            onFocus();
+            return () => { };
+        }, [])
+    );
+
+    return null;
+}
+
 export class MultiEventScreen extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            events: props.route.params.events
+            events: [],
+            eventsActive: [],
         };
+        this.apiService = new SportCoApi();
+    }
+
+    componentDidMount() {
+        this.getEventsStillActive(this.props.route.params.events);
+    }
+
+    getEventsStillActive(eventsInput) {
+        let eventsToCheck = eventsInput;
+        if (eventsInput.fromFocus)
+            eventsToCheck = this.state.events;
+        this.setState({ events: [], eventsCancelled: [] }, () => {
+            for (let index = 0; index < eventsToCheck.length; index++) {
+                const eventData = eventsToCheck[index];
+                this.apiService.getSingleEntity('events', eventData.event.event_id)
+                    .then(() => {
+                        let events = this.state.events;
+                        events.push(eventData);
+                        this.setState({ events: events });
+                    })
+                    .catch(()=>
+                    {
+                        //event has been cancelled or does not exist anymore
+                    })
+            }
+        })
     }
 
     render() {
         return (
             <ScrollView style={{ flex: 1, flexDirection: 'column' }}>
+                <FetchData onFocus={this.getEventsStillActive.bind(this, { fromFocus: true })} />
                 {this.renderGallery()}
             </ScrollView>
         )

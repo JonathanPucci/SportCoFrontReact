@@ -210,9 +210,7 @@ class SearchScreen extends React.Component {
   render() {
     return (
       <View style={styles.container} contentContainerStyle={styles.contentContainer}>
-        <FetchData
-          onFocus={this.getData.bind(this)}
-        />
+        <FetchData  onFocus={this.getData.bind(this)} />
         {this.renderMain()}
       </View>
     )
