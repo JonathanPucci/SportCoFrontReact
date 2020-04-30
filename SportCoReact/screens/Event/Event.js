@@ -396,7 +396,8 @@ class EventScreen extends React.Component {
         this.props.dispatch(action);
         this.setState({
           refreshing: false,
-          editing: true
+          editing: true,
+          isEditingMapMarker : true
         });
       } catch (error) {
         this.setState({

@@ -62,6 +62,7 @@ export class EventMapView extends React.Component {
                         <Text>Choisissez une localisation</Text>}
                 </View>
                 <MapViewSpotPicker
+                    event_id={this.props.eventData.event.event_id}
                     isVisible={this.props.isEditingMapMarker}
                     stopEditingMapMarker={() => this.props.setEditingProperty('Localisation', false)}
                     regionPicked={!isNaN(eventRegion.latitude) ? eventRegion : this.props.regionPicked}

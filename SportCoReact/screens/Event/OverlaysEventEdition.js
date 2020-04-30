@@ -57,7 +57,7 @@ export class OverlayDateTimePicker extends React.Component {
                                 mode={'date'}
                                 is24Hour={true}
                                 onChange={this.props.onDateChange}
-                                />
+                            />
                             <Text style={{ alignSelf: 'center', fontSize: 20, fontWeight: 'bold' }}>Heure</Text>
                             <DateTimePicker
                                 testID="dateTimePicker"
@@ -102,14 +102,14 @@ export class OverlayDateTimePicker extends React.Component {
     onDateChange = (e, d) => {
         if (e.type != 'dismissed')
             this.props.onDateChange(e, d);
-            else
+        else
             this.props.stopEditingDate()
     }
 
     onDateTimeChange = (e, d) => {
         if (e.type != 'dismissed')
             this.props.onDateTimeChange(e, d);
-            else
+        else
             this.props.stopEditingDate()
     }
 }
@@ -307,8 +307,16 @@ export class MapViewSpotPicker extends React.Component {
     }
 
     render() {
+        let markerCoordinates = this.state.markerRegion == undefined ?
+            { ...this.props.regionPicked } : { ...this.state.markerRegion };
+        markerCoordinates.latitude = parseFloat(markerCoordinates.latitude);
+        markerCoordinates.longitude = parseFloat(markerCoordinates.longitude);
         return (
-            <Overlay isVisible={this.props.isVisible} onBackdropPress={this.props.stopEditingMapMarker} >
+            <Overlay isVisible={this.props.isVisible} onBackdropPress={() => {
+                if (this.props.event_id != "")
+                    this.props.stopEditingMapMarker()
+            }
+            } >
                 <View style={{ flex: 1 }} >
                     <GoogleMapsAutoComplete
                         handler={this.goToLocation.bind(this)}
@@ -330,8 +338,7 @@ export class MapViewSpotPicker extends React.Component {
                                     ref={ref => { this.mapView = ref; }}
                                 >
                                     <MapView.Marker
-                                        coordinate={this.state.markerRegion == undefined ?
-                                            this.props.regionPicked : this.state.markerRegion}
+                                        coordinate={markerCoordinates}
                                     >
                                     </MapView.Marker>
                                     {this.state.spots.map((spot, index) => {
