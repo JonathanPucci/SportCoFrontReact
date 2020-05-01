@@ -63,7 +63,7 @@ class SearchScreen extends React.Component {
       optionsVisible: false,
       interpolations: [],
       isChoosingAFilter: false,
-      sportsAccepted: ['basket', 'soccer', 'futsal', 'workout', 'running', 'volley', 'beachvolley', 'tennis']
+      sportsAccepted: SPORTS
     }
     this.animation = new Animated.Value(0);
     this.sportCoApi = new SportCoApi();

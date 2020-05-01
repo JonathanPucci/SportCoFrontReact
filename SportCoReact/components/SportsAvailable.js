@@ -9,6 +9,7 @@ import { Rating, AirbnbRating } from 'react-native-ratings';
 import Colors from "../constants/Colors";
 import { connect } from 'react-redux'
 import { mapSportIcon } from "../helpers/mapper";
+import {Layout} from '../constants/Layout'
 
 
 const LEVEL_IMAGE = require('../assets/images/medal.png')
@@ -24,12 +25,14 @@ class SportsAvailable extends Component {
         while (index <= SPORTS.length - 2) {
             const sport1 = SPORTS[index];
             const sport2 = SPORTS[index + 1];
+            const secondExists = (sport2 != '');
             pairs.push({
                 first: {
                     sport: sport1,
                     icon: mapSportIcon(sport1)
                 },
                 second: {
+                    exists: secondExists,
                     sport: sport2,
                     icon: mapSportIcon(sport2)
                 }
@@ -50,7 +53,11 @@ class SportsAvailable extends Component {
                     return (
                         <View key={"pairSport" + index} style={styles.sportLine}>
                             {this.renderSport(item.first.sport, item.first.icon.iconName, item.first.icon.iconFamily)}
-                            {this.renderSport(item.second.sport, item.second.icon.iconName, item.second.icon.iconFamily)}
+                            {item.second.exists ?
+                                this.renderSport(item.second.sport, item.second.icon.iconName, item.second.icon.iconFamily)
+                                :
+                                <View style={{ width:'30%'}} />
+                            }
                         </View>
                     )
                 })}
@@ -196,6 +203,7 @@ export const styles = StyleSheet.create({
     },
     sportLine: {
         marginTop: 20,
+        marginLeft: 30,
         flexDirection: 'row',
         justifyContent: 'space-around'
     }
