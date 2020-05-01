@@ -10,7 +10,7 @@ import { connect } from 'react-redux'
 
 import SportCoApi from '../../services/apiService';
 
-import { styles, MAX_ON_LINE } from './styles'
+import { styles, MAX_ON_LINE, MARGIN_BETWEEN_ICONS } from './styles'
 import SportsAvailable from '../../components/SportsAvailable';
 import Emoji from 'react-native-emoji';
 import { SaveButton } from '../Event/OverlaysEventEdition';
@@ -124,13 +124,13 @@ class ProfileScreen extends React.Component {
               Last Events Created
               </Text>
               {this.state.user.eventsCreated.length == 0 && (<Text style={{marginLeft:25}}> (None yet, but I'll create one !)</Text>)}
-            <View style={{ marginTop: 10, marginLeft: 5, flexDirection: 'row' }}>
+            <View style={{ marginTop: 10, marginLeft: MARGIN_BETWEEN_ICONS, flexDirection: 'row' }}>
               {this.state.user.eventsCreated.slice(0, MAX_ON_LINE).map((item, index) => {
                 let eventIcon = mapSportIcon(item.sport.toLowerCase());
                 return (
                   <TouchableWithoutFeedback 
                   key={'userEvent' + index} 
-                  style={{ marginLeft: 15 }}
+                  style={{ marginLeft: MARGIN_BETWEEN_ICONS }}
                   onPress={()=> { RootNavigation.navigateToEvent(item.event_id)}}>
                     <Image
                       source={eventIcon.image}
@@ -148,13 +148,13 @@ class ProfileScreen extends React.Component {
               Last Events Joined  
               </Text>
               {this.state.user.eventsCreated.length == 0 && (<Text style={{marginLeft:25}}> (On my way !)</Text>)}
-            <View style={{ marginTop: 10, marginLeft: 5, flexDirection: 'row' }}>
+            <View style={{ marginTop: 10, marginLeft: MARGIN_BETWEEN_ICONS, flexDirection: 'row' }}>
               {this.state.user.eventsJoined.slice(0, MAX_ON_LINE).map((item, index) => {
                 let eventIcon = mapSportIcon(item.sport.toLowerCase());
                 return (
                   <TouchableWithoutFeedback 
                   key={'userJoined' + index} 
-                  style={{ marginLeft: 15 }}
+                  style={{ marginLeft: MARGIN_BETWEEN_ICONS }}
                   onPress={()=> { RootNavigation.navigateToEvent(item.event_id)}}>
                     <Image
                       source={eventIcon.image}

@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import SportCoApi from '../../services/apiService';
+import { BlurView } from "@react-native-community/blur";
 
 import * as firebase from 'firebase';
 import FacebookLogin from './FacebookLogin';
@@ -53,21 +54,34 @@ class LoginScreen extends React.Component {
     return (
       <KeyboardAwareScrollView>
         <ScrollView>
-          <Image
-            style={{  margin : 40,height: 400, resizeMode:'contain', alignSelf: 'center' }}
-            source={require('../../assets/images/TimakaLogo.png')}
-          />
-          <View style={{ marginVertical: 10, flex: 1 }}>
+          <View style={{
+            marginTop: -60,
+            justifyContent: "center",
+            alignItems: "center"
+          }}
+          >
+
+            <Image
+              style={{
+                height: 500,
+                width: 500,
+                resizeMode: 'contain',
+                alignSelf: 'center',
+              }}
+              source={require('../../assets/images/newLogoTimBlurred.png')}
+            />
+          </View>
+          <View style={{ marginTop : -80,flex: 1 }}>
             <FacebookLogin navigation={this.props.navigation} />
           </View>
 
-          
-          
+
+
           <View style={{ flex: 1, alignSelf: 'center' }}>
-          <Image
-            style={{ width: 100, height: 100, alignSelf:'center' }}
-            source={require('../../assets/images/logomultisports.png')}
-          />
+            <Image
+              style={{ width: 100, height: 100, alignSelf: 'center' }}
+              source={require('../../assets/images/logomultisports.png')}
+            />
             <Text>By Monkeys' crew</Text>
           </View>
         </ScrollView>

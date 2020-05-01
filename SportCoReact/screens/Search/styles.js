@@ -54,7 +54,7 @@ export const styles = StyleSheet.create({
     position: 'absolute',
     right: 15,
     borderRadius: 10,
-    backgroundColor: 'rgba(0,0,0,0.2)',
+    backgroundColor: 'rgba(255,255,255,0.85)',
     width: 50,
     height: 50,
     justifyContent: 'center'
@@ -111,9 +111,9 @@ export const markerStyles = StyleSheet.create({
   },
   markerWrap: {
     width: 43,
-    height: 50,
+    height: 100,
     alignItems: "center",
-    justifyContent: "flex-end",
+    justifyContent: "flex-end"
   },
   marker: {
     width: 10,

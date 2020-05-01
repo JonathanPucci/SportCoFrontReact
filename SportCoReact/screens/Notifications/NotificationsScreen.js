@@ -136,17 +136,21 @@ class NotificationsScreen extends React.Component {
 
   renderIcon(notif, event, size = undefined) {
     let iconName = '';
-    let photoUrl = event.host.photo_url;
-
+    let photoUrl = '';
+    console.log(notif);
+    console.log(event);
     switch (notif.message_type) {
       case 'EVENT_CHANGED':
         iconName = 'new-message';
+        photoUrl = event.host.photo_url;
         break;
       case 'NEW_EVENT':
         iconName = 'new'
+        photoUrl = event.host.photo_url;
         break;
       case 'EVENT_CANCELED':
         iconName = 'circle-with-cross'
+        photoUrl = undefined;
         break;
       case 'PARTICIPANT_JOINED':
         iconName = 'add-user';
@@ -244,7 +248,7 @@ class NotificationsScreen extends React.Component {
     if (isCanceled)
       return (
         <View style={[styles.eventInfo, { right: 10 }]}>
-          {this.renderIcon({ message_type: 'EVENT_CANCELED' }, event, iconSize / 2)}
+          {/* {this.renderIcon({ message_type: 'EVENT_CANCELED' }, event, iconSize / 2)} */}
           <Text style={{ fontSize: 10, textAlign: 'center', justifyContent: 'center' }}>
             {`Event has been \ncanceled\nor does not\nexist anymore`}
           </Text>

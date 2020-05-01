@@ -52,6 +52,7 @@ export default class CustomMapView extends React.Component {
                                     key={'marker' + index}
                                 />
                             }
+                            let sportIcon = this.getSportMapIcon(cluster);
                             return (
                                 <Marker
                                     key={'marker' + index}
@@ -64,12 +65,12 @@ export default class CustomMapView extends React.Component {
                                     <View style={markerStyles.markerWrap}>
                                         <Animated.View style={[markerStyles.ring, this.calculateScaleStyle(index)]} />
                                         {cluster.isInACluster ? (
-                                            <Image source={require('../../assets/images/map-multiEvent.gif')}
-                                                style={{ width: 33, height: 25, resizeMode: 'contain', bottom: 3, right: 1 }}
+                                            <Image source={require('../../assets/images/map-pointer.gif')}
+                                                style={{ width: 30, height: 50, resizeMode: 'contain', bottom: -7}}
                                             />
                                         ) : (
-                                                <Image source={require('../../assets/images/map-pointer.gif')}
-                                                    style={{ width: 30, height: 25, resizeMode: 'contain', bottom: 3, left: 0.5 }}
+                                                <Image source={sportIcon}
+                                                    style={{ width: 33, height: 50, resizeMode: 'stretch', bottom: 3 }}
                                                 />
                                             )
                                         }
@@ -120,6 +121,41 @@ export default class CustomMapView extends React.Component {
                     },
                 ],
             }
+    }
+
+    getSportMapIcon(cluster) {
+        let sport = cluster.sameEvents[cluster.sameEvents.length - 1].event.sport;
+        let sportIcon = require('../../assets/images/map-pointer.gif');
+        switch (sport) {
+            case 'basket':
+                sportIcon = require('../../assets/images/sportMapIcons/basket2.png');
+                break;
+            case 'tennis':
+                sportIcon = require('../../assets/images/sportMapIcons/tennis2.png');
+                break;
+            case 'volley':
+                sportIcon = require('../../assets/images/sportMapIcons/volley2.png');
+                break;
+            case 'beachvolley':
+                sportIcon = require('../../assets/images/sportMapIcons/volley2.png');
+                break;
+            case 'soccer':
+                sportIcon = require('../../assets/images/sportMapIcons/soccer2.png');
+                break;
+            case 'futsal':
+                sportIcon = require('../../assets/images/sportMapIcons/soccer2.png');
+                break;
+            case 'running':
+                sportIcon = require('../../assets/images/sportMapIcons/running2.png');
+                break;
+            case 'workout':
+                sportIcon = require('../../assets/images/sportMapIcons/workout2.png');
+                break;
+
+            default:
+                break;
+        }
+        return sportIcon
     }
 
     pressedEvent(index) {

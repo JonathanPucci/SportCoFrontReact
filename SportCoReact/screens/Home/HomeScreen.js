@@ -32,6 +32,10 @@ class HomeScreen extends React.Component {
     this.props.navigation.navigate('SpotManager');
   }
 
+  navigateToEventCreation() {
+    this.props.navigation.navigate('Event', { eventData: { event: { event_id: "" } } });
+  }
+
   componentDidMount() {
     // setTimeout(()=> {
     //   this.props.navigation.navigate('Event', { event: {event : {event_id:3}} })
@@ -70,23 +74,39 @@ class HomeScreen extends React.Component {
           </View>
 
           <View style={styles.welcomeContainer}>
-            <Text style={styles.text}>{`\nThrough this one \nyou can start searching sessions `} </Text>
+            <Text style={styles.text}>{`\nThrough these ones \nyou can start searching sessions\n or create some `} </Text>
           </View>
 
-          <View style={styles.buttonView}>
-            <Button
-              title={"Search"}
-              color='white'
-              icon={
-                <Icon
-                  name="search"
-                  size={20}
-                  color="white"
-                />
-              }
-              onPress={this.navigateToSearch.bind(this)} />
+          <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
+            <View style={styles.buttonView}>
+              <Button
+                title={"Search"}
+                color='white'
+                icon={
+                  <Icon
+                    name="search"
+                    size={20}
+                    color="white"
+                  />
+                }
+                onPress={this.navigateToSearch.bind(this)} />
+            </View>
+
+            <View style={styles.buttonView}>
+              <Button
+                title={"Create"}
+                color='white'
+                icon={
+                  <Icon
+                    name="add-circle-outline"
+                    size={20}
+                    color="white"
+                  />
+                }
+                onPress={this.navigateToEventCreation.bind(this)} />
+            </View>
           </View>
-          
+
 
         </ScrollView>
       </View>

@@ -250,13 +250,13 @@ class SearchScreen extends React.Component {
           />
         </View>
         <View style={[styles.actionButton, { top : 15}]}>
-          <Icon name='settings' color='#555' type='octicon' size={25} onPress={() => { this.hitActionButton('FILTER') }} />
+          <Icon name='settings' color='#2089dc' type='octicon' size={25} onPress={() => { this.hitActionButton('FILTER') }} />
         </View>
         <View style={[styles.actionButton, { top : 70}]}>
-          <Icon name='cursor' color='#555' type='simple-line-icon' size={25} onPress={() => { this.hitActionButton('CENTER') }} />
+          <Icon name='cursor' color='#2089dc' type='simple-line-icon' size={25} onPress={() => { this.hitActionButton('CENTER') }} />
         </View>
         <View style={[styles.actionButton, { top : 125}]}>
-          <Icon name='search' color='#555' type='material' size={30} onPress={this.pressedSearchHere.bind(this)} />
+          <Icon name='search' color='#2089dc' type='material' size={30} onPress={this.pressedSearchHere.bind(this)} />
         </View>
         <View style={[{ position: 'absolute', bottom: 30 }, Platform.OS == 'ios' ? { right: 15 } : { left: 15 }]}>
           <Icon name='add' raised color='#2089dc' size={25} onPress={() => { this.hitActionButton('ADD') }} />

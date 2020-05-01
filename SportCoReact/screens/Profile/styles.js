@@ -3,6 +3,7 @@ import {Layout} from '../../constants/Layout'
 
 
 export const MAX_ON_LINE = 6;
+export const MARGIN_BETWEEN_ICONS = 15;
 
 export const styles = StyleSheet.create({
     container: {
@@ -54,8 +55,8 @@ export const styles = StyleSheet.create({
 
     },
     imageUserEvent: {
-        height: Layout.window.width / MAX_ON_LINE,
-        width: Layout.window.width / MAX_ON_LINE,
+        height: (Layout.window.width / MAX_ON_LINE) - MARGIN_BETWEEN_ICONS,
+        width: (Layout.window.width / MAX_ON_LINE) - MARGIN_BETWEEN_ICONS,
         borderRadius: Layout.window.width / (MAX_ON_LINE * 2)
     },
     iconOnEvent: {

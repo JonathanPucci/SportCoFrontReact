@@ -216,7 +216,7 @@ class EventScreen extends React.Component {
             isEditingMapMarker={this.state.isEditingMapMarker}
             setEditingProperty={this.setEditingProperty}
             setStateEventDataProperty={this.setStateEventDataProperty}
-            regionChanged={(region) => this.setState({ regionPicked: region })}
+            regionChanged={(region) => { this.setState({ regionPicked: region }) }}
           />
           <View style={{ marginTop: 20, marginBottom: 20, flex: 1 }}>
             <Button
@@ -397,7 +397,7 @@ class EventScreen extends React.Component {
         this.setState({
           refreshing: false,
           editing: true,
-          isEditingMapMarker : true
+          isEditingMapMarker: true
         });
       } catch (error) {
         this.setState({

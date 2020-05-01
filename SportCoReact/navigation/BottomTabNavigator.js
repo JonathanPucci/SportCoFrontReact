@@ -9,7 +9,7 @@ import EventCalendar from '../screens/EventCalendar/EventCalendar';
 import { Icon } from 'react-native-elements';
 
 import Colors from '../constants/Colors';
-import { TOP_NAV_BAR_HEIGHT, BOTTOM_TAB_HEIGHT } from '../constants/Layout';
+import { Layout, TOP_NAV_BAR_HEIGHT, BOTTOM_TAB_HEIGHT } from '../constants/Layout';
 
 const BottomTab = createBottomTabNavigator();
 const INITIAL_ROUTE_NAME = 'Search';
@@ -93,9 +93,9 @@ function TabBarIcon(props) {
 export function LogoTitle() {
   return (
       <Image
-        style={{ width: 200, height: 45}}
-        resizeMode='stretch'
-        source={require('../assets/images/TimakaWritten.png')}
+        style={{ width: Layout.window.width, height: Platform.OS == 'android' ? TOP_NAV_BAR_HEIGHT-10 : TOP_NAV_BAR_HEIGHT}}
+        resizeMode='contain'
+        source={require('../assets/images/TimakaTitle.png')}
       />
   );
 }
