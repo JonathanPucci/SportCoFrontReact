@@ -271,7 +271,7 @@ class EventScreen extends React.Component {
         <TouchableWithoutFeedback onPress={() => seeProfile(this.props.navigation, this.state.eventData.host.email)}>
           <View style={styles.imageContainer}>
             {photoUrl != undefined && <Image source={{ uri: photoUrl + '?type=large&width=500&height=500' }} style={styles.image} />}
-            {photoUrl == undefined && <Image source={require('../../assets/images/robot-dev.png')} style={styles.image} />}
+            {photoUrl == undefined && <Image source={require('../../assets/images/basicProfilePic.png')} resizeMode='contain' style={styles.imageNoBorder} />}
           </View>
         </TouchableWithoutFeedback>
 

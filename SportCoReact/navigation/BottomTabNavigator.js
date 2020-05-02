@@ -93,7 +93,8 @@ function TabBarIcon(props) {
 export function LogoTitle() {
   return (
       <Image
-        style={{ width: Layout.window.width, height: Platform.OS == 'android' ? TOP_NAV_BAR_HEIGHT-10 : TOP_NAV_BAR_HEIGHT}}
+        style={[{ width: Layout.window.width, height: Platform.OS == 'android' ? TOP_NAV_BAR_HEIGHT-10 : TOP_NAV_BAR_HEIGHT},
+                Platform.OS == 'android'? {bottom:10} : {bottom : 0}]}
         resizeMode='contain'
         source={require('../assets/images/TimakaTitle.png')}
       />

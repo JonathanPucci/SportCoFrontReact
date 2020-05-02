@@ -5,6 +5,7 @@ import MapView, { PROVIDER_GOOGLE, Marker } from "react-native-maps";
 import { styles, markerStyles, CARD_WIDTH } from './styles'
 import CalloutEvent from './CalloutEvent'
 import CalloutMultiEvent from './CalloutMultiEvent'
+import { mapSportIcon } from '../../helpers/mapper';
 
 export default class CustomMapView extends React.Component {
 
@@ -63,10 +64,10 @@ export default class CustomMapView extends React.Component {
                                     calloutAnchor={{ x: 0.5, y: 0.5 }}
                                 >
                                     <View style={markerStyles.markerWrap}>
-                                        <Animated.View style={[markerStyles.ring, this.calculateScaleStyle(index)]} />
+                                        <View style={markerStyles.ring} />
                                         {cluster.isInACluster ? (
                                             <Image source={require('../../assets/images/map-pointer.gif')}
-                                                style={{ width: 30, height: 50, resizeMode: 'contain', bottom: -7}}
+                                                style={{ width: 30, height: 50, resizeMode: 'contain', bottom: -7 }}
                                             />
                                         ) : (
                                                 <Image source={sportIcon}
@@ -105,57 +106,27 @@ export default class CustomMapView extends React.Component {
      *************************                 ***************************************
      ********************************************************************************/
 
-    calculateOpacityStyle(index) {
-        if (this.props.interpolations[index] != undefined)
-            return {
-                opacity: this.props.interpolations[index].opacity,
-            }
-    }
+    // calculateOpacityStyle(index) {
+    //     if (this.props.interpolations[index] != undefined)
+    //         return {
+    //             opacity: this.props.interpolations[index].opacity,
+    //         }
+    // }
 
-    calculateScaleStyle(index) {
-        if (this.props.interpolations[index] != undefined)
-            return {
-                transform: [
-                    {
-                        scale: this.props.interpolations[index].scale,
-                    },
-                ],
-            }
-    }
+    // calculateScaleStyle(index) {
+    //     if (this.props.interpolations[index] != undefined)
+    //         return {
+    //             transform: [
+    //                 {
+    //                     scale: this.props.interpolations[index].scale,
+    //                 },
+    //             ],
+    //         }
+    // }
 
     getSportMapIcon(cluster) {
         let sport = cluster.sameEvents[cluster.sameEvents.length - 1].event.sport;
-        let sportIcon = require('../../assets/images/map-pointer.gif');
-        switch (sport) {
-            case 'basket':
-                sportIcon = require('../../assets/images/sportMapIcons/basket2.png');
-                break;
-            case 'tennis':
-                sportIcon = require('../../assets/images/sportMapIcons/tennis2.png');
-                break;
-            case 'volley':
-                sportIcon = require('../../assets/images/sportMapIcons/volley2.png');
-                break;
-            case 'beachvolley':
-                sportIcon = require('../../assets/images/sportMapIcons/volley2.png');
-                break;
-            case 'soccer':
-                sportIcon = require('../../assets/images/sportMapIcons/soccer2.png');
-                break;
-            case 'futsal':
-                sportIcon = require('../../assets/images/sportMapIcons/soccer2.png');
-                break;
-            case 'running':
-                sportIcon = require('../../assets/images/sportMapIcons/running2.png');
-                break;
-            case 'workout':
-                sportIcon = require('../../assets/images/sportMapIcons/workout2.png');
-                break;
-
-            default:
-                break;
-        }
-        return sportIcon
+        return mapSportIcon(sport).sportIcon;
     }
 
     pressedEvent(index) {

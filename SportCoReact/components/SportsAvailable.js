@@ -203,7 +203,6 @@ export const styles = StyleSheet.create({
     },
     sportLine: {
         marginTop: 20,
-        marginLeft: 30,
         flexDirection: 'row',
         justifyContent: 'space-around'
     }

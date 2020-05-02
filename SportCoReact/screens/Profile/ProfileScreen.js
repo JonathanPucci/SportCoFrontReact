@@ -1,5 +1,5 @@
 import * as React from 'react';
-import * as firebase from 'firebase';
+import {firebase} from '@react-native-firebase/auth';
 import { Image, SafeAreaView, View, RefreshControl, TextInput } from 'react-native';
 import { Divider, Text, Button, Icon, Overlay } from 'react-native-elements'
 import { Social } from '../../components/social'
@@ -93,7 +93,7 @@ class ProfileScreen extends React.Component {
                   (
                     <Image source={{ uri: this.state.user.photo_url + '?type=large&width=500&height=500' }} style={styles.image} />
                   ) : (
-                    <Image source={require('../../assets/images/robot-dev.png')} style={styles.image} />
+                    <Image source={require('../../assets/images/basicProfilePic.png')} resizeMode='contain' style={styles.imageNoBorder} />
                   )
                 }
               </View>
@@ -262,19 +262,18 @@ class ProfileScreen extends React.Component {
   }
 
 
-  Logout = () => {
+  Logout = async () => {
     try {
-      firebase
-        .auth()
-        .signOut()
-        .then(res => {
-          console.log('logged out');
-          const action = { type: USER_LOGGED_OUT, payload: null };
-          this.props.dispatch(action);
-        });
+      //try the clean way
+      let res = await firebase.auth().signOut();
+      console.log('logged out');
+      const action = { type: USER_LOGGED_OUT, payload: null };
+      this.props.dispatch(action);
     } catch (error) {
       console.log(error.toString(error));
     }
+    const action = { type: USER_LOGGED_OUT, payload: null };
+    this.props.dispatch(action);
   };
 }
 

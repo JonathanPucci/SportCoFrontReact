@@ -1,18 +1,11 @@
 import React, { Component } from "react";
 import {
-    Text,
     View,
-    Animated,
-    Image,
-    ScrollView,
     Platform
 } from "react-native";
 import { markerStyles } from './styles'
-import { TouchableWithoutFeedback } from "react-native-gesture-handler";
-import { mapSportIcon } from "../../helpers/mapper";
 import CardEvent, { CARD_WIDTH, CARD_HEIGHT, SPACE_BETWEEN } from '../../components/CardEvent'
 import Carousel from 'react-native-snap-carousel';
-import Layout from '../../constants/Layout'
 
 
 export default class EventMarkers extends Component {
@@ -42,7 +35,7 @@ export default class EventMarkers extends Component {
                 ref={(ref) => this.myScroll = ref}
                 onScrollToIndexFailed={() => { }}
                 enableMomentum={true}
-                onMomentumScrollEnd={()=>{this.props.scrollEnded()}}
+                onMomentumScrollEnd={() => { this.props.scrollEnded() }}
                 style={[markerStyles.scrollView]}
                 contentContainerStyle={[{ /*paddingRight: 2 * CARD_WIDTH*/ }]}
                 data={eventCards}
@@ -81,12 +74,7 @@ export default class EventMarkers extends Component {
 
 
     scrollToElement(i = this.props.currentIndex, fromPress = false) {
-
-        // if (fromPress && i == this.props.currentIndex) {
-        //     this.myScroll.scrollTo({ animated: false, offset: (this.state.currentOffset + (i == 0 ? 1 : -1)) });
-        // }
-        // if (this.props.markers.length != 0)
-        //     this.myScroll.getNode().scrollToIndex({ animated: fromPress, index: i });
-        this.myScroll.snapToItem(i);
+        if (this.myScroll != undefined && this.myScroll != null)
+            this.myScroll.snapToItem(i);
     }
 }

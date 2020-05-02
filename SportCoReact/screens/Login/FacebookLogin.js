@@ -3,99 +3,29 @@ import { connect } from 'react-redux';
 
 import { StyleSheet, Text, TouchableHighlight, TouchableOpacity, View } from 'react-native';
 // import * as Facebook from 'expo-facebook';
-import firebase from 'firebase';
+// import firebase from 'firebase';
+import auth from '@react-native-firebase/auth';
+
 import SportCoApi from '../../services/apiService';
 import { StackActions } from '@react-navigation/native';
-import { LoginButton, AccessToken, LoginManager } from 'react-native-fbsdk';
+import { GraphRequestManager, GraphRequest, AccessToken, LoginManager } from 'react-native-fbsdk';
 
 
-// Enter your Facebooko app ID here.
-import { RETRIEVED_USER_INFO, USER_LOGGED } from '../../Store/Actions';
-const FACEBOOK_APP_ID = '238361847284548';
-
-// Enter your Firebase app web configuration settings here.
-const config = {
-  apiKey: 'AIzaSyC9px960ofSQlIrqKFmyj8_aqWnimsEFS0',
-  authDomain: '',
-  databaseURL: '',
-  projectId: 'sportcoapp',
-  messagingSenderId: ''
-};
-
-if (!firebase.apps.length) {
-  firebase.initializeApp(config);
-}
+// Enter your Facebook app ID here.
+//const FACEBOOK_APP_ID = '238361847284548';
 
 
-const auth = firebase.auth();
 
 class FacebookLogin extends React.Component {
   constructor(props) {
     super(props);
-
+    this.apiService = new SportCoApi();
     this.state = {
       logInStatus: 'signed out',
       errorMessage: 'none'
     };
   }
 
-  loginAction(user, id) {
-    console.log(id);
-    user['photo_url'] = user.photoURL;
-    const action = {
-      type: USER_LOGGED,
-      value: user,
-      additionalInfo: id
-    };
-    this.props.dispatch(action);
-  }
-
-  componentDidMount() {
-    const loginAction = this.loginAction.bind(this);
-
-    auth.onAuthStateChanged(user => {
-      if (user != null) {
-        // loginAction(user);
-        // loginAction(user).then(() => {
-        let apiService = new SportCoApi();
-        let userDB = {
-          user_name: user.displayName,
-          photo_url: user.photoURL,
-          email: user.email
-        }
-        apiService.getSingleEntity('users/email', userDB.email)
-          .then((datauser) => {
-            apiService
-              .editEntity('users/update', userDB)
-              .then(data => {
-                console.log("==========")
-                console.log("logged with user ");
-                console.log(user.displayName);
-                console.log("==========")
-                loginAction(user, datauser.data.user_id);
-              });
-          })
-          .catch((error) => {
-            console.log("User unknown, creating");
-            apiService
-              .addEntity('users', userDB)
-              .then((datauser) => {
-                apiService
-                  .addEntity('userstats', datauser.data.data)
-                  .then(data => {
-                    loginAction(user, datauser.data.data.user_id);
-                  });
-              });
-          })
-
-      } else {
-        // this.setState({ logInStatus: 'You are currently logged out.' });
-      }
-    });
-  }
-
-
-  // 
 
   render() {
     return (
@@ -105,7 +35,8 @@ class FacebookLogin extends React.Component {
     )
   }
 
-  async FacebookLogin() {
+  facebookLogin = async () => {
+    let data = null;
     try {
       const result = await LoginManager.logInWithPermissions([
         "public_profile",
@@ -115,19 +46,53 @@ class FacebookLogin extends React.Component {
       if (result.isCancelled) {
         throw new Error("User cancelled the login process");
       }
-      const data = await AccessToken.getCurrentAccessToken();
+      data = await AccessToken.getCurrentAccessToken();
 
       if (!data) {
         throw new Error("Something went wrong obtaining access token");
       }
 
-      const credential = firebase.auth.FacebookAuthProvider.credential(
+      const credential = auth.FacebookAuthProvider.credential(
         data.accessToken
       );
-
-      await firebase.auth().signInWithCredential(credential);
+      console.log(data);
+      await auth().signInWithCredential(credential);
     } catch (err) {
-      console.log(err)
+      console.log(err);
+      if (err.code == 'auth/account-exists-with-different-credential') {
+        if (data != null) {
+          console.log('req')
+          let req = new GraphRequest('/' + data.userID, {
+            httpMethod: 'GET',
+            version: 'v6.0',
+            parameters: {
+              'fields': {
+                'string': 'email'
+              }
+            }
+          }, async (err, res) => {
+            // console.log(err, res)
+            if (res.email != null) {
+              try {
+                let existingUser = await this.apiService.getSingleEntity('users/email', res.email);
+                console.log(existingUser);
+                this.props.saveToBackendUser({
+                  displayName: existingUser.data.user_name,
+                  photoURL: null,
+                  email: existingUser.data.email,
+                })
+              } catch (errorBackend) {
+                console.log("====");
+                console.log(errorBackend);
+                console.log('User email does not exist...');
+                console.log("====");
+              }
+
+            }
+          });
+          new GraphRequestManager().addRequest(req).start();
+        }
+      }
     }
     return;
   }
@@ -140,10 +105,10 @@ class FacebookLogin extends React.Component {
           style={styles.facebookButton}
           name="Facebook"
           underlayColor={styles.facebookButton.backgroundColor}
-          onPress={() => this.FacebookLogin()}
+          onPress={this.facebookLogin}
         >
           <Text style={styles.facebookButtonText}>
-            Se connecter avec Facebook
+            Sign in with Facebook
             </Text>
         </TouchableHighlight>
         <View style={styles.space} />
@@ -151,30 +116,6 @@ class FacebookLogin extends React.Component {
     );
   }
 
-
-  //async handleFacebookButton() {
-  //   Facebook.initializeAsync(FACEBOOK_APP_ID, 'com.sportcoapp');
-  //   try {
-  //     const {
-  //       type,
-  //       token
-  //     } = await Facebook.logInWithReadPermissionsAsync(FACEBOOK_APP_ID, {
-  //       permissions: ['public_profile', 'email', 'user_birthday']
-  //     });
-  //     if (type === 'success') {
-  //       //Firebase credential is created with the Facebook access token.
-  //       const credential = firebase.auth.FacebookAuthProvider.credential(token);
-  //       auth.signInWithCredential(credential).catch(error => {
-  //         this.setState({ errorMessage: error.message });
-  //         console.log(error.message);
-  //       });
-  //     } else {
-  //       console.log("Type : " + type);
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // }
 }
 
 const mapDispatchToProps = dispatch => {
@@ -206,7 +147,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#3B5998'
   },
   facebookButtonText: {
-    color: '#fff'
+    color: '#fff',
+    fontSize: 17
   },
   space: {
     height: 17

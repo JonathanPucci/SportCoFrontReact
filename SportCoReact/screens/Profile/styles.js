@@ -54,6 +54,12 @@ export const styles = StyleSheet.create({
         borderRadius: 60,
 
     },
+    imageNoBorder: {
+        alignSelf: 'center',
+        height: 120,
+        width: 120,
+
+    },
     imageUserEvent: {
         height: (Layout.window.width / MAX_ON_LINE) - MARGIN_BETWEEN_ICONS,
         width: (Layout.window.width / MAX_ON_LINE) - MARGIN_BETWEEN_ICONS,

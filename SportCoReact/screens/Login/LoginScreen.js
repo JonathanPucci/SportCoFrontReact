@@ -6,14 +6,36 @@ import {
   Text,
   Image,
   Button,
-  Input
+  Input,
+  Platform
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import SportCoApi from '../../services/apiService';
-import { BlurView } from "@react-native-community/blur";
 
-import * as firebase from 'firebase';
+// import * as firebase from 'firebase';
+import { firebase } from '@react-native-firebase/auth';
+// import firebase from '@react-native-firebase/app';
+
 import FacebookLogin from './FacebookLogin';
+import { AppleLogin } from './AppleLogin';
+import { USER_LOGGED } from '../../Store/Actions';
+
+
+// Enter your Firebase app web configuration settings here.
+// const config = {
+//   apiKey: 'AIzaSyC9px960ofSQlIrqKFmyj8_aqWnimsEFS0',
+//   authDomain: '',
+//   databaseURL: '',
+//   projectId: 'sportcoapp',
+//   messagingSenderId: ''
+// };
+
+// if (!firebase.apps.length) {
+//   firebase.initializeApp(config);
+// }
+
+
+// const auth = firebase.auth();
 
 class LoginScreen extends React.Component {
 
@@ -25,30 +47,29 @@ class LoginScreen extends React.Component {
     };
   }
 
-  loginAction(payload) {
-    // const apiService = new SportCoApi();
-    // apiService.getSingleEntity('users/email', payload).then(data => {
-    //   let user = data.entities.data;
-    //   const action = { type: USER_LOGGED, payload: user };
-    //   this.props.dispatch(action);
-    // });
+
+  componentDidMount() {
+    // const user = firebase.auth().currentUser;
+    // if (user != null)
+    //   user.providerData.forEach((userInfo) => {
+    //     console.log('User info for provider: ', userInfo);
+    //   });
+    firebase.auth().onAuthStateChanged(user => {
+      this.saveToBackendUser(user);
+    });
   }
 
+  loginAction(user, id) {
+    // console.log('Login with id ' + id);
+    user['photo_url'] = user.photoURL;
+    const action = {
+      type: USER_LOGGED,
+      value: user,
+      additionalInfo: id
+    };
+    this.props.dispatch(action);
+  }
 
-  Login = () => {
-    let email = this.state.email;
-    let password = this.state.password;
-    try {
-      firebase
-        .auth()
-        .signInWithEmailAndPassword(email, password)
-        .then(res => {
-          this.loginAction(res.user.email);
-        });
-    } catch (error) {
-      console.log(error.toString(error));
-    }
-  };
 
   render() {
     return (
@@ -71,13 +92,14 @@ class LoginScreen extends React.Component {
               source={require('../../assets/images/newLogoTimBlurred.png')}
             />
           </View>
-          <View style={{ marginTop : -80,flex: 1 }}>
-            <FacebookLogin navigation={this.props.navigation} />
+          <View style={{ marginTop: -80, flex: 1 }}>
+            <FacebookLogin navigation={this.props.navigation}  saveToBackendUser={this.saveToBackendUser.bind(this)}/>
+            {Platform.OS == 'ios' && <AppleLogin navigation={this.props.navigation} saveToBackendUser={this.saveToBackendUser.bind(this)}/>}
           </View>
 
 
 
-          <View style={{ flex: 1, alignSelf: 'center' }}>
+          <View style={{ marginTop: 50, flex: 1, alignSelf: 'center' }}>
             <Image
               style={{ width: 100, height: 100, alignSelf: 'center' }}
               source={require('../../assets/images/logomultisports.png')}
@@ -88,12 +110,49 @@ class LoginScreen extends React.Component {
       </KeyboardAwareScrollView>
     );
   }
+
+  saveToBackendUser(user) {
+    if (user != null && user != undefined) {
+      let apiService = new SportCoApi();
+      let userDB = {
+        user_name: user.displayName,
+        photo_url: user.photoURL,
+        email: user.email
+      }
+      // console.log(userDB);
+      apiService.getSingleEntity('users/email', userDB.email)
+        .then((datauser) => {
+          apiService
+            .editEntity('users/update', userDB)
+            .then(data => {
+              console.log("==========")
+              console.log("logged with user "  + user.displayName);
+              console.log("==========")
+              this.loginAction(user, datauser.data.user_id);
+            });
+        })
+        .catch((error) => {
+          if (userDB.user_name != null) {
+            console.log("User unknown, creating");
+            apiService
+              .addEntity('users', userDB)
+              .then((datauser) => {
+                apiService
+                  .addEntity('userstats', datauser.data.data)
+                  .then(data => {
+                    this.loginAction(user, datauser.data.data.user_id);
+                  });
+              });
+          }
+        })
+
+    } else {
+      console.log('no user here...');
+      // this.setState({ logInStatus: 'You are currently logged out.' });
+    }
+  }
 }
 
-/*
-            </View>
-          </View>
-*/
 
 /*
  <Text style={styles.title}>Connectez-vous</Text>
@@ -142,6 +201,23 @@ class LoginScreen extends React.Component {
                 </Text>
               </Button>
 */
+
+
+
+// Login = () => {
+//   let email = this.state.email;
+//   let password = this.state.password;
+//   try {
+//     firebase
+//       .auth()
+//       .signInWithEmailAndPassword(email, password)
+//       .then(res => {
+//         this.loginAction(res.user.email);
+//       });
+//   } catch (error) {
+//     console.log(error.toString(error));
+//   }
+// };
 
 const mapDispatchToProps = dispatch => {
   return {

@@ -49,7 +49,11 @@ export const styles = StyleSheet.create({
     width: 80,
     borderWidth: 1,
     borderRadius: 40,
-
+  },
+  imageNoBorder: {
+    alignSelf: 'center',
+    height: 100,
+    width: 100,
   },
   levelImage: {
     position: 'absolute',

@@ -10,6 +10,7 @@
     "preset": "jest-expo"
   },
   "dependencies": {
+    "@invertase/react-native-apple-authentication": "^1.0.0",
     "@react-native-community/blur": "^3.6.0",
     "@react-native-community/datetimepicker": "^2.3.0",
     "@react-native-community/geolocation": "^1.4.2",
