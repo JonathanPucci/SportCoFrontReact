@@ -12,3 +12,8 @@ export function navigateToEvent(event_id) {
   navigate('Event', { eventData: { event: { event_id: event_id } } });
 
 }
+
+export function navigateToProfile(email) {
+  navigate('Profile', { email: email });
+
+}

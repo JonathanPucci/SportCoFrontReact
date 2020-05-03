@@ -9,6 +9,7 @@ import { mapSportIcon } from '../../helpers/mapper'
 import SportCoApi from '../../services/apiService';
 import { computeDate } from '../Event/Helpers';
 import Colors from '../../constants/Colors';
+import { DEFAULT_PROFILE_PIC } from '../../constants/AppConstants';
 
 class CalloutEvent extends React.Component {
 
@@ -51,7 +52,7 @@ class CalloutEvent extends React.Component {
                                     </Text>
                                     :
                                     <Text  >
-                                        <Image source={require('../../assets/images/robot-dev.png')} style={styles.image} resizeMode="cover" />
+                                        <Image source={DEFAULT_PROFILE_PIC} style={styles.imageNoBorder} resizeMode="contain" />
                                     </Text>
                                 }
                             </View>
@@ -98,6 +99,11 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 30,
 
+    },
+    imageNoBorder: {
+        alignSelf: 'center',
+        height: 60,
+        width: 60,
     },
     imageContainer: {
         alignSelf: 'center',

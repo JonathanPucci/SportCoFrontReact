@@ -51,6 +51,7 @@ export async function updateEvent() {
                         {
                             user_id: this.state.eventData.host.user_id,
                             statToUpdate: this.state.eventData.event.sport + '_created',
+                            adding: true
                         });
                     // this.props.navigation.navigate('Event', { eventData: { event: { event_id: newEventId } } });
                     this.setState({
@@ -86,14 +87,18 @@ export async function updateEvent() {
     }
 }
 
-export function cancelEvent() {
+export async function cancelEvent() {
     this.state.eventData.event['reason_for_update'] = 'EVENT_CANCELED';
     this.state.eventData.event['data_name'] = 'event_id';
 
-    this.apiService.deleteEntity('events', this.state.eventData.event)
-        .then((data) => {
-            this.props.navigation.goBack();
+    await this.apiService.deleteEntity('events', this.state.eventData.event)
+    await this.apiService.editEntity('userstats',
+        {
+            user_id: this.state.eventData.host.user_id,
+            statToUpdate: this.state.eventData.event.sport + '_created',
+            adding: false
         });
+    this.props.navigation.goBack();
 }
 
 /*********************************************************************************

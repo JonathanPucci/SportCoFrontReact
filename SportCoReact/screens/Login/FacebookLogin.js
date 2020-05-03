@@ -42,7 +42,7 @@ class FacebookLogin extends React.Component {
         "public_profile",
         "email"
       ]);
-      console.log(result);
+      // console.log(result);
       if (result.isCancelled) {
         throw new Error("User cancelled the login process");
       }
@@ -55,7 +55,7 @@ class FacebookLogin extends React.Component {
       const credential = auth.FacebookAuthProvider.credential(
         data.accessToken
       );
-      console.log(data);
+      // console.log(data);
       await auth().signInWithCredential(credential);
     } catch (err) {
       console.log(err);

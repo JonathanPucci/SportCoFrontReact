@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import {Layout} from '../../constants/Layout'
+import { Layout } from '../../constants/Layout'
 
 
 export const MAX_ON_LINE = 6;
@@ -65,6 +65,15 @@ export const styles = StyleSheet.create({
         width: (Layout.window.width / MAX_ON_LINE) - MARGIN_BETWEEN_ICONS,
         borderRadius: Layout.window.width / (MAX_ON_LINE * 2)
     },
+    friendImage : {
+        height: (Layout.window.width / MAX_ON_LINE) - MARGIN_BETWEEN_ICONS,
+        width: (Layout.window.width / MAX_ON_LINE) - MARGIN_BETWEEN_ICONS,
+        borderRadius: Layout.window.width / (MAX_ON_LINE * 2)
+    },
+    friendImageNoBorder : {
+        height: (Layout.window.width / MAX_ON_LINE) - MARGIN_BETWEEN_ICONS,
+        width: (Layout.window.width / MAX_ON_LINE) - MARGIN_BETWEEN_ICONS,
+    },
     iconOnEvent: {
         height: 14,
         width: 14,
@@ -114,14 +123,19 @@ export const styles = StyleSheet.create({
         textAlign: 'center',
         height: 100
     },
-    inputView : {
-        width : '90%',
+    textInputFriends: {
+        top : 4,
+        textAlign: 'center',
+        height : 40,
+    },
+    inputView: {
+        width: '90%',
         borderColor: 'gray',
         borderWidth: 1,
         borderRadius: 20,
         marginVertical: 30,
+        justifyContent : 'center',
+
         alignSelf: 'center'
-
-      }
-
+    }
 });

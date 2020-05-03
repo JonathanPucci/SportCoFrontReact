@@ -65,6 +65,11 @@ export const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderRadius: 25,
   },
+  imageParticipantNoBorder: {
+    alignSelf: 'center',
+    height: 50,
+    width: 50,
+  },
   imageComment: {
     alignSelf: 'center',
     height: 30,

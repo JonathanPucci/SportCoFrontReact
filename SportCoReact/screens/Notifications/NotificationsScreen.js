@@ -9,6 +9,7 @@ import SportCoApi from '../../services/apiService';
 import Emoji from 'react-native-emoji';
 import { mapSportIcon } from '../../helpers/mapper';
 import { formatDistanceToNow } from 'date-fns'
+import { DEFAULT_PROFILE_PIC } from '../../constants/AppConstants';
 
 
 class NotificationsScreen extends React.Component {
@@ -172,7 +173,7 @@ class NotificationsScreen extends React.Component {
         {photoUrl != undefined ? (
           <Image source={{ uri: photoUrl + '?type=large&width=500&height=500' }} style={styles.image} />
         ) : (
-            <Image source={require('../../assets/images/robot-dev.png')} style={styles.image} />
+            <Image source={DEFAULT_PROFILE_PIC} resizeMode='contain' style={styles.image} />
           )}
 
 

@@ -4,29 +4,30 @@ import { TextInput, Text, View, Image } from 'react-native';
 import { styles } from './styles'
 import { timeSince } from '../Helpers'
 import { addComment, cancelComment, onCommentChangeText, validateComment } from '../EventApi';
-import { DescriptionText} from '../DescriptionText/DescriptionText'
+import { DescriptionText } from '../DescriptionText/DescriptionText'
 import { OptionIcon } from '../OptionIcon'
+import { DEFAULT_PROFILE_PIC } from '../../../constants/AppConstants';
 
 export class Comments extends React.Component {
 
 
-    constructor(props) {
-        super(props);
-        this.state = {
+  constructor(props) {
+    super(props);
+    this.state = {
 
-        };
-        
-      }
-    
+    };
 
- /*********************************************************************************
- *************************                   ***************************************
- ********************       RENDER      ************************************
- *************************                   ***************************************
- **********************************************************************************/
+  }
 
 
-render() {
+  /*********************************************************************************
+  *************************                   ***************************************
+  ********************       RENDER      ************************************
+  *************************                   ***************************************
+  **********************************************************************************/
+
+
+  render() {
     let comments = this.props.comments.slice()
       .sort((a, b) => {
         if (a == 'NEW')
@@ -39,7 +40,7 @@ render() {
 
     return (
       <View style={{ marginTop: 30 }}>
-        <DescriptionText title='Comments' data='' centered='auto' isMutable={false}   setEditingProperty={this.props.setEditingProperty} />
+        <DescriptionText title='Comments' data='' centered='auto' isMutable={false} setEditingProperty={this.props.setEditingProperty} />
         {comments.map((comment, index) => {
           let photoUrl = comment.photo_url;
           return (
@@ -47,8 +48,9 @@ render() {
               <View style={styles.commentInfo}>
                 <View style={{ flexDirection: 'row' }}>
                   <View style={styles.imageContainerComment}>
-                    {photoUrl != undefined && <Image source={{ uri: photoUrl + '?type=large&width=500&height=500' }} style={styles.imageComment} />}
-                    {photoUrl == undefined && <Image source={require('../../../assets/images/robot-dev.png')} style={styles.imageComment} />}
+                    {photoUrl != undefined ?
+                      <Image source={{ uri: photoUrl + '?type=large&width=500&height=500' }} style={styles.imageComment} />
+                      : <Image source={DEFAULT_PROFILE_PIC} resizeMode='contain' style={styles.imageCommentNoBorder} />}
                   </View>
                   <Text style={styles.commentUserName}>{comment.user_name.split(' ')[0]} : </Text>
                 </View>

@@ -51,7 +51,7 @@ export function isEmpty(obj) {
 }
 
 export function timeSince(date) {
-    formatDistanceToNow(date)
+    return formatDistanceToNow(date)
 }
 
 export function convertUTCDateToLocalDate(date) {

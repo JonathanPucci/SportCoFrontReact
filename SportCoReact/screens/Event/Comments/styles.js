@@ -72,6 +72,11 @@ export const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderRadius: 15,
   },
+  imageCommentNoBorder: {
+    alignSelf: 'center',
+    height: 30,
+    width: 30,
+  },
   imageContainer: {
     flex: 1,
     alignSelf: 'flex-start',

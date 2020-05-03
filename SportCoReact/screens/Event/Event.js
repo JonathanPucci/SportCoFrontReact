@@ -19,7 +19,7 @@ import { Participants } from './Participants/Participants';
 import { Options } from './Options/Options';
 import { OptionIcon } from './OptionIcon';
 import Geolocation from 'react-native-geolocation-service';
-import { APP_URL } from '../../constants/AppConstants'
+import { APP_URL, DEFAULT_PROFILE_PIC } from '../../constants/AppConstants'
 import Share from 'react-native-share';
 
 const newEmptyEvent = {
@@ -271,7 +271,7 @@ class EventScreen extends React.Component {
         <TouchableWithoutFeedback onPress={() => seeProfile(this.props.navigation, this.state.eventData.host.email)}>
           <View style={styles.imageContainer}>
             {photoUrl != undefined && <Image source={{ uri: photoUrl + '?type=large&width=500&height=500' }} style={styles.image} />}
-            {photoUrl == undefined && <Image source={require('../../assets/images/basicProfilePic.png')} resizeMode='contain' style={styles.imageNoBorder} />}
+            {photoUrl == undefined && <Image source={DEFAULT_PROFILE_PIC} resizeMode='contain' style={styles.imageNoBorder} />}
           </View>
         </TouchableWithoutFeedback>
 

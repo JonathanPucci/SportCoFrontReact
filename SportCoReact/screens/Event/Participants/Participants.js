@@ -6,6 +6,7 @@ import { styles } from './styles'
 import { TouchableWithoutFeedback, ScrollView } from 'react-native-gesture-handler';
 import { seeProfile, mapLevelImage } from '../Helpers'
 import { DescriptionText } from "../DescriptionText/DescriptionText";
+import { DEFAULT_PROFILE_PIC } from '../../../constants/AppConstants';
 
 const MAX_ON_LINE = 5;
 
@@ -65,7 +66,7 @@ export class Participants extends React.Component {
                 <TouchableWithoutFeedback onPress={() => this.seeProfile(this.props.navigation, participant.email)}>
                     <View style={styles.imageContainerParticipant}>
                         {photoUrl != undefined && <Image source={{ uri: photoUrl + '?type=large&width=500&height=500' }} style={styles.imageParticipant} />}
-                        {photoUrl == undefined && <Image source={require('../../../assets/images/robot-dev.png')} style={styles.imageParticipant} />}
+                        {photoUrl == undefined && <Image source={DEFAULT_PROFILE_PIC} resizeMode='contain' style={styles.imageParticipantNoBorder} />}
                     </View>
                 </TouchableWithoutFeedback>
                 <Text numberOfLines={1} style={{ alignSelf: 'center', marginBottom: 10, width: 50 }}>{participant.user_name}</Text>
