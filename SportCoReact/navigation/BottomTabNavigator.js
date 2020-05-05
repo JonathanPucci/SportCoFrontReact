@@ -18,15 +18,15 @@ export default function BottomTabNavigator({ navigation, route }) {
   // Set the header title on the parent stack navigator depending on the
   // currently active tab. Learn more in the documentation:
   // https://reactnavigation.org/docs/en/screen-options-resolution.html
-  navigation.setOptions({ 
-    headerTitle: props => <LogoTitle {...props} /> ,
-    headerStyle : {height : TOP_NAV_BAR_HEIGHT}
+  navigation.setOptions({
+    headerTitle: props => <LogoTitle {...props} />,
+    headerStyle: { height: TOP_NAV_BAR_HEIGHT }
   });
 
   return (
     <BottomTab.Navigator
       initialRouteName={INITIAL_ROUTE_NAME}
-      tabBarOptions={{ style: { height: BOTTOM_TAB_HEIGHT }}}
+      tabBarOptions={{ style: { height: BOTTOM_TAB_HEIGHT } }}
     >
       <BottomTab.Screen
         name="Home"
@@ -75,7 +75,7 @@ export default function BottomTabNavigator({ navigation, route }) {
 function TabBarIcon(props) {
   return (
     <View
-      style={{ top:  10 }}
+      style={{ top: 10 }}
     >
       <Icon
         name={props.name}
@@ -92,11 +92,12 @@ function TabBarIcon(props) {
 
 export function LogoTitle() {
   return (
+    <View style={{right : Platform.OS == 'android' ? 25 : 0 }}>
       <Image
-        style={[{ width: Layout.window.width, height: Platform.OS == 'android' ? TOP_NAV_BAR_HEIGHT-10 : TOP_NAV_BAR_HEIGHT},
-                Platform.OS == 'android'? {bottom:10} : {bottom : 0}]}
+        style={[{ alignSelf: 'center', width: Layout.window.width, height: Platform.OS == 'android' ? TOP_NAV_BAR_HEIGHT - 10 : TOP_NAV_BAR_HEIGHT }]}
         resizeMode='contain'
         source={require('../assets/images/TimakaTitle.png')}
       />
+    </View>
   );
 }

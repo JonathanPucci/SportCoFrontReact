@@ -55,10 +55,12 @@ class FacebookLogin extends React.Component {
       const credential = auth.FacebookAuthProvider.credential(
         data.accessToken
       );
-      // console.log(data);
+      console.log(credential);
       await auth().signInWithCredential(credential);
     } catch (err) {
+      console.error("=======ERRORFACEBOOKLOGIN======");
       console.log(err);
+      console.error("===============================");
       if (err.code == 'auth/account-exists-with-different-credential') {
         if (data != null) {
           console.log('req')

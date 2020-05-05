@@ -84,16 +84,28 @@ export function mapLevelImage(sport, participant, level = null) {
         case 0:
             return require('../../assets/images/level1.png');
         case 1:
-            return require('../../assets/images/level2.png');
-        case 2:
             return require('../../assets/images/level3.png');
-        case 3:
-            return require('../../assets/images/level4.png');
-        case 4:
+        case 2:
             return require('../../assets/images/level5.png');
+        // case 3:
+        //     return require('../../assets/images/level4.png');
+        // case 4:
+        //     return require('../../assets/images/level5.png');
         default:
             break;
     };
 
     return null
+}
+
+export function logDebugInfo(title, info) {
+    console.log("=====" + title + "===")
+    console.log(info);
+    console.log("=====================")
+}
+
+export function logDebugError(title, err) {
+    console.warn("*******" + title + "*****")
+    console.warn(err);
+    console.warn("*************************")
 }

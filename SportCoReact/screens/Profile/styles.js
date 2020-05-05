@@ -50,9 +50,9 @@ export const styles = StyleSheet.create({
         alignSelf: 'center',
         height: 120,
         width: 120,
-        borderWidth: 1,
+        borderWidth: 3,
         borderRadius: 60,
-
+        borderColor : "#ccc"
     },
     imageNoBorder: {
         alignSelf: 'center',
@@ -135,7 +135,9 @@ export const styles = StyleSheet.create({
         borderRadius: 20,
         marginVertical: 30,
         justifyContent : 'center',
-
         alignSelf: 'center'
+    },
+    overlay : {
+        width : Layout.window.width -20
     }
 });

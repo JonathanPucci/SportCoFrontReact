@@ -2,6 +2,7 @@ import * as React from 'react';
 import { View } from 'react-native';
 import { firebase as RNfbauth } from '@react-native-firebase/auth';
 import firebase from 'firebase';
+import { logDebugInfo, logDebugError } from '../Event/Helpers';
 
 import appleAuth, {
     AppleButton,
@@ -77,7 +78,13 @@ const updateProfile = async (userCredentials, fullName, saveToBackendUser) => {
             // photoURL: "https://example.com/jane-q-user/profile.jpg"
         });
         await RNfbauth.auth().currentUser.reload();
-        saveToBackendUser({ displayName: displayName, email: RNfbauth.auth().currentUser.email, photoURL: null });
+        logDebugInfo('RIGHTNOW', RNfbauth.auth().currentUser.providerData);
+        saveToBackendUser({
+            displayName: displayName,
+            email: RNfbauth.auth().currentUser.email,
+            photoURL: null,
+            providerData: [{ email: RNfbauth.auth().currentUser.providerData[0].email }]
+        });
     }
 }
 

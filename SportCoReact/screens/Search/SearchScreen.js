@@ -48,7 +48,7 @@ class SearchScreen extends React.Component {
     super(props);
     this.state = {
       loading: true,
-      fetchingData : true,
+      fetchingData: true,
       events: [],
       eventsRetrieved: [],
       eventsFetchedSoFar: [],
@@ -138,7 +138,7 @@ class SearchScreen extends React.Component {
 
 
   getData() {
-    this.setState({ events: [], eventsRetrieved: [], eventsFetchedSoFar: [], currentEventIndex: 0, fetchingData : true }, () => {
+    this.setState({ events: [], eventsRetrieved: [], eventsFetchedSoFar: [], currentEventIndex: 0, fetchingData: true }, () => {
       this.retrieveEventsInArea();
     })
   }
@@ -187,13 +187,21 @@ class SearchScreen extends React.Component {
       }
     }
     if (complete) {
+      eventsFetchedSoFar = eventsFetchedSoFar.filter((item)=>{
+        return (
+          item.event.visibility == 'public' || // It is public
+          item.event.host_id == this.props.auth.user_id ||  // I'm the host
+          item.participants.some(e => {return e.user_id == this.props.auth.user_id }) // I'm a participant
+        )
+      })
       this.setState({
         eventsRetrieved: eventsFetchedSoFar,
         events: eventsFetchedSoFar,
         loading: false,
-        fetchingData : false,
+        fetchingData: false,
         moved: false,
-        optionsVisible: false
+        optionsVisible: false,
+        currentEventIndex: Platform.OS == 'android' ? eventsFetchedSoFar.length -1: 0
       },
         () => {
           this.filterBySport(true);
@@ -210,7 +218,7 @@ class SearchScreen extends React.Component {
   render() {
     return (
       <View style={styles.container} contentContainerStyle={styles.contentContainer}>
-        <FetchData  onFocus={this.getData.bind(this)} />
+        <FetchData onFocus={this.getData.bind(this)} />
         {this.renderMain()}
       </View>
     )
@@ -249,13 +257,13 @@ class SearchScreen extends React.Component {
             pressedMap={this.pressedMap.bind(this)}
           />
         </View>
-        <View style={[styles.actionButton, { top : 15}]}>
+        <View style={[styles.actionButton, { top: 15 }]}>
           <Icon name='settings' color='#2089dc' type='octicon' size={25} onPress={() => { this.hitActionButton('FILTER') }} />
         </View>
-        <View style={[styles.actionButton, { top : 70}]}>
+        <View style={[styles.actionButton, { top: 70 }]}>
           <Icon name='cursor' color='#2089dc' type='simple-line-icon' size={25} onPress={() => { this.hitActionButton('CENTER') }} />
         </View>
-        <View style={[styles.actionButton, { top : 125}]}>
+        <View style={[styles.actionButton, { top: 125 }]}>
           <Icon name='search' color='#2089dc' type='material' size={30} onPress={this.pressedSearchHere.bind(this)} />
         </View>
         <View style={[{ position: 'absolute', bottom: 30 }, Platform.OS == 'ios' ? { right: 15 } : { left: 15 }]}>

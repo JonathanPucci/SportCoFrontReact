@@ -19,6 +19,7 @@ import { firebase } from '@react-native-firebase/auth';
 import FacebookLogin from './FacebookLogin';
 import { AppleLogin } from './AppleLogin';
 import { USER_LOGGED } from '../../Store/Actions';
+import { logDebugInfo, logDebugError } from '../Event/Helpers';
 
 
 // Enter your Firebase app web configuration settings here.
@@ -54,13 +55,19 @@ class LoginScreen extends React.Component {
     //   user.providerData.forEach((userInfo) => {
     //     console.log('User info for provider: ', userInfo);
     //   });
-    firebase.auth().onAuthStateChanged(user => {
-      this.saveToBackendUser(user);
-    });
+    try {
+      // firebase.auth().signOut();
+      firebase.auth().onAuthStateChanged(user => {
+        this.saveToBackendUser(user);
+      });
+    }
+    catch (errorStateChanged) {
+      logDebugError('ERRORSTATECHANGEAUTH', errorStateChanged)
+    };
   }
 
   loginAction(user, id) {
-    // console.log('Login with id ' + id);
+    logDebugInfo('Logged with user', user);
     user['photo_url'] = user.photoURL;
     const action = {
       type: USER_LOGGED,
@@ -93,8 +100,8 @@ class LoginScreen extends React.Component {
             />
           </View>
           <View style={{ marginTop: -80, flex: 1 }}>
-            <FacebookLogin navigation={this.props.navigation}  saveToBackendUser={this.saveToBackendUser.bind(this)}/>
-            {Platform.OS == 'ios' && <AppleLogin navigation={this.props.navigation} saveToBackendUser={this.saveToBackendUser.bind(this)}/>}
+            <FacebookLogin navigation={this.props.navigation} saveToBackendUser={this.saveToBackendUser.bind(this)} />
+            {Platform.OS == 'ios' && <AppleLogin navigation={this.props.navigation} saveToBackendUser={this.saveToBackendUser.bind(this)} />}
           </View>
 
 
@@ -104,7 +111,7 @@ class LoginScreen extends React.Component {
               style={{ width: 100, height: 100, alignSelf: 'center' }}
               source={require('../../assets/images/logomultisports.png')}
             />
-            <Text>By Monkeys' crew</Text>
+            <Text>By Monkeys' crew & Crew Stibat</Text>
           </View>
         </ScrollView>
       </KeyboardAwareScrollView>
@@ -113,36 +120,40 @@ class LoginScreen extends React.Component {
 
   saveToBackendUser(user) {
     if (user != null && user != undefined) {
+      console.log(user.providerData)
       let apiService = new SportCoApi();
       let userDB = {
-        user_name: user.displayName,
         photo_url: user.photoURL,
-        email: user.email
+        email: user.providerData[0].email
       }
-      // console.log(userDB);
       apiService.getSingleEntity('users/email', userDB.email)
         .then((datauser) => {
           apiService
             .editEntity('users/update', userDB)
             .then(data => {
-              console.log("==========")
-              console.log("logged with user "  + user.displayName);
-              console.log("==========")
-              this.loginAction(user, datauser.data.user_id);
-            });
+              this.loginAction(datauser.data, datauser.data.user_id);
+            })
+            .catch((error) => {
+              logDebugInfo('ERROR EDITING USER AT LOGIN', error);
+              this.loginAction(datauser.data, datauser.data.user_id);
+            })
         })
         .catch((error) => {
-          if (userDB.user_name != null) {
+          if (user.displayName != null) {
             console.log("User unknown, creating");
-            apiService
-              .addEntity('users', userDB)
-              .then((datauser) => {
-                apiService
-                  .addEntity('userstats', datauser.data.data)
-                  .then(data => {
-                    this.loginAction(user, datauser.data.data.user_id);
-                  });
-              });
+            userDB.user_name = user.displayName,
+              apiService
+                .addEntity('users', userDB)
+                .then((datauser) => {
+                  apiService
+                    .addEntity('userstats', datauser.data.data)
+                    .then(data => {
+                      this.loginAction(userDB, datauser.data.data.user_id);
+                    });
+                })
+                .catch((errorcreate) => {
+                  logDebugError('ERROR CREATING USER AT LOGIN', errorcreate);
+                });
           }
         })
 
@@ -186,7 +197,7 @@ class LoginScreen extends React.Component {
               >
                 <Text style={styles.buttonText}>Se connecter</Text>
               </Button>
-
+ 
               <Button
                 full
                 rounded

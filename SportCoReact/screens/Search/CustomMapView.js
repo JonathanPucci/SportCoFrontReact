@@ -65,7 +65,7 @@ export default class CustomMapView extends React.Component {
                                 >
                                     <View style={markerStyles.markerWrap}>
                                         <View style={markerStyles.ring} />
-                                        {cluster.isInACluster ? (
+                                        {cluster.isInACluster && cluster.areSameSport ? (
                                             <Image source={require('../../assets/images/map-pointer.gif')}
                                                 style={{ width: 30, height: 50, resizeMode: 'contain', bottom: -7 }}
                                             />
@@ -155,7 +155,7 @@ export default class CustomMapView extends React.Component {
      ********************************************************************************/
 
     static generateCluster(event, events) {
-        let result = { isInACluster: false, sameEvents: [] }
+        let result = { isInACluster: false, sameEvents: [], areSameSport: true, sport: event.event.sport }
         for (let index = 0; index < events.length; index++) {
             const eventItem = events[index];
             if (eventItem != undefined &&
@@ -163,6 +163,8 @@ export default class CustomMapView extends React.Component {
                 eventItem['indexInEvents'] = index;
                 result.sameEvents.push(eventItem);
             }
+            if (eventItem.event.sport != result.sport)
+                result.areSameSport = false;
         }
         if (result.sameEvents.length > 1)
             result.isInACluster = true;

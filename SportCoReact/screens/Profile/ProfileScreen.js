@@ -145,9 +145,9 @@ class ProfileScreen extends React.Component {
             <View style={styles.bottom}>
               <Text style={styles.desc}>Find me on Social here</Text>
               <View style={styles.socialLinks}>
-                <Social name="snapchat" />
+                {/* <Social name="snapchat" /> */}
                 <Social name="instagram" />
-                <Social name="facebook-square" />
+                <Social name="facebook" />
               </View>
             </View>
             <View style={{ marginVertical: 10, flex: 1 }}>
@@ -209,7 +209,7 @@ class ProfileScreen extends React.Component {
             )
           })}
 
-          {title == 'Friends' /*&& this.state.user.userFriends.length > MAX_ON_LINE-2 */ && (
+          {title == 'Friends' && (this.state.user.user_id == this.props.auth.user_id) /*&& this.state.user.userFriends.length > MAX_ON_LINE-2 */ && (
             <TouchableWithoutFeedback
               style={{ marginLeft: MARGIN_BETWEEN_ICONS, alignItems: 'center', justifyContent: 'center' }}
               onPress={this.wantsToSeeFriends}>
@@ -217,7 +217,7 @@ class ProfileScreen extends React.Component {
 
             </TouchableWithoutFeedback>
           )}
-          {title == 'Friends' && (
+          {title == 'Friends' && (this.state.user.user_id == this.props.auth.user_id) && (
             <TouchableWithoutFeedback
               style={{ alignItems: 'center', justifyContent: 'center' }}
               onPress={this.wantsToAddFriend}>
@@ -249,6 +249,7 @@ class ProfileScreen extends React.Component {
       <Overlay
         isVisible={this.state.areFriendsVisible}
         onBackdropPress={() => { this.setState({ areFriendsVisible: false, friendsNameFilter: '' }) }}
+        overlayStyle={styles.overlay}
       >
         <ScrollView
           keyboardShouldPersistTaps='always'>
@@ -275,7 +276,7 @@ class ProfileScreen extends React.Component {
                       <Text style={{ alignSelf: 'center', marginLeft: 30 }}>{user.user_name}</Text>
 
                     </TouchableWithoutFeedback>
-                    {this.state.isAdding ?
+                    {this.state.isAdding && (this.state.user.user_id == this.props.auth.user_id) ?
                       (
                         <View>
                           {this.state.user.userFriends.some(friend => {

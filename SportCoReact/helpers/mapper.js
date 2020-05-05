@@ -1,37 +1,37 @@
 const MAP_SPORT_ICON = {
     soccer: {
         image: require('../assets/images/SoccerField.png'),
-        sportIcon : require('../assets/images/sportMapIcons/soccer2.png'),
+        sportIcon : require('../assets/images/sportMapIcons/soccer3.png'),
         iconName: 'ios-football',
         iconFamily: 'ionicon'
     },
     basket: {
         image: require('../assets/images/basketCourt.jpg'),
-        sportIcon : require('../assets/images/sportMapIcons/basket2.png'),
+        sportIcon : require('../assets/images/sportMapIcons/basket3.png'),
         iconName: 'ios-basketball',
         iconFamily: 'ionicon'
     },
     futsal: {
         image: require('../assets/images/futsal.jpeg'),
-        sportIcon : require('../assets/images/sportMapIcons/soccer2.png'),
+        sportIcon : require('../assets/images/sportMapIcons/soccer3.png'),
         iconName: 'ios-football',
         iconFamily: 'ionicon'
     },
     volley: {
         image: require('../assets/images/volley.jpg'),
-        sportIcon : require('../assets/images/sportMapIcons/volley2.png'),
+        sportIcon : require('../assets/images/sportMapIcons/volley3.png'),
         iconName: 'volleyball',
         iconFamily: 'material-community'
     },
     beachvolley: {
         image: require('../assets/images/volley.jpg'),
-        sportIcon : require('../assets/images/sportMapIcons/volley2.png'),
+        sportIcon : require('../assets/images/sportMapIcons/volley3.png'),
         iconName: 'volleyball',
         iconFamily: 'material-community'
     },
     tennis: {
         image: require('../assets/images/tennis.jpg'),
-        sportIcon : require('../assets/images/sportMapIcons/tennis2.png'),
+        sportIcon : require('../assets/images/sportMapIcons/tennis3.png'),
         iconName: 'ios-tennisball',
         iconFamily: 'ionicon'
     },
