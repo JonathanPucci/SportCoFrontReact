@@ -9,7 +9,7 @@ import { Rating, AirbnbRating } from 'react-native-ratings';
 import Colors from "../constants/Colors";
 import { connect } from 'react-redux'
 import { mapSportIcon } from "../helpers/mapper";
-import {Layout} from '../constants/Layout'
+import { Layout } from '../constants/Layout'
 
 
 const LEVEL_IMAGE = require('../assets/images/medal.png')
@@ -56,7 +56,7 @@ class SportsAvailable extends Component {
                             {item.second.exists ?
                                 this.renderSport(item.second.sport, item.second.icon.iconName, item.second.icon.iconFamily)
                                 :
-                                <View style={{ width:'30%'}} />
+                                <View style={{ width: '30%' }} />
                             }
                         </View>
                     )
@@ -173,7 +173,10 @@ class SportsAvailable extends Component {
                 (this.props.sportsSelected.length == SPORTS.length ?
                     newsports = [sport]
                     :
-                    newsports.splice(newsports.indexOf(sport), 1)
+                    (this.props.sportsSelected.length == 1 ?
+                        null :
+                        newsports.splice(newsports.indexOf(sport), 1)
+                    )
                 ) :
                 newsports.push(sport);
             this.props.sportsSelectedChanged(newsports);

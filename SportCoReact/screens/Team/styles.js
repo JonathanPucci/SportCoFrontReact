@@ -2,8 +2,10 @@ import { StyleSheet } from 'react-native';
 import { Layout } from '../../constants/Layout'
 
 
-export const MAX_ON_LINE = 6;
+export const MAX_ON_LINE = 4;
 export const MARGIN_BETWEEN_ICONS = 15;
+export const IMAGE_SIZE = (Layout.window.width / MAX_ON_LINE) - 2*MARGIN_BETWEEN_ICONS;
+export const OPTION_ICON_SIZE = 20;
 
 export const styles = StyleSheet.create({
     container: {
@@ -60,32 +62,54 @@ export const styles = StyleSheet.create({
         width: 120,
 
     },
-    imageUserEvent: {
-        height: (Layout.window.width / MAX_ON_LINE) - MARGIN_BETWEEN_ICONS,
-        width: (Layout.window.width / MAX_ON_LINE) - MARGIN_BETWEEN_ICONS,
-        borderRadius: Layout.window.width / (MAX_ON_LINE * 2)
+    memberImage : {
+        height: IMAGE_SIZE,
+        width: IMAGE_SIZE,
+        borderRadius: Layout.window.width / (MAX_ON_LINE * 2),
+        top : OPTION_ICON_SIZE,
+        left : OPTION_ICON_SIZE/2,
     },
-    friendImage : {
-        height: (Layout.window.width / MAX_ON_LINE) - MARGIN_BETWEEN_ICONS,
-        width: (Layout.window.width / MAX_ON_LINE) - MARGIN_BETWEEN_ICONS,
-        borderRadius: Layout.window.width / (MAX_ON_LINE * 2)
+    memberImageNoBorder : {
+        height: IMAGE_SIZE,
+        width: IMAGE_SIZE,
     },
-    friendImageNoBorder : {
-        height: (Layout.window.width / MAX_ON_LINE) - MARGIN_BETWEEN_ICONS,
-        width: (Layout.window.width / MAX_ON_LINE) - MARGIN_BETWEEN_ICONS,
+    viewMember : {
+        height: IMAGE_SIZE + OPTION_ICON_SIZE,
+        width: IMAGE_SIZE + OPTION_ICON_SIZE,
     },
     iconOnEvent: {
-        height: 25,
-        width: 30,
+        height: 14,
+        width: 14,
         borderRadius: 7,
         justifyContent: 'center',
         position: 'absolute',
         bottom: 5,
-        right: 5
+        right: 15
     },
-    iconOnEventFriends: {
+    iconOnEventName: {
+        borderRadius: 10,
+        height: 20,
+        width: 20,
         backgroundColor: 'rgb(52,27,252)',
         justifyContent: 'center',
+    },
+    iconOnEventCrown: {
+        justifyContent: 'center',
+        right: 10
+    },
+    iconOnEventAccept:{
+        height: OPTION_ICON_SIZE,
+        width: OPTION_ICON_SIZE,
+        position: 'absolute',
+        bottom: IMAGE_SIZE + OPTION_ICON_SIZE/2,
+        left: IMAGE_SIZE/2 + OPTION_ICON_SIZE/2
+    },
+    iconOnEventDecline:{
+        height: OPTION_ICON_SIZE,
+        width: OPTION_ICON_SIZE,
+        position: 'absolute',
+        bottom: IMAGE_SIZE + OPTION_ICON_SIZE/2,
+        right: IMAGE_SIZE + OPTION_ICON_SIZE/2
     },
     desc: {
         color: '#5E5E5E',

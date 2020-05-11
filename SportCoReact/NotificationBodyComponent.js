@@ -11,7 +11,7 @@ const styles = {
   },
   container: {
     position: 'absolute',
-    top: 0,//isIphoneX() && getStatusBarHeight(),
+    top: Platform.OS=='ios'?isIphoneX() && getStatusBarHeight() : 0,
     bottom: 0,
     left: 0,
     right: 0,
@@ -21,12 +21,14 @@ const styles = {
     flexDirection: 'row',
   },
   iconApp: {
-    marginTop: 10,
+    top : 0,
+    bottom :0,
     marginLeft: 20,
     resizeMode: 'contain',
-    width: 24,
-    height: 24,
-    borderRadius: 5,
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    alignSelf : 'center'
   },
   icon: {
     marginTop: 10,
@@ -113,6 +115,7 @@ class DefaultNotificationBody extends React.Component {
       title,
       message,
     } = this.props;
+    let notifTitle = title;
 
     return (
       <View style={styles.root}>
@@ -125,7 +128,7 @@ class DefaultNotificationBody extends React.Component {
           >
             {this.renderIcon()}
             <View style={styles.textContainer}>
-              <Text numberOfLines={1} style={styles.title}>{title}</Text>
+              <Text numberOfLines={1} style={styles.title}>{notifTitle}</Text>
               <Text numberOfLines={1} style={styles.message}>{message}</Text>
             </View>
           </TouchableOpacity>
@@ -135,6 +138,8 @@ class DefaultNotificationBody extends React.Component {
       </View>
     );
   }
+
+  
 }
 
 DefaultNotificationBody.propTypes = {

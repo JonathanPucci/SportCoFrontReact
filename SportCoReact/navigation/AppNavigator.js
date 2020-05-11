@@ -15,6 +15,7 @@ import { connect } from 'react-redux';
 import SpotManager from '../screens/SpotManager/SpotManager';
 import SportCoApi from '../services/apiService';
 import * as RootNavigation from '../navigation/RootNavigation.js';
+import TeamScreen from '../screens/Team/TeamScreen';
 
 
 const Stack = createStackNavigator();
@@ -102,6 +103,7 @@ class AppNavigator extends React.Component {
                         <Stack.Screen name="Event" component={EventScreen} />
                         <Stack.Screen name="Evenements" component={MultiEventScreen} />
                         <Stack.Screen name="Profile" component={ProfileScreen} />
+                        <Stack.Screen name="Team" component={TeamScreen} />
                         <Stack.Screen name="SpotManager" component={SpotManager} />
                     </Stack.Navigator>
                 </NavigationContainer>

@@ -10,6 +10,7 @@ import Emoji from 'react-native-emoji';
 import { mapSportIcon } from '../../helpers/mapper';
 import { formatDistanceToNow } from 'date-fns'
 import { DEFAULT_PROFILE_PIC } from '../../constants/AppConstants';
+import { navigateToEvent } from '../../navigation/RootNavigation';
 
 
 class NotificationsScreen extends React.Component {
@@ -137,31 +138,25 @@ class NotificationsScreen extends React.Component {
 
   renderIcon(notif, event, size = undefined) {
     let iconName = '';
-    let photoUrl = '';
-    console.log(notif);
-    console.log(event);
+    let photoUrl = notif.data_value2;
     switch (notif.message_type) {
       case 'EVENT_CHANGED':
         iconName = 'new-message';
-        photoUrl = event.host.photo_url;
         break;
       case 'NEW_EVENT':
         iconName = 'new'
-        photoUrl = event.host.photo_url;
+        break;
+      case 'INVIT_EVENT':
+        iconName = 'new'
         break;
       case 'EVENT_CANCELED':
         iconName = 'circle-with-cross'
-        photoUrl = undefined;
         break;
       case 'PARTICIPANT_JOINED':
         iconName = 'add-user';
-        photoUrl = notif.data_value2;
-
         break;
       case 'PARTICIPANT_LEFT':
         iconName = 'remove-user';
-        photoUrl = notif.data_value2;
-
         break;
       default:
         break;
@@ -202,7 +197,6 @@ class NotificationsScreen extends React.Component {
     let messageBody = '';
     let emojiName = '';
     let additionalInfo = '';
-
     switch (notif.message_type) {
       case 'EVENT_CHANGED':
         messageBody = ` Event has changed, check it out !`;
@@ -212,12 +206,14 @@ class NotificationsScreen extends React.Component {
         messageBody = '  New event nearby, interested?';
         emojiName = 'man-bowing';
         break;
+      case 'INVIT_EVENT':
+        messageBody = '  shared an event with you, check it out !';
+        emojiName = 'man-bowing';
+        break;
       case 'EVENT_CANCELED':
         let eventData = JSON.parse(notif.data_value);
-        let dateString = (new Date(eventData.date).toLocaleDateString());
-        // let sport = eventData.sport.charAt(0).toUpperCase() + eventData.sport.slice(1)
         messageBody = `  Event has been canceled, sorry !`;
-        additionalInfo = dateString + ' : ' + eventData.description + `\n` + eventData.sport.toUpperCase();
+        // additionalInfo = dateString + ' : ' + eventData.description + `\n` + eventData.sport.toUpperCase();
         emojiName = 'man-shrugging';
         break;
       case 'PARTICIPANT_JOINED':
@@ -235,7 +231,7 @@ class NotificationsScreen extends React.Component {
       <View style={{ flexDirection: 'column' }}>
         <View style={styles.descriptionText}>
           <Emoji name={emojiName} style={{ fontSize: 15, marginTop: 15 }} />
-          <Text numberOfLines={1} style={{ flex: 1, marginTop: 15 }}>{messageBody}</Text>
+          <Text numberOfLines={2} style={{ flex: 1, marginTop: 15 }}>{messageBody}</Text>
         </View>
         {additionalInfo != '' &&
           <Text numberOfLines={2} style={{ fontSize: 11 }}>{additionalInfo}</Text>
@@ -249,7 +245,6 @@ class NotificationsScreen extends React.Component {
     if (isCanceled)
       return (
         <View style={[styles.eventInfo, { right: 10 }]}>
-          {/* {this.renderIcon({ message_type: 'EVENT_CANCELED' }, event, iconSize / 2)} */}
           <Text style={{ fontSize: 10, textAlign: 'center', justifyContent: 'center' }}>
             {`Event has been \ncanceled\nor does not\nexist anymore`}
           </Text>
@@ -283,11 +278,9 @@ class NotificationsScreen extends React.Component {
     return null;
   }
 
-  goToEvent(event) {
-    if (event != null)
-      this.props.navigation.navigate('Event', {
-        event: event
-      });
+  goToEvent(event, isCanceled) {
+    if (event != null && !isCanceled)
+      navigateToEvent(event.event.event_id)
   }
 
 }

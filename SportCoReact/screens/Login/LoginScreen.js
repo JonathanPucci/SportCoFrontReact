@@ -68,7 +68,7 @@ class LoginScreen extends React.Component {
 
   loginAction(user, id) {
     logDebugInfo('Logged with user', user);
-    user['photo_url'] = user.photoURL;
+    // user['photo_url'] = user.photoURL;
     const action = {
       type: USER_LOGGED,
       value: user,

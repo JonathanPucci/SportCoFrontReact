@@ -3,7 +3,6 @@ import * as React from 'react';
 import { TextInput, Text, View, Image } from 'react-native';
 import { styles } from './styles'
 import { timeSince } from '../Helpers'
-import { addComment, cancelComment, onCommentChangeText, validateComment } from '../EventApi';
 import { DescriptionText } from '../DescriptionText/DescriptionText'
 import { OptionIcon } from '../OptionIcon'
 import { DEFAULT_PROFILE_PIC } from '../../../constants/AppConstants';

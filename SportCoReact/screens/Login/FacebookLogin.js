@@ -11,11 +11,6 @@ import { StackActions } from '@react-navigation/native';
 import { GraphRequestManager, GraphRequest, AccessToken, LoginManager } from 'react-native-fbsdk';
 
 
-// Enter your Facebook app ID here.
-//const FACEBOOK_APP_ID = '238361847284548';
-
-
-
 class FacebookLogin extends React.Component {
   constructor(props) {
     super(props);
@@ -42,7 +37,7 @@ class FacebookLogin extends React.Component {
         "public_profile",
         "email"
       ]);
-      // console.log(result);
+      console.log(result);
       if (result.isCancelled) {
         throw new Error("User cancelled the login process");
       }

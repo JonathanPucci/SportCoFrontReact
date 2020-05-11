@@ -12,7 +12,7 @@ import Colors from '../constants/Colors';
 import { Layout, TOP_NAV_BAR_HEIGHT, BOTTOM_TAB_HEIGHT } from '../constants/Layout';
 
 const BottomTab = createBottomTabNavigator();
-const INITIAL_ROUTE_NAME = 'Search';
+const INITIAL_ROUTE_NAME = 'My Profile';
 
 export default function BottomTabNavigator({ navigation, route }) {
   // Set the header title on the parent stack navigator depending on the
@@ -96,7 +96,7 @@ export function LogoTitle() {
       <Image
         style={[{ alignSelf: 'center', width: Layout.window.width, height: Platform.OS == 'android' ? TOP_NAV_BAR_HEIGHT - 10 : TOP_NAV_BAR_HEIGHT }]}
         resizeMode='contain'
-        source={require('../assets/images/TimakaTitle.png')}
+        source={require('../assets/images/TimakaTitle2.png')}
       />
     </View>
   );

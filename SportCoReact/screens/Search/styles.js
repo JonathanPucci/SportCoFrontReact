@@ -58,7 +58,25 @@ export const styles = StyleSheet.create({
     width: 50,
     height: 50,
     justifyContent: 'center'
-  }
+  },
+  overlay:{
+    width : Layout.window.width-20,
+    height : Layout.window.height-70,
+  },
+  textInputFilter: {
+      top : 4,
+      textAlign: 'center',
+      height : 40,
+  },
+  inputView: {
+      width: '90%',
+      borderColor: 'gray',
+      borderWidth: 1,
+      borderRadius: 20,
+      marginVertical: 30,
+      justifyContent : 'center',
+      alignSelf: 'center'
+  },
 
 });
 

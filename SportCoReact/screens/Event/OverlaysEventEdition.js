@@ -1,14 +1,18 @@
 import * as React from 'react';
-import { Text, View, TextInput, Picker } from 'react-native';
+import { Text, View, TextInput, Picker, ScrollView } from 'react-native';
 import { styles } from './styles'
 import MapView from 'react-native-maps';
-import { Button, Icon, Overlay } from 'react-native-elements'
+import { Button, Icon, Overlay, Divider } from 'react-native-elements'
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { GoogleMapsAutoComplete } from "../../components/GoogleMapsAutoComplete"
 import SmoothPicker from "react-native-smooth-picker";
 import Bubble from './Bubble'
 import SportsAvailable from '../../components/SportsAvailable';
 import SportCoApi from '../../services/apiService';
+import ProfileInput from '../Profile/ProfileInput';
+import { TabBar, TabView, SceneMap } from 'react-native-tab-view';
+import { Layout } from '../../constants/Layout';
+import Colors from '../../constants/Colors';
 
 export class OverlaySport extends React.Component {
 
@@ -414,3 +418,111 @@ export class SaveButton extends React.Component {
         )
     }
 }
+
+
+const initialLayout = { width: Layout.window.width };
+
+export class OverlayShareWithin extends React.Component {
+
+    state = {
+        friendNameFilter: '',
+        teamNameFilter: '',
+        index: 0,
+    }
+
+    onFriendFilterChange = (text) => {
+        this.setState({ friendNameFilter: text })
+    }
+
+    onTeamFilterChange = (text) => {
+        this.setState({ teamNameFilter: text })
+    }
+
+    render() {
+        const routes = [
+            { key: 'first', title: 'Friends' },
+            { key: 'second', title: 'Teams' },
+        ];
+
+        const renderScene = SceneMap({
+            first: this.FirstRoute,
+            second: this.SecondRoute,
+        });
+
+        const renderTabBar = props => (
+            <TabBar
+                {...props}
+                indicatorStyle={{ backgroundColor: Colors.timakaColor }}
+                style={{ backgroundColor: 'white'  }}
+                renderLabel={({ route, focused, color }) => (
+                    <Text style={{ color : 'black', margin: 8 }}>
+                      {route.title}
+                    </Text>
+                  )}
+            />
+        );
+        let index = this.state.index;
+        return (
+            <Overlay isVisible={this.props.sharingWithin}
+                onBackdropPress={this.props.stopSharingWithin}>
+                <TabView
+                    navigationState={{ index, routes }}
+                    renderScene={renderScene}
+                    renderTabBar={renderTabBar}
+                    onIndexChange={(index) => { this.setState({ index: index }) }}
+                    initialLayout={initialLayout}
+                />
+            </Overlay>
+        );
+    }
+
+
+
+    renderBlocSharing(title, placeholder, data, filter) {
+        return (
+            <View >
+                <ProfileInput title={title} placeholderText={placeholder}
+                    data={filter}
+                    callbackOnChange={title == 'Friends' ? this.onFriendFilterChange : this.onTeamFilterChange}
+                    isAdding={false} />
+                <ScrollView style={{ margin: 10 }}>
+                    {data
+                        .filter((value) => {
+                            if (title == 'Friends')
+                                return value.user_name.toLowerCase().includes(filter.toLowerCase())
+                            else
+                                return value.team_name.toLowerCase().includes(filter.toLowerCase())
+                        })
+                        .map((item, index) => {
+                            return (
+                                <View key={title + '-' + index} style={{ margin: 15, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                                    <Text>{title == 'Friends' ? item.user_name : item.team_name}</Text>
+                                    {item.succesfully_sent ?
+                                        <Icon name='check' size={15} color='green' reverse />
+                                        :
+                                        <Icon name='account-arrow-right-outline' type='material-community'
+                                            color={Colors.timakaColor} size={20} raised
+                                            onPress={() => { this.props.notifyWithin(title == 'Friends' ? 'FRIEND' : 'TEAM', item, index) }} />
+                                    }
+                                </View>
+                            )
+                        })}
+                </ScrollView>
+            </View>
+        )
+    }
+
+    FirstRoute = () => (
+        <View style={{ marginTop: 20 }}>
+            {this.renderBlocSharing('Friends', 'Friend Name filter here ...', this.props.currentUserFriends, this.state.friendNameFilter)}
+        </View>
+    );
+
+    SecondRoute = () => (
+        <View style={{ marginTop: 20 }}>
+            {this.renderBlocSharing('Teams', 'Team Name filter here ...', this.props.currentUserTeams, this.state.teamNameFilter)}
+        </View>
+    );
+}
+
+

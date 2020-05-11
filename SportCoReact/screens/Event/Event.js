@@ -1,16 +1,16 @@
 import * as React from 'react';
-import { Text, View, Image, RefreshControl, Platform, Linking } from 'react-native';
+import { Text, View, Image, RefreshControl, Platform, Linking, ScrollView } from 'react-native';
 import { connect } from 'react-redux'
 import { styles } from './styles'
 import SportCoApi from '../../services/apiService';
 import { mapSportIcon } from '../../helpers/mapper';
-import { Button, Icon } from 'react-native-elements'
-import { OverlayDateTimePicker, OverlayMinMaxParticipants, OverlayDescription, OverlayLevel, OverlaySport } from './OverlaysEventEdition'
+import { Button, Icon, Overlay, Divider } from 'react-native-elements'
+import { OverlayDateTimePicker, OverlayMinMaxParticipants, OverlayDescription, OverlayLevel, OverlaySport, OverlayShareWithin } from './OverlaysEventEdition'
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { LEVELS } from '../../constants/DbConstants.js'
 import { createOpenLink } from 'react-native-open-maps';
-import { seeProfile, isEmpty, computeDate } from './Helpers'
+import { seeProfile, isEmpty, computeDate, logDebugInfo, logDebugError } from './Helpers'
 import * as EventApi from './EventApi';
 import { Comments } from "./Comments/Comments";
 import { DescriptionText } from "./DescriptionText/DescriptionText";
@@ -21,6 +21,8 @@ import { OptionIcon } from './OptionIcon';
 import Geolocation from 'react-native-geolocation-service';
 import { APP_URL, DEFAULT_PROFILE_PIC } from '../../constants/AppConstants'
 import Share from 'react-native-share';
+import AdMobInterstitial from '../../services/AdMob/AdMobInterstitial';
+import AdMobBanner from '../../services/AdMob/AdMobBanner';
 
 const newEmptyEvent = {
   event: {
@@ -55,7 +57,10 @@ class EventScreen extends React.Component {
       isEditingMapMarker: false,
       isEditingLevel: false,
       regionPicked: {},
-      initialRegion: {}
+      initialRegion: {},
+      sharingWithin: false,
+      currentUserFriends: [],
+      currentUserTeams: []
     };
     this.apiService = new SportCoApi();
     this.addComment = EventApi.addComment.bind(this);
@@ -69,7 +74,6 @@ class EventScreen extends React.Component {
   }
 
   componentDidMount() {
-
     this.watchId = Geolocation.getCurrentPosition(
       this.setCurrentPosition,
       this.setDefaultPosition,
@@ -83,9 +87,7 @@ class EventScreen extends React.Component {
 
   setDefaultPosition = (err) => {
     // console.log(Platform.OS + " error going initial hardcoded")
-    console.log("=============")
-    console.log(err)
-    console.log("=============")
+    logDebugError("ERROR SETTING POSITION IN EVENT", err);
     this.setCurrentPosition({ coords: { latitude: 43.6, longitude: 7.1 } });
   }
 
@@ -106,7 +108,7 @@ class EventScreen extends React.Component {
       latitudeDelta: 0.08,
       longitudeDelta: 0.08
     };
-    const data = await this.getData();
+    await this.getData();
     const initEventData = this.getInitEventData();
     this.setState(
       {
@@ -129,6 +131,8 @@ class EventScreen extends React.Component {
     let photoUrl = eventData.host.photo_url;
     let eventIcon = mapSportIcon(eventData.event.sport.toLowerCase());
     let date = computeDate(eventData.event.date);
+    let randomForAd = Math.round(Math.random() * 10);
+    let displayAd = randomForAd == 2;
     return (
       <KeyboardAwareScrollView
         extraScrollHeight={150}
@@ -139,6 +143,8 @@ class EventScreen extends React.Component {
         refreshControl={
           <RefreshControl refreshing={this.state.refreshing} onRefresh={() => { this.getData().then(() => { this.setInitEventData() }) }} />
         }>
+
+        {this.state.eventData.event.event_id != "" && displayAd && <AdMobInterstitial />}
 
         {this.renderHostHeader(eventData, photoUrl, eventIcon)}
         <View style={{ flex: 1, width: '100%', alignSelf: 'center', marginTop: 20 }}>
@@ -205,9 +211,22 @@ class EventScreen extends React.Component {
             editing={this.state.editing}
             setEditingProperty={this.setEditingProperty}
             navigation={this.props.navigation} />
-          <View style={{ alignSelf: 'center' }}>
-            <Text style={{ textAlign: 'center', fontSize: 18 }}> Share </Text>
-            <OptionIcon callback={this.onShare} size={20} name="share" color={'blue'} />
+          <View style={{ flexDirection: 'row', alignSelf: 'center', justifyContent: 'center' }}>
+            <View style={{ flexDirection: 'row', alignSelf: 'center', justifyContent: 'center', alignItems: 'center' }}>
+              <Text style={{ textAlign: 'center', fontSize: 12 }}> Social Share </Text>
+              <OptionIcon callback={this.onShare} size={20} name="share" color={'blue'} />
+            </View>
+            <View style={{ flexDirection: 'row', alignSelf: 'center', justifyContent: 'center', alignItems: 'center' }}>
+              <OptionIcon callback={this.onShareWithin} size={20} name="share" color={'blue'} />
+              <Text style={{ textAlign: 'center', fontSize: 12 }}> To Friends or Team </Text>
+              <OverlayShareWithin
+                sharingWithin={this.state.sharingWithin}
+                stopSharingWithin={() => { this.setState({ sharingWithin: false }) }}
+                currentUserTeams={this.state.currentUserTeams}
+                currentUserFriends={this.state.currentUserFriends}
+                notifyWithin={this.notifyWithin}
+              />
+            </View>
           </View>
           <EventMapView
             eventData={this.state.eventData}
@@ -233,6 +252,9 @@ class EventScreen extends React.Component {
               }
               title="Click To Open in Maps" />
           </View>
+          {this.state.eventData.event.event_id != "" && <AdMobBanner style={{ left: -15, marginVertical: 10 }} />}
+          <Text style={{ textAlign: 'center' }}>Well.. we know ads are bad, sorry about that !</Text>
+          <View style={{ height: 15 }} />
           <Comments
             comments={this.state.eventData.comments}
             addComment={this.addComment}
@@ -243,7 +265,7 @@ class EventScreen extends React.Component {
           />
         </View>
         <View style={{ height: 200 }}></View>
-      </KeyboardAwareScrollView>
+      </KeyboardAwareScrollView >
     );
   }
 
@@ -355,6 +377,38 @@ class EventScreen extends React.Component {
     }
   };
 
+  onShareWithin = async () => {
+    let currentUser = await this.apiService.getSingleEntity('users/email', this.props.auth.user.email);
+    this.setState({
+      sharingWithin: true,
+      currentUserTeams: currentUser.data.userTeams,
+      currentUserFriends: currentUser.data.userFriends,
+    })
+  }
+
+  notifyWithin = async (type, data, index) => {
+    let dataToUpdate = type == 'FRIEND' ? this.state.currentUserFriends : this.state.currentUserTeams;
+    let notif = {
+      sender_id: this.props.auth.user_id,
+      user_id: type == 'FRIEND' ? data.user_id : this.props.auth.user_id,
+      user_push_token: type == 'FRIEND' ? data.user_push_token : null,
+      team_id: type == 'FRIEND' ? null : data.team_id,
+      notif_message_type: 'INVIT_EVENT',
+      notif_data_type: 'event_id',
+      notif_data_value: this.state.eventData.event.event_id,
+      sender_photo_url : this.props.auth.user.photo_url
+    }
+    try {
+      await this.apiService.addEntity('notify/' + (type == 'FRIEND' ? 'friend' : 'team'), notif);
+      dataToUpdate[index]['succesfully_sent'] = true;
+      type == 'FRIEND' ? this.setState({ currentUserFriends: dataToUpdate }) : this.setState({ currentUserTeams: dataToUpdate });
+    }
+    catch (err) {
+      logDebugError('ERROR NOTIFYING WITHIN', err)
+    }
+
+  }
+
 
   /*********************************************************************************
    ********************      DATA  **  STUFF    ************************************
@@ -374,6 +428,7 @@ class EventScreen extends React.Component {
         refreshing: false,
         editing: false
       });
+
     }
     catch (error) {
       //Creation flow ongoing

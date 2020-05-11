@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, Animated, Text, Platform, TouchableOpacity } from 'react-native';
+import { View, Animated, Text, Platform, TextInput, ScrollView, Image } from 'react-native';
 import { Overlay, Button, Icon } from 'react-native-elements'
 import { connect } from 'react-redux'
 import { GoogleMapsAutoComplete } from "../../components/GoogleMapsAutoComplete"
@@ -17,6 +17,9 @@ import { FloatingAction } from "react-native-floating-action";
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import Geolocation from 'react-native-geolocation-service';
 import { SPORTS } from '../../constants/DbConstants';
+import { logDebugInfo, logDebugError } from '../Event/Helpers';
+import InputScrollView from 'react-native-input-scroll-view';
+import { Keyboard } from 'react-native';
 
 
 
@@ -63,6 +66,8 @@ class SearchScreen extends React.Component {
       optionsVisible: false,
       interpolations: [],
       isChoosingAFilter: false,
+      hostIdFilter: '',
+      hostNameFilter: '',
       sportsAccepted: SPORTS
     }
     this.animation = new Animated.Value(0);
@@ -86,7 +91,6 @@ class SearchScreen extends React.Component {
 
   retrieveEventsNearMe = (position) => {
     // console.log(Platform.OS + " got it, going to search");
-    // Geolocation.clearWatch(this.watchId);
     this.setState(
       { ...this.state, loading: true, region: { ...this.state.region, latitude: position.coords.latitude, longitude: position.coords.longitude } },
       () => {
@@ -95,10 +99,7 @@ class SearchScreen extends React.Component {
   }
 
   retrieveEventsInInitialArea = (err) => {
-    // console.log(Platform.OS + " error going initial hardcoded")
-    console.log("=============")
-    console.log(err)
-    console.log("=============")
+    logDebugError('ERROR RETRIEVING ERROR', err)
     this.setState(
       { ...this.state, region: { ...this.state.region, latitude: 43.6, longitude: 7.1 } },
       this.getData);
@@ -148,6 +149,10 @@ class SearchScreen extends React.Component {
     this.sportCoApi.getEntities("events/area", this.state.region)
       .then((eventsdata) => {
         let events = eventsdata.data;
+        if (eventsdata == null)
+          logDebugInfo('THERE IT WAS NULL', eventsdata)
+        if (eventsdata == null)
+          return
         if (events.length == 0) {
           this.setState({ loading: false, moved: false, optionsVisible: false })
         }
@@ -170,7 +175,7 @@ class SearchScreen extends React.Component {
       })
   }
 
-  checkAllDataFetchedBeforeSetState() {
+  checkAllDataFetchedBeforeSetState = async () => {
     //already done loading --> stop
     if (!this.state.fetchingData)
       return
@@ -187,13 +192,21 @@ class SearchScreen extends React.Component {
       }
     }
     if (complete) {
-      eventsFetchedSoFar = eventsFetchedSoFar.filter((item)=>{
+      eventsFetchedSoFar = eventsFetchedSoFar.filter((item) => {
         return (
           item.event.visibility == 'public' || // It is public
           item.event.host_id == this.props.auth.user_id ||  // I'm the host
-          item.participants.some(e => {return e.user_id == this.props.auth.user_id }) // I'm a participant
+          item.participants.some(e => { return e.user_id == this.props.auth.user_id }) // I'm a participant
         )
-      })
+      });
+      let allUsers = [];
+      try {
+        allUsersData = await this.sportCoApi.getAllEntities('users');
+        allUsers = allUsersData.data;
+      }
+      catch (error) {
+        logDebugInfo('ERROR RETRIEVING ALL USERS FOR SEARCH FILTER', error);
+      }
       this.setState({
         eventsRetrieved: eventsFetchedSoFar,
         events: eventsFetchedSoFar,
@@ -201,7 +214,8 @@ class SearchScreen extends React.Component {
         fetchingData: false,
         moved: false,
         optionsVisible: false,
-        currentEventIndex: Platform.OS == 'android' ? eventsFetchedSoFar.length -1: 0
+        currentEventIndex: Platform.OS == 'android' ? eventsFetchedSoFar.length - 1 : 0,
+        allUsers: allUsers
       },
         () => {
           this.filterBySport(true);
@@ -259,6 +273,14 @@ class SearchScreen extends React.Component {
         </View>
         <View style={[styles.actionButton, { top: 15 }]}>
           <Icon name='settings' color='#2089dc' type='octicon' size={25} onPress={() => { this.hitActionButton('FILTER') }} />
+          {this.state.sportsAccepted.length != SPORTS.length && (
+            <View style={{ position: 'absolute', backgroundColor: '#2089dc', justifyContent: 'center', width: 15, height: 15, borderRadius: 7, bottom: 35, left: 35 }}>
+              <Text style={{ color: 'white', fontSize: 10, textAlign: 'center' }}>{this.state.sportsAccepted.length}</Text>
+            </View>)}
+          {this.state.hostNameFilter != '' && (
+            <View style={{ position: 'absolute', backgroundColor: '#2089dc', justifyContent: 'center', width: 15, height: 15, borderRadius: 7, top: 35, left: 35 }}>
+              <Text style={{ color: 'white', fontSize: 10, textAlign: 'center' }}>{this.state.hostNameFilter.split(' ')[0][0]}</Text>
+            </View>)}
         </View>
         <View style={[styles.actionButton, { top: 70 }]}>
           <Icon name='cursor' color='#2089dc' type='simple-line-icon' size={25} onPress={() => { this.hitActionButton('CENTER') }} />
@@ -269,22 +291,6 @@ class SearchScreen extends React.Component {
         <View style={[{ position: 'absolute', bottom: 30 }, Platform.OS == 'ios' ? { right: 15 } : { left: 15 }]}>
           <Icon name='add' raised color='#2089dc' size={25} onPress={() => { this.hitActionButton('ADD') }} />
         </View>
-        {/* <Fade isVisible={this.state.optionsVisible} style={styles.searchButton}>
-          <View >
-            <Button
-              title={"  Search Here  "}
-              color='white'
-              icon={
-                <Icon
-                  name="search"
-                  size={20}
-                  color="white"
-                />
-              }
-              onPress={this.pressedSearchHere.bind(this)} />
-          </View>
-        </Fade> */}
-
         <View style={[
           { position: 'absolute', bottom: 10, elevation: 2, flex: 1, },
           Platform.OS == 'ios' ? { left: -50 } : { right: -50 }
@@ -301,11 +307,13 @@ class SearchScreen extends React.Component {
         <Overlay
           isVisible={this.state.isChoosingAFilter}
           onBackdropPress={() => { this.setState({ isChoosingAFilter: false }) }}
+          overlayStyle={styles.overlay}
         >
-          <View style={styles.sports}>
+          <InputScrollView
+            keyboardShouldPersistTaps='handled' style={styles.sports} topOffset={90}>
             <SportsAvailable
               sportsSelected={this.state.sportsAccepted}
-              sportsSelectedChanged={(newsports) => { this.setState({ sportsAccepted: newsports }); this.filterBySport(); }}
+              sportsSelectedChanged={(newsports) => { this.setState({ sportsAccepted: newsports }, () => this.filterBySport()) }}
             />
             <Button
               titleStyle={{ fontSize: 20 }}
@@ -313,16 +321,99 @@ class SearchScreen extends React.Component {
               title={'Select All'}
               onPress={() => { this.selectAllSports(); this.filterBySport() }}
             />
+            {this.renderHostNameFilter()}
             <Button
               titleStyle={{ fontSize: 20 }}
               buttonStyle={{ marginTop: 50, backgroundColor: 'green' }}
               title={'Yep, all good'}
               onPress={() => { this.filterBySport(true) }}
             />
-          </View>
+          </InputScrollView>
         </Overlay>
       </View >
     );
+  }
+
+  renderHostNameFilter() {
+    let dataToShow = [];
+    if (this.state.hostIdFilter != '') {
+      let user = this.state.allUsers.find(item => { return item.user_id == this.state.hostIdFilter });
+      return (
+        <View>
+          <Text style={{ textAlign: 'center', marginTop: 20 }}> Only show events hosted by </Text>
+          <TouchableWithoutFeedback
+            style={{ flexDirection: 'row', justifyContent: "center", alignSelf: 'center' }}
+            onPress={() => { this.setState({ hostIdFilter: '' }) }}
+          >
+            <Text style={{ alignSelf: "center", textAlign: 'center' }}>{user.user_name}</Text>
+            <View style={{ justifyContent: 'center', alignSelf: 'center' }}>
+              <Icon
+                name='remove' reverse size={18}
+                color='red'
+                style={{ marginLeft: 40 }}
+              />
+            </View>
+          </TouchableWithoutFeedback>
+        </View>
+      )
+    }
+    if (this.state.hostNameFilter.length > 0)
+      dataToShow = this.state.allUsers.filter((item) => { return item.user_name.toLowerCase().includes(this.state.hostNameFilter.toLowerCase()) }).slice(0, 1);
+    return (
+      <View style={{ marginTop: 20 }}>
+        {this.renderHostNameInput('Filter By Host Name', 'Find by name...', this.state.hostNameFilter, this.onHostNameFilterChanged)}
+        <View style={{ flexDirection: "column" }}>
+          {dataToShow.map((user, index) => {
+            return (
+              <View key={'user' + index} style={{ flexDirection: 'row', justifyContent: 'center' }}  >
+                <TouchableWithoutFeedback
+                  style={{ marginLeft: 15 }}
+                  onPress={() => { this.setState({ hostIdFilter: user.user_id }) }}
+                  style={{ flexDirection: 'row', justifyContent: 'center' }}>
+                  {user.photo_url != null ?
+                    (
+                      <Image source={{ uri: user.photo_url + '?type=large&width=500&height=500' }} style={styles.friendImage} />
+                    ) : (
+                      <Image source={DEFAULT_PROFILE_PIC} resizeMode='contain' style={styles.friendImageNoBorder} />
+                    )
+                  }
+                  <Text style={{ alignSelf: 'center', marginLeft: 30 }}>{user.user_name}</Text>
+                  <View style={{ justifyContent: 'center', alignSelf: 'center' }}>
+                    <Icon name='check' reverse size={18}
+                      color='green'
+                      style={{ marginLeft: 30 }}
+                    />
+                  </View>
+                </TouchableWithoutFeedback>
+              </View>
+            )
+          })}
+        </View>
+      </View>
+    )
+  }
+
+  renderHostNameInput = (title, placeholderText, data, callbackOnChange) => {
+    return (
+      <View>
+        <Text style={{ alignSelf: 'center', fontSize: 20, fontWeight: 'bold' }}>{title}</Text>
+        <TouchableWithoutFeedback style={styles.inputView}
+          onPress={() => { this[title].focus() }}>
+          <TextInput
+            style={styles.textInputFilter}
+            ref={(input) => { this[title] = input; }}
+            onChangeText={callbackOnChange}
+            defaultValue={data}
+            placeholder={placeholderText}
+            multiline
+          />
+        </TouchableWithoutFeedback>
+      </View>
+    )
+  }
+
+  onHostNameFilterChanged = (text) => {
+    this.setState({ hostNameFilter: text });
   }
 
   renderActionButton() {
@@ -408,8 +499,9 @@ class SearchScreen extends React.Component {
   }
 
   pressedMap() {
-    this.setState({ optionsVisible: true });
-    setTimeout(() => { this.setState({ optionsVisible: true }) }, 2500);
+    // this.setState({ optionsVisible: true });
+    // setTimeout(() => { this.setState({ optionsVisible: true }) }, 2500);
+    Keyboard.dismiss();
   }
 
   goToLocation(lat, lon) {
@@ -482,7 +574,8 @@ class SearchScreen extends React.Component {
     let newEvents = [];
     for (let index = 0; index < this.state.eventsRetrieved.length; index++) {
       const event = this.state.eventsRetrieved[index];
-      if (this.state.sportsAccepted.includes(event.event.sport))
+      if (this.state.sportsAccepted.includes(event.event.sport) &&
+        (this.state.hostIdFilter == '' || event.event.host_id == this.state.hostIdFilter))
         newEvents.push(event);
     }
     this.setState({ events: [], isChoosingAFilter: !exit }, () => { this.setState({ events: newEvents }) });
