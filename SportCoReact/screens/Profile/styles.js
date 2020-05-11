@@ -1,5 +1,6 @@
 import { StyleSheet } from 'react-native';
 import { Layout } from '../../constants/Layout'
+import Colors from '../../constants/Colors';
 
 
 export const MAX_ON_LINE = 6;
@@ -84,8 +85,13 @@ export const styles = StyleSheet.create({
         right: 5
     },
     iconOnEventFriends: {
-        backgroundColor: 'rgb(52,27,252)',
+        backgroundColor: Colors.timakaColor,
         justifyContent: 'center',
+        height: 20,
+        width: 20,
+        left: 15,
+        bottom : 0,
+        borderRadius: 10,
     },
     desc: {
         color: '#5E5E5E',

@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { Image, View } from 'react-native';
+import { Image, View, TouchableWithoutFeedback } from 'react-native';
 import { Divider, Text, Icon, Overlay, Button, CheckBox } from 'react-native-elements'
-import { ScrollView, TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import { ScrollView } from 'react-native-gesture-handler';
 
 import { connect } from 'react-redux'
 
@@ -37,7 +37,7 @@ class TeamsList extends React.Component {
     }
 
     exit = () => {
-        this.props.stopShowingTeams(); 
+        this.props.stopShowingTeams();
         this.setState({ isCreatingTeam: false })
     }
 
@@ -71,86 +71,39 @@ class TeamsList extends React.Component {
                         />
                     </View>
                     {!this.state.isCreatingTeam ?
-                        (<ScrollView
-                            keyboardShouldPersistTaps='handled'>
-                            <ProfileInput title={'Teams'} placeholderText={'Find by name...'}
-                                data={this.state.teamsNameFilter} callbackOnChange={this.onTeamNameFilterChanged}
-                                isAdding={isAdding} />
-                            <View style={{ flexDirection: "column" }}>
-                                {dataToShow.length == 0 && (
-                                    <Text style={{ textAlign: 'center' }}>You may want to change the filter up there ...</Text>
-                                )}
-                                {dataToShow.map((team, index) => {
-                                    return (
-                                        <View key={'user' + index} style={{ flexDirection: 'column', justifyContent: 'center' }}  >
-                                            <View style={{ flexDirection: 'row', justifyContent: 'center' }}  >
-                                                <TouchableWithoutFeedback
-                                                    style={{ marginLeft: MARGIN_BETWEEN_ICONS }}
-                                                    onPress={() => { RootNavigation.navigateToProfile(team.email) }}
-                                                    style={{ flexDirection: 'row', justifyContent: 'center' }}>
-                                                    {team.photo_url != null ?
-                                                        (
-                                                            <Image source={{ uri: team.photo_url + '?type=large&width=500&height=500' }} style={styles.friendImage} />
-                                                        ) : (
-                                                            <Image source={DEFAULT_PROFILE_PIC} resizeMode='contain' style={styles.friendImageNoBorder} />
-                                                        )
-                                                    }
-                                                    <Text style={{ alignSelf: 'center', marginLeft: 30 }}>{team.team_name}</Text>
+                        (
+                            <View>
+                                <ScrollView
+                                    style={{ height: isAdding?'70%' : '90%' }}
+                                    keyboardShouldPersistTaps='handled'>
+                                    <ProfileInput title={isAdding ? 'Teams' : 'My Teams'} placeholderText={'Find by name...'}
+                                        data={this.state.teamsNameFilter} callbackOnChange={this.onTeamNameFilterChanged}
+                                        isAdding={isAdding} />
+                                    <View style={{ flexDirection: "column" }}>
+                                        {dataToShow.length == 0 && (
+                                            <Text style={{ textAlign: 'center' }}>You may want to change the filter up there ...</Text>
+                                        )}
+                                        {dataToShow.map((team, index) => {
+                                            return (
+                                                <View key={'user' + index} style={{ flexDirection: 'column', justifyContent: 'center' }}  >
+                                                    {this.renderData(team)}
+                                                </View>
 
-                                                </TouchableWithoutFeedback>
-                                                {isAdding ?
-                                                    (
-                                                        <View>
-                                                            {user.userTeams.some(someteam => {
-                                                                return someteam.team_id == team.team_id
-                                                            }) ?
-                                                                <Icon name='remove' reverse size={18}
-                                                                    color='red'
-                                                                    style={{ margin: 30 }}
-                                                                    onPress={() => { this.leaveTeam(team) }}
-                                                                /> : <View>
-                                                                    {user.userTeamsWaiting.some(someteam => {
-                                                                        return someteam.team_id == team.team_id
-                                                                    }) ?
-                                                                        <Icon name='timer-sand' type='material-community' reverse size={18}
-                                                                            color='orange'
-                                                                            style={{ margin: 30 }}
-                                                                        />
-                                                                        :
-                                                                        <Icon name='add' reverse size={18}
-                                                                            color='green'
-                                                                            style={{ margin: 30 }}
-                                                                            onPress={() => { this.joinTeam(team) }}
-                                                                        />
-                                                                    }
-                                                                </View>
-                                                            }
-                                                        </View>
-                                                    )
-                                                    :
-                                                    (<Icon name='remove' reverse size={18}
-                                                        color='red'
-                                                        style={{ margin: 30 }}
-                                                        onPress={() => { this.leaveTeam(team) }}
-                                                    />)
-
-                                                }
-                                            </View>
-                                            <Divider style={{ margin: 10 }} />
-                                        </View>
-
-                                    )
-                                })}
+                                            )
+                                        })}
 
 
-                                <View>
-                                    <Button
-                                        title='Create a team !'
-                                        onPress={() => this.setState({ isCreatingTeam: true })}
-                                        style={{ marginTop: 50, width: '60%', alignSelf: 'center' }} />
-                                </View>
+                                    </View>
+                                </ScrollView>
+                                {isAdding &&
+                                    <View style={{ marginTop: 20 }}>
+                                        <Button
+                                            title='Or, start a new team !'
+                                            onPress={() => this.setState({ isCreatingTeam: true })}
+                                            style={{ marginTop: 50, width: '60%', alignSelf: 'center' }} />
+                                    </View>
+                                }
                             </View>
-                        </ScrollView>
                         ) :
                         (
                             <View>
@@ -160,6 +113,69 @@ class TeamsList extends React.Component {
                 </View>
             </Overlay >
         )
+    }
+
+    renderData = (team) => {
+        let { isAdding, user } = this.props;
+
+        return (
+            <View>
+                <View style={{ flexDirection: 'row', justifyContent: 'center' }}  >
+                    <TouchableWithoutFeedback
+                        style={{ marginLeft: MARGIN_BETWEEN_ICONS }}
+                        onPress={() => { this.props.stopShowingTeams(); RootNavigation.navigateToTeam(team.team_id) }}
+                    >
+                        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                            {team.photo_url != null ?
+                                (
+                                    <Image source={{ uri: team.photo_url + '?type=large&width=500&height=500' }} style={styles.friendImage} />
+                                ) : (
+                                    <Image source={DEFAULT_PROFILE_PIC} resizeMode='contain' style={styles.friendImageNoBorder} />
+                                )
+                            }
+                            <Text style={{ alignSelf: 'center', marginLeft: 30 }}>{team.team_name}</Text>
+                        </View>
+                    </TouchableWithoutFeedback>
+                    {isAdding ?
+                        (
+                            <View>
+                                {user.userTeams.some(someteam => {
+                                    return someteam.team_id == team.team_id
+                                }) ?
+                                    <Icon name='remove' reverse size={18}
+                                        color='red'
+                                        style={{ margin: 30 }}
+                                        onPress={() => { this.leaveTeam(team) }}
+                                    /> : <View>
+                                        {user.userTeamsWaiting.some(someteam => {
+                                            return someteam.team_id == team.team_id
+                                        }) ?
+                                            <Icon name='timer-sand' type='material-community' reverse size={18}
+                                                color='orange'
+                                                style={{ margin: 30 }}
+                                            />
+                                            :
+                                            <Icon name='add' reverse size={18}
+                                                color='green'
+                                                style={{ margin: 30 }}
+                                                onPress={() => { this.joinTeam(team) }}
+                                            />
+                                        }
+                                    </View>
+                                }
+                            </View>
+                        )
+                        :
+                        (<Icon name='remove' reverse size={18}
+                            color='red'
+                            style={{ margin: 30 }}
+                            onPress={() => { this.leaveTeam(team) }}
+                        />)
+
+                    }
+                </View>
+                <Divider style={{ margin: 10 }} />
+            </View>)
     }
 
     renderTeamCreator = () => {
@@ -194,6 +210,18 @@ class TeamsList extends React.Component {
 
     joinTeam = async (team) => {
         await this.apiService.addEntity(team.manager_has_to_accept == 1 ? 'teammembers/waiting' : 'teammembers', { member_id: this.props.auth.user_id, team_id: team.team_id });
+        let dataManager = await this.apiService.getSingleEntity('users', team.team_manager);
+        let notif = {
+            sender_id: this.props.auth.user_id,
+            user_id: team.team_manager,
+            user_push_token: dataManager.data.user_push_token,
+            team_id: team.team_id,
+            notif_message_type: team.manager_has_to_accept == 1 ? 'WANTS_TO_JOIN_TEAM' : 'NEW_TEAM_MEMBER',
+            notif_data_type: 'team_id',
+            notif_data_value: team.team_id,
+            sender_photo_url: this.props.auth.user.photo_url
+        }
+        await this.apiService.addEntity('notify/user', notif)
         this.props.getData();
     }
 

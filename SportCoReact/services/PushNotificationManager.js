@@ -36,9 +36,13 @@ class PushNotificationManager extends React.Component {
                 title: remoteMessage.notification.title,
                 message: remoteMessage.notification.body,
                 onPress: () => {
-                    let event_id = remoteMessage.data.data_value;
-                    if (event_id != undefined)
-                        RootNavigation.navigateToEvent(event_id)
+                    console.log(remoteMessage.data)
+                    let eventOrTeam_id = remoteMessage.data.data_value;
+                    if (eventOrTeam_id != undefined) {
+                        remoteMessage.data.data_type == 'event_id' ?
+                            RootNavigation.navigateToEvent(eventOrTeam_id) :
+                            RootNavigation.navigateToTeam(eventOrTeam_id)
+                    }
                 },
                 additionalProps: { type: 'error' }
             })
@@ -51,8 +55,14 @@ class PushNotificationManager extends React.Component {
                 'Notification caused app to open from background state:',
                 remoteMessage,
             );
-            RootNavigation.navigateToEvent(remoteMessage.data.data_value);
-
+            console.log(remoteMessage.data)
+            let eventOrTeam_id = remoteMessage.data.data_value;
+            if (eventOrTeam_id != undefined) {
+                if (remoteMessage.data.data_type == 'event_id')
+                    RootNavigation.navigateToEvent(eventOrTeam_id)
+                if (remoteMessage.data.data_type == 'team_id')
+                    RootNavigation.navigateToTeam(eventOrTeam_id)
+            }
         });
     }
 

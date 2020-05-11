@@ -120,7 +120,7 @@ class ProfileBubbles extends React.Component {
                         )
                     })}
 
-                    {(title == 'Friends' || title == 'Teams') && (user.user_id == this.props.auth.user_id) && user.userFriends.length > MAX_ON_LINE - 2 && (
+                    {((title == 'Friends' && user.userFriends.length > MAX_ON_LINE - 2) || (title == 'Teams' && user.userTeams.length > MAX_ON_LINE - 2)) && (user.user_id == this.props.auth.user_id)  && (
                         <TouchableWithoutFeedback
                             style={{ marginLeft: MARGIN_BETWEEN_ICONS, alignItems: 'center', justifyContent: 'center' }}
                             onPress={title == 'Friends' ? this.props.wantsToSeeFriends : this.props.wantsToSeeTeams}>

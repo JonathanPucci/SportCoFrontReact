@@ -20,9 +20,9 @@ class ProfileInput extends React.Component {
                 <TouchableWithoutFeedback style={styles.inputView}
                     onPress={() => { this[title].focus() }}>
                     <TextInput
-                        style={title != 'Friends' && title != 'Teams' ? styles.textInput : styles.textInputFriends}
+                        style={title != 'Friends' && !title.includes( 'Teams') ? styles.textInput : styles.textInputFriends}
                         ref={(input) => { this[title] = input; }}
-                        autoFocus={title == 'Friends' || title == 'Teams' ? isAdding : true}
+                        autoFocus={title == 'Friends' || title.includes('Teams') ? isAdding : true}
                         onChangeText={callbackOnChange}
                         defaultValue={data}
                         placeholder={placeholderText}

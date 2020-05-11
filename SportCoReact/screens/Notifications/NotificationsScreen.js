@@ -7,10 +7,11 @@ import { connect } from 'react-redux'
 import { styles, iconSize } from './styles'
 import SportCoApi from '../../services/apiService';
 import Emoji from 'react-native-emoji';
-import { mapSportIcon } from '../../helpers/mapper';
+import { mapSportIcon, mapNotifInfo } from '../../helpers/mapper';
 import { formatDistanceToNow } from 'date-fns'
 import { DEFAULT_PROFILE_PIC } from '../../constants/AppConstants';
-import { navigateToEvent } from '../../navigation/RootNavigation';
+import { navigateToEvent, navigateToTeam } from '../../navigation/RootNavigation';
+import { convertUTCDateToLocalDate } from '../Event/Helpers';
 
 
 class NotificationsScreen extends React.Component {
@@ -110,7 +111,11 @@ class NotificationsScreen extends React.Component {
             let event = this.getEventFromNotif(item);
             let isCanceled = event == null;
             return (
-              <TouchableWithoutFeedback onPress={this.goToEvent.bind(this, event, isCanceled)}
+              <TouchableWithoutFeedback onPress={() => {
+                item.data_type == 'team_id' ?
+                  navigateToTeam(item.data_value) :
+                  this.goToEvent(event, isCanceled)
+              }}
                 key={'keyHistory-' + index}
                 style={styles.notificationView}>
                 <View
@@ -125,7 +130,7 @@ class NotificationsScreen extends React.Component {
                   {this.renderEventInfo(event, isCanceled)}
 
                   <View style={styles.notifDate}>
-                    <Text style={styles.notifDateText}>{formatDistanceToNow(new Date(item.date))}</Text>
+                    <Text style={styles.notifDateText}>{formatDistanceToNow(convertUTCDateToLocalDate(new Date(item.date)))}</Text>
                   </View>
                 </View>
               </TouchableWithoutFeedback>
@@ -137,32 +142,8 @@ class NotificationsScreen extends React.Component {
   }
 
   renderIcon(notif, event, size = undefined) {
-    let iconName = '';
     let photoUrl = notif.data_value2;
-    switch (notif.message_type) {
-      case 'EVENT_CHANGED':
-        iconName = 'new-message';
-        break;
-      case 'NEW_EVENT':
-        iconName = 'new'
-        break;
-      case 'INVIT_EVENT':
-        iconName = 'new'
-        break;
-      case 'EVENT_CANCELED':
-        iconName = 'circle-with-cross'
-        break;
-      case 'PARTICIPANT_JOINED':
-        iconName = 'add-user';
-        break;
-      case 'PARTICIPANT_LEFT':
-        iconName = 'remove-user';
-        break;
-      default:
-        break;
-    }
-
-
+    let iconName = mapNotifInfo(notif.message_type).iconName;
     return (
       <View style={styles.imageContainer}>
         {photoUrl != undefined ? (
@@ -170,8 +151,6 @@ class NotificationsScreen extends React.Component {
         ) : (
             <Image source={DEFAULT_PROFILE_PIC} resizeMode='contain' style={styles.image} />
           )}
-
-
         <View style={{
           position: 'absolute',
           top: 30,
@@ -194,47 +173,15 @@ class NotificationsScreen extends React.Component {
   }
 
   renderDescriptionText(notif) {
-    let messageBody = '';
-    let emojiName = '';
-    let additionalInfo = '';
-    switch (notif.message_type) {
-      case 'EVENT_CHANGED':
-        messageBody = ` Event has changed, check it out !`;
-        emojiName = 'man-raising-hand';
-        break;
-      case 'NEW_EVENT':
-        messageBody = '  New event nearby, interested?';
-        emojiName = 'man-bowing';
-        break;
-      case 'INVIT_EVENT':
-        messageBody = '  shared an event with you, check it out !';
-        emojiName = 'man-bowing';
-        break;
-      case 'EVENT_CANCELED':
-        let eventData = JSON.parse(notif.data_value);
-        messageBody = `  Event has been canceled, sorry !`;
-        // additionalInfo = dateString + ' : ' + eventData.description + `\n` + eventData.sport.toUpperCase();
-        emojiName = 'man-shrugging';
-        break;
-      case 'PARTICIPANT_JOINED':
-        messageBody = '  New participant to your event';
-        emojiName = 'man-running';
-        break;
-      case 'PARTICIPANT_LEFT':
-        messageBody = '  Participant left your event';
-        emojiName = 'man-running';
-        break;
-      default:
-        break;
-    }
+    let info = mapNotifInfo(notif.message_type)
     return (
       <View style={{ flexDirection: 'column' }}>
         <View style={styles.descriptionText}>
-          <Emoji name={emojiName} style={{ fontSize: 15, marginTop: 15 }} />
-          <Text numberOfLines={2} style={{ flex: 1, marginTop: 15 }}>{messageBody}</Text>
+          <Emoji name={info.emojiName} style={{ fontSize: 15, marginTop: 15 }} />
+          <Text numberOfLines={2} style={{ flex: 1, marginTop: 15 }}>{info.messageBody}</Text>
         </View>
-        {additionalInfo != '' &&
-          <Text numberOfLines={2} style={{ fontSize: 11 }}>{additionalInfo}</Text>
+        {info.additionalInfo != '' &&
+          <Text numberOfLines={2} style={{ fontSize: 11 }}>{info.additionalInfo}</Text>
         }
       </View>
 
@@ -242,6 +189,8 @@ class NotificationsScreen extends React.Component {
   }
 
   renderEventInfo(event, isCanceled) {
+    if (event == null)
+      return <View />
     if (isCanceled)
       return (
         <View style={[styles.eventInfo, { right: 10 }]}>
@@ -268,7 +217,7 @@ class NotificationsScreen extends React.Component {
   }
 
   getEventFromNotif(notif) {
-    if (notif.message_type == 'EVENT_CANCELED')
+    if (notif.message_type == 'EVENT_CANCELED' || notif.message_type.includes('TEAM'))
       return null;
     for (let index = 0; index < this.state.eventsInNotifications.length; index++) {
       const event = this.state.eventsInNotifications[index];

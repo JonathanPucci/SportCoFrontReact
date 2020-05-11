@@ -27,17 +27,13 @@ class TeamScreen extends React.Component {
     super();
     this.state = {
       team: undefined,
-      sportsSelected: [''],
       refreshing: false,
       isEditingTeam: false,
       isSelectingNewManager: false,
       nameDraft: '',
       descriptionDraft: '',
       manager_has_to_acceptDraft: false,
-      areTeamsVisible: false,
       newManagerId: -1,
-      allUsers: [],
-      allTeams: []
     }
     this.apiService = new SportCoApi()
   }
@@ -242,7 +238,20 @@ class TeamScreen extends React.Component {
 
 
   joinTeam = async () => {
+    console.log(this.state);
     await this.apiService.addEntity(this.state.team.manager_has_to_accept == 1 ? 'teammembers/waiting' : 'teammembers', { member_id: this.props.auth.user_id, team_id: this.state.team.team_id });
+    let dataManager = await this.apiService.getSingleEntity('users', this.state.team.team_manager);
+    let notif = {
+      sender_id: this.props.auth.user_id,
+      user_id: this.state.team.team_manager,
+      user_push_token: dataManager.data.user_push_token,
+      team_id: this.state.team.team_id,
+      notif_message_type: this.state.team.manager_has_to_accept == 1 ? 'WANTS_TO_JOIN_TEAM' : 'NEW_TEAM_MEMBER',
+      notif_data_type: 'team_id',
+      notif_data_value: this.state.team.team_id,
+      sender_photo_url: this.props.auth.user.photo_url
+    }
+    await this.apiService.addEntity('notify/user', notif)
     this.getData();
   }
 

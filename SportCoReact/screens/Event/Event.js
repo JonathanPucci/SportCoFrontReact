@@ -399,7 +399,7 @@ class EventScreen extends React.Component {
       sender_photo_url : this.props.auth.user.photo_url
     }
     try {
-      await this.apiService.addEntity('notify/' + (type == 'FRIEND' ? 'friend' : 'team'), notif);
+      await this.apiService.addEntity('notify/' + (type == 'FRIEND' ? 'user' : 'team'), notif);
       dataToUpdate[index]['succesfully_sent'] = true;
       type == 'FRIEND' ? this.setState({ currentUserFriends: dataToUpdate }) : this.setState({ currentUserTeams: dataToUpdate });
     }

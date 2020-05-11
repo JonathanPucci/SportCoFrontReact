@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { Image, View } from 'react-native';
+import { Image, View, TouchableWithoutFeedback } from 'react-native';
 import { Divider, Text, Icon, Overlay } from 'react-native-elements'
-import { ScrollView, TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import { ScrollView } from 'react-native-gesture-handler';
 
 import { connect } from 'react-redux'
 
@@ -54,11 +54,12 @@ class FriendsList extends React.Component {
                 overlayStyle={styles.overlay}
             >
                 <View>
-                    <TouchableWithoutFeedback
-                        onPress={this.props.stopShowingFriends}
-                        style={{ right: 0, width: 50, height: 50, borderRadius: 25, borderWidth: 1, justifyContent: 'center' }}>
-                        <Icon name='remove' size={15} />
-                    </TouchableWithoutFeedback>
+                    <View
+                        style={{ right: 0, justifyContent: 'center' }}>
+                        <Icon name='remove' type='font-awesome' size={20} raised
+                            onPress={this.props.stopShowingFriends}
+                        />
+                    </View>
                     <ScrollView
                         keyboardShouldPersistTaps='handled'>
                         <ProfileInput title={'Friends'} placeholderText={'Find by name...'}
@@ -75,16 +76,17 @@ class FriendsList extends React.Component {
                                             <TouchableWithoutFeedback
                                                 style={{ marginLeft: MARGIN_BETWEEN_ICONS }}
                                                 onPress={() => { RootNavigation.navigateToProfile(userFriend.email) }}
-                                                style={{ flexDirection: 'row', justifyContent: 'center' }}>
-                                                {userFriend.photo_url != null ?
-                                                    (
-                                                        <Image source={{ uri: userFriend.photo_url + '?type=large&width=500&height=500' }} style={styles.friendImage} />
-                                                    ) : (
-                                                        <Image source={DEFAULT_PROFILE_PIC} resizeMode='contain' style={styles.friendImageNoBorder} />
-                                                    )
-                                                }
-                                                <Text style={{ alignSelf: 'center', marginLeft: 30 }}>{userFriend.user_name}</Text>
-
+                                                >
+                                                <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+                                                    {userFriend.photo_url != null ?
+                                                        (
+                                                            <Image source={{ uri: userFriend.photo_url + '?type=large&width=500&height=500' }} style={styles.friendImage} />
+                                                        ) : (
+                                                            <Image source={DEFAULT_PROFILE_PIC} resizeMode='contain' style={styles.friendImageNoBorder} />
+                                                        )
+                                                    }
+                                                    <Text style={{ alignSelf: 'center', marginLeft: 30 }}>{userFriend.user_name}</Text>
+                                                </View>
                                             </TouchableWithoutFeedback>
                                             {isAdding ?
                                                 (
