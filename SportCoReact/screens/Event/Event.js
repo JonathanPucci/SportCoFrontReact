@@ -252,8 +252,12 @@ class EventScreen extends React.Component {
               }
               title="Click To Open in Maps" />
           </View>
-          {this.state.eventData.event.event_id != "" && <AdMobBanner style={{ left: -15, marginVertical: 10 }} />}
-          <Text style={{ textAlign: 'center' }}>Well.. we know ads are bad, sorry about that !</Text>
+          {this.state.eventData.event.event_id != "" &&
+            <View>
+              <AdMobBanner style={{ left: -15, marginVertical: 10 }} />
+              <Text style={{ textAlign: 'center' }}>Well.. we know ads are bad, sorry about that !</Text>
+            </View>
+          }
           <View style={{ height: 15 }} />
           <Comments
             comments={this.state.eventData.comments}
@@ -396,7 +400,7 @@ class EventScreen extends React.Component {
       notif_message_type: 'INVIT_EVENT',
       notif_data_type: 'event_id',
       notif_data_value: this.state.eventData.event.event_id,
-      sender_photo_url : this.props.auth.user.photo_url
+      sender_photo_url: this.props.auth.user.photo_url
     }
     try {
       await this.apiService.addEntity('notify/' + (type == 'FRIEND' ? 'user' : 'team'), notif);

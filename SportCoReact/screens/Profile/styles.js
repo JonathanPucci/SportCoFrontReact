@@ -138,7 +138,7 @@ export const styles = StyleSheet.create({
         height : 40,
     },
     inputView: {
-        width: '90%',
+        width: 0.7*Layout.window.width,
         borderColor: 'gray',
         borderWidth: 1,
         borderRadius: 20,

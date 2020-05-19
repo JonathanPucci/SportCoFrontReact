@@ -5,38 +5,23 @@ import {
   View,
   Text,
   Image,
-  Button,
-  Input,
   Platform
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import SportCoApi from '../../services/apiService';
 
-// import * as firebase from 'firebase';
 import { firebase } from '@react-native-firebase/auth';
-// import firebase from '@react-native-firebase/app';
 
 import FacebookLogin from './FacebookLogin';
 import { AppleLogin } from './AppleLogin';
 import { USER_LOGGED } from '../../Store/Actions';
 import { logDebugInfo, logDebugError } from '../Event/Helpers';
 
-
-// Enter your Firebase app web configuration settings here.
-// const config = {
-//   apiKey: 'AIzaSyC9px960ofSQlIrqKFmyj8_aqWnimsEFS0',
-//   authDomain: '',
-//   databaseURL: '',
-//   projectId: 'sportcoapp',
-//   messagingSenderId: ''
-// };
-
-// if (!firebase.apps.length) {
-//   firebase.initializeApp(config);
-// }
+import Spinner from 'react-native-loading-spinner-overlay';
+import Register from './Register';
+import { Divider } from 'react-native-elements';
 
 
-// const auth = firebase.auth();
 
 class LoginScreen extends React.Component {
 
@@ -44,21 +29,23 @@ class LoginScreen extends React.Component {
     super(props);
     this.state = {
       email: '',
-      password: ''
+      password: '',
+      isSpinnerVisible: false,
+      authFlag: true
     };
+    this.apiService = new SportCoApi();
   }
 
 
   componentDidMount() {
-    // const user = firebase.auth().currentUser;
-    // if (user != null)
-    //   user.providerData.forEach((userInfo) => {
-    //     console.log('User info for provider: ', userInfo);
-    //   });
+    this.setState({ authFlag: true })
     try {
       // firebase.auth().signOut();
       firebase.auth().onAuthStateChanged(user => {
-        this.saveToBackendUser(user);
+        if (this.state.authFlag) {
+          this.setState({ authFlag: false });
+          this.saveToBackendUser(user);
+        }
       });
     }
     catch (errorStateChanged) {
@@ -69,6 +56,11 @@ class LoginScreen extends React.Component {
   loginAction(user, id) {
     logDebugInfo('Logged with user', user);
     // user['photo_url'] = user.photoURL;
+    if (this.loadingTimeout) {
+      clearTimeout(this.loadingTimeout);
+      this.loadingTimeout = 0;
+    }
+
     const action = {
       type: USER_LOGGED,
       value: user,
@@ -77,10 +69,12 @@ class LoginScreen extends React.Component {
     this.props.dispatch(action);
   }
 
-
   render() {
     return (
-      <KeyboardAwareScrollView>
+      <KeyboardAwareScrollView
+        extraScrollHeight={150}
+        keyboardShouldPersistTaps='always'
+      >
         <ScrollView>
           <View style={{
             marginTop: -60,
@@ -104,6 +98,17 @@ class LoginScreen extends React.Component {
             {Platform.OS == 'ios' && <AppleLogin navigation={this.props.navigation} saveToBackendUser={this.saveToBackendUser.bind(this)} />}
           </View>
 
+          <Divider style={{ marginTop: 20, width: '70%', alignSelf: 'center' }} />
+
+          <View style={{ marginTop: 0 }}>
+            <Register saveToBackendUser={this.saveToBackendUser.bind(this)} />
+          </View>
+
+          <Spinner
+            visible={this.state.isSpinnerVisible}
+            textContent={'Loading...'}
+            textStyle={{ color: 'white' }}
+          />
 
 
           <View style={{ marginTop: 50, flex: 1, alignSelf: 'center' }}>
@@ -120,32 +125,40 @@ class LoginScreen extends React.Component {
 
   saveToBackendUser(user) {
     if (user != null && user != undefined) {
-      console.log(user.providerData)
-      let apiService = new SportCoApi();
+      this.startSpinning(user);
+      // logDebugInfo("ProviderData", user.providerData)
+      // logDebugInfo("UserSave", user)
       let userDB = {
         photo_url: user.photoURL,
-        email: user.providerData[0].email
+        email: user.providerId == 'firebase' ? user.email : user.providerData[0].email
       }
-      apiService.getSingleEntity('users/email', userDB.email)
+      this.apiService.getSingleEntity('users/email', userDB.email)
         .then((datauser) => {
-          apiService
-            .editEntity('users/update', userDB)
-            .then(data => {
-              this.loginAction(datauser.data, datauser.data.user_id);
-            })
-            .catch((error) => {
-              logDebugInfo('ERROR EDITING USER AT LOGIN', error);
-              this.loginAction(datauser.data, datauser.data.user_id);
-            })
+          if (userDB.photo_url != null &&
+            userDB.photo_url != undefined &&
+            userDB.photo_url != '' &&
+            datauser.data.photo_url != userDB.photo_url)
+            this.apiService
+              .editEntity('users/update', userDB)
+              .then(data => {
+                this.loginAction(datauser.data, datauser.data.user_id);
+              })
+              .catch((error) => {
+                logDebugInfo('ERROR EDITING USER AT LOGIN', error);
+                this.loginAction(datauser.data, datauser.data.user_id);
+              })
+          else {
+            this.loginAction(datauser.data, datauser.data.user_id);
+          }
         })
         .catch((error) => {
           if (user.displayName != null) {
             console.log("User unknown, creating");
             userDB.user_name = user.displayName,
-              apiService
+              this.apiService
                 .addEntity('users', userDB)
                 .then((datauser) => {
-                  apiService
+                  this.apiService
                     .addEntity('userstats', datauser.data.data)
                     .then(data => {
                       this.loginAction(userDB, datauser.data.data.user_id);
@@ -162,73 +175,19 @@ class LoginScreen extends React.Component {
       // this.setState({ logInStatus: 'You are currently logged out.' });
     }
   }
+
+  startSpinning = (user) => {
+    // logDebugInfo('SPINNING', user);
+
+    this.setState({ isSpinnerVisible: true })
+    this.loadingTimeout = setTimeout(() => {
+      this.setState({ isSpinnerVisible: false }, () => {
+        this.alertTimeout = setTimeout(() => { alert('Well obviously something went wrong... Sorry about that !') }, 200);
+      })
+    }, 5000)
+  }
 }
 
-
-/*
- <Text style={styles.title}>Connectez-vous</Text>
-          <Text style={styles.titleEnd}>
-            pour vivre pleinement l'expérience
-          </Text>
-          <View>
-            <View floatingText>
-              <Text>Email</Text>
-              <Input
-                autoCapitalize="none"
-                autoCorrect={false}
-                onChangeText={email => this.setState({ email })}
-              />
-            </View>
-            <View floatingText>
-              <Text>Password</Text>
-              <Input
-                secureTextEntry={true}
-                autoCapitalize="none"
-                autoCorrect={false}
-                onChangeText={password => this.setState({ password })}
-              />
-            </View>
-            <View style={styles.center}>
-              <Button
-                full
-                rounded
-                style={styles.button}
-                onPress={() => this.Login()}
-              >
-                <Text style={styles.buttonText}>Se connecter</Text>
-              </Button>
- 
-              <Button
-                full
-                rounded
-                style={styles.buttonRegister}
-                onPress={() => {
-                  const nav = this.props.navigation;
-                  nav.navigate('Register');
-                }}
-              >
-                <Text style={styles.buttonTextRegister}>
-                  Je crée mon compte
-                </Text>
-              </Button>
-*/
-
-
-
-// Login = () => {
-//   let email = this.state.email;
-//   let password = this.state.password;
-//   try {
-//     firebase
-//       .auth()
-//       .signInWithEmailAndPassword(email, password)
-//       .then(res => {
-//         this.loginAction(res.user.email);
-//       });
-//   } catch (error) {
-//     console.log(error.toString(error));
-//   }
-// };
 
 const mapDispatchToProps = dispatch => {
   return {

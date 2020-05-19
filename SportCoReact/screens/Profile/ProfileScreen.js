@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { firebase } from '@react-native-firebase/auth';
+import auth from '@react-native-firebase/auth';
 import { Image, SafeAreaView, View, RefreshControl } from 'react-native';
 import { Divider, Text, Button, Icon, Overlay } from 'react-native-elements'
 import { Social } from '../../components/social'
@@ -7,6 +7,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 
 import { USER_LOGGED_OUT } from '../../Store/Actions'
 import { connect } from 'react-redux'
+import { LoginManager } from 'react-native-fbsdk';
 
 import SportCoApi from '../../services/apiService';
 
@@ -19,8 +20,13 @@ import Friends from './Friends';
 import ProfileBubbles from './ProfileBubbles';
 import { logDebugError } from '../Event/Helpers';
 import ProfileInput from './ProfileInput';
+import SmoothPicker from "react-native-smooth-picker";
+import Bubble from '../Event/Bubble';
 import Teams from './Teams';
-
+import { getFileFromS3, uploadFileToS3 } from '../../services/aws3Service';
+import ImagePickerTimaka from '../../components/ImagePicker';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 class ProfileScreen extends React.Component {
 
@@ -34,7 +40,8 @@ class ProfileScreen extends React.Component {
       areFriendsVisible: false,
       areTeamsVisible: false,
       allUsers: [],
-      allTeams: []
+      allTeams: [],
+      photo_url_s3Draft: 'null',
     }
     this.apiService = new SportCoApi()
   }
@@ -44,7 +51,7 @@ class ProfileScreen extends React.Component {
     this.getData();
   }
 
-  getData = () => {
+  getData = async () => {
     this.setState({ refreshing: true }, async () => {
       let email = this.props.auth.user.email;
 
@@ -56,11 +63,15 @@ class ProfileScreen extends React.Component {
         this.setState({
           user: res.data,
           titleDraft: res.data.user_title,
+          nameDraft: res.data.user_name,
+          ageDraft: res.data.user_age,
           descriptionDraft: res.data.user_description,
+          photo_url_s3Draft: getFileFromS3('users', res.data.photo_url_s3),
           userstats: stats.data,
           isEditingProfile: false,
           isLookingAtFriends: false,
-          refreshing: false
+          refreshing: false,
+          loading: false
         });
       }
       catch (err) {
@@ -72,6 +83,7 @@ class ProfileScreen extends React.Component {
   render() {
     if (this.state.user == undefined)
       return <View />
+
     return (
       <View style={styles.container}>
         <ScrollView
@@ -82,13 +94,18 @@ class ProfileScreen extends React.Component {
           }
           keyboardShouldPersistTaps='always'>
           <SafeAreaView style={styles.container}>
+            <Spinner
+              visible={this.state.loading}
+              textContent={'Loading...'}
+              textStyle={{ color: 'white' }}
+            />
             <View style={styles.basicInfoContainer}>
               <View style={styles.basicInfo}>
                 <Text h4 style={styles.name}>
                   {this.state.user.user_name}
                 </Text>
                 <Text h5 style={styles.name}>
-                  25 ans
+                  {this.state.user.user_age + " ans"}
                 </Text>
                 <View style={[styles.desc, { flexDirection: 'row' }]}>
                   <Icon name='suitcase' type='font-awesome' color='#5E5E5E' size={20} />
@@ -97,15 +114,7 @@ class ProfileScreen extends React.Component {
                   </Text>
                 </View>
               </View>
-              <View style={styles.imageContainer}>
-                {this.state.user.photo_url != null ?
-                  (
-                    <Image source={{ uri: this.state.user.photo_url + '?type=large&width=500&height=500' }} style={styles.image} />
-                  ) : (
-                    <Image source={DEFAULT_PROFILE_PIC} resizeMode='contain' style={styles.imageNoBorder} />
-                  )
-                }
-              </View>
+              {this.renderImageProfile()}
             </View>
             <Divider style={styles.divider} />
 
@@ -139,9 +148,9 @@ class ProfileScreen extends React.Component {
               items={this.state.user.userTeams} user={this.state.user}
               wantsToJoinTeam={this.wantsToJoinTeam}
               wantsToSeeTeams={this.wantsToSeeTeams}
-              waitingTeams={this.state.user.userTeamsWaiting} 
+              waitingTeams={this.state.user.userTeamsWaiting}
               getData={this.getData}
-              />
+            />
             <Divider style={styles.divider} />
             <ProfileBubbles title={'Friends'} defaultText={"(We're all friends anyway)"}
               items={this.state.user.userFriends} user={this.state.user}
@@ -192,27 +201,93 @@ class ProfileScreen extends React.Component {
     );
   }
 
+  renderImageProfile = (edition = false) => {
+    let photoS3Url = edition ? this.state.photo_url_s3Draft : getFileFromS3('users', this.state.user.photo_url_s3);
+    return (
+      <View style={styles.imageContainer}>
+        {this.state.user.photo_url != null ?
+          (
+            <Image source={{ uri: this.state.user.photo_url + '?type=large&width=500&height=500' }} style={styles.image} />
+          ) : (
+            <View >
+              {photoS3Url != null && !photoS3Url.includes('null') ?
+                <Image
+                  key={photoS3Url}
+                  source={{ uri: photoS3Url }}
+                  resizeMode='cover' style={styles.image} />
+                :
+                <Image source={DEFAULT_PROFILE_PIC} resizeMode='contain' style={styles.imageNoBorder} />
+              }
+            </View>
+          )}
+
+      </View>
+    )
+  }
+
   renderOverlayProfileEdit = () => {
+    let arrayAges = Array.from({ length: 42 }, (_, i) => 13 + i);
     return (
       <Overlay
         isVisible={this.state.isEditingProfile}
         onBackdropPress={() => { this.setState({ isEditingProfile: false }) }}
       >
-        <View>
-          <ProfileInput title={'Job / Title'} placeholderText={'Title here ...'}
-            data={this.state.user.user_title} callbackOnChange={this.onTitleChange}
-            isAdding={this.state.isAdding} />
-          <ProfileInput title={'Bio'} placeholderText={'Description here ...'}
-            data={this.state.user.user_description} callbackOnChange={this.onDescriptionChange}
-            isAdding={this.state.isAdding} />
-          <SaveButton
-            title={`| Enregister?`}
-            callback={this.saveProfile}
-          />
-        </View>
+        <ScrollView>
+          <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+            {this.renderImageProfile(true)}
+            <View style={{ alignSelf: 'center' }}>
+              <ImagePickerTimaka
+                saveToS3OnSelect={true}
+                sendImageSource={this.manageNewImage}
+              />
+            </View>
+          </View>
+          <View style={{ marginTop: 20 }}>
+            <ProfileInput title={'User Name'} placeholderText={'Name here ...'}
+              data={this.state.user.user_name} callbackOnChange={this.onNameChange}
+              isAdding={this.state.isAdding}
+              noautofocus />
+            <View style={{ marginBottom: 30 }}>
+              <Text style={{ alignSelf: 'center', fontSize: 20, fontWeight: 'bold', marginBottom: 10 }}>Age</Text>
+              <SmoothPicker
+                onScrollToIndexFailed={(err) => { console.log("failedscrollindexprofile", err) }}
+                initialScrollToIndex={parseInt(this.state.ageDraft) - 13}
+                keyExtractor={(_, index) => index.toString()}
+                horizontal={true}
+                showsHorizontalScrollIndicator={false}
+                onSelected={({ item, index }) => { this.onAgeChange(item, index) }}
+                bounces={true}
+                data={arrayAges}
+                renderItem={({ item, index }) => {
+                  return (
+                    <Bubble horizontal selected={item === (parseInt(this.state.ageDraft))} >
+                      {item}
+                    </Bubble>
+                  )
+                }}
+              />
+            </View>
+            <ProfileInput title={'Job / Title'} placeholderText={'Title here ...'}
+              data={this.state.user.user_title} callbackOnChange={this.onTitleChange}
+              isAdding={this.state.isAdding}
+              noautofocus />
+            <ProfileInput title={'Bio'} placeholderText={'Description here ...'}
+              data={this.state.user.user_description} callbackOnChange={this.onDescriptionChange}
+              isAdding={this.state.isAdding}
+              noautofocus />
+            <SaveButton
+              title={`| Save?`}
+              callback={this.saveProfile}
+            />
+          </View>
+        </ScrollView>
       </Overlay>
 
     )
+  }
+
+  manageNewImage = async (sourceURI) => {
+    this.setState({ photo_url_s3Draft: sourceURI })
   }
 
   wantsToAddFriend = async () => {
@@ -235,6 +310,14 @@ class ProfileScreen extends React.Component {
     this.setState({ areTeamsVisible: true, isAdding: false })
   }
 
+  onNameChange = (text) => {
+    this.setState({ nameDraft: text });
+  }
+
+  onAgeChange = (item, index) => {
+    this.setState({ ageDraft: item });
+  }
+
   onTitleChange = (text) => {
     this.setState({ titleDraft: text });
   }
@@ -244,9 +327,15 @@ class ProfileScreen extends React.Component {
   }
 
   saveProfile = async () => {
+    this.setState({ loading: true })
     let editedUser = this.state.user;
+    editedUser.user_name = this.state.nameDraft;
     editedUser.user_title = this.state.titleDraft;
     editedUser.user_description = this.state.descriptionDraft;
+    editedUser.user_age = this.state.ageDraft;
+    let response = await uploadFileToS3(this.state.photo_url_s3Draft, this.state.user.user_id)
+    let imageName = response.key + "?" + new Date().getTime();
+    editedUser.photo_url_s3 = imageName;
     await this.apiService.editEntity('users', editedUser);
     this.getData();
   }
@@ -266,7 +355,8 @@ class ProfileScreen extends React.Component {
   Logout = async () => {
     try {
       //try the clean way
-      let res = await firebase.auth().signOut();
+      let res = await auth().signOut();
+      LoginManager.logOut();
       console.log('logged out');
       const action = { type: USER_LOGGED_OUT, payload: null };
       this.props.dispatch(action);

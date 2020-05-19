@@ -1,9 +1,14 @@
 import axios from 'axios';
 
+const DEV_URL = 'http://192.168.1.17:8080/';
+const LIVE_URL = 'https://sportcoback.herokuapp.com/';
+
+// export const CURRENT_URL = DEV_URL;
+export const CURRENT_URL = LIVE_URL;
+
 export default class SportCoApi {
   constructor() {
-    this.apiUrl = 'http://192.168.1.17:8080/api/';
-    // this.apiUrl = 'https://sportcoback.herokuapp.com/api/';
+    this.apiUrl = CURRENT_URL + 'api/';
   }
 
   getEntities(name, body) {
@@ -43,7 +48,7 @@ export default class SportCoApi {
   }
 
   compareEntity(property) {
-    return function(a, b) {
+    return function (a, b) {
       if (a[property] > b[property]) {
         return 1;
       } else if (a[property] < b[property]) {

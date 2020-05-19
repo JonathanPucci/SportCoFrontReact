@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { Platform, StatusBar, StyleSheet,SafeAreaView, View, Image, Linking, Vibration, PermissionsAndroid } from 'react-native';
+import { Platform, StatusBar, StyleSheet, SafeAreaView, View, Image, Linking, Vibration, PermissionsAndroid } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { navigationRef } from './RootNavigation';
-import {navigateToEvent} from './RootNavigation';
+import { navigateToEvent } from './RootNavigation';
 
-import BottomTabNavigator, {LogoTitle} from './BottomTabNavigator';
+import BottomTabNavigator, { LogoTitle } from './BottomTabNavigator';
 import LoginScreen from '../screens/Login/LoginScreen';
 import EventScreen from '../screens/Event/Event';
 import { MultiEventScreen } from '../screens/Search/CalloutMultiEvent';
@@ -57,7 +57,7 @@ class AppNavigator extends React.Component {
         }
     }
 
-    saveDeviceTokenForNotifications() {
+    saveDeviceTokenForNotifications = async () => {
         let user = this.props.auth.user;
         user = {
             ...user,
@@ -65,10 +65,11 @@ class AppNavigator extends React.Component {
             user_push_token: this.props.notifications.deviceToken
         }
         // TODO : check if already set maybe? 
-        // let userData = await this.apiService.getSingleEntity('users', user.user_id);
-        this.apiService.editEntity('users', user)
-            .then((data) => { console.log('added token to user ' + user.user_id) })
-            .catch((err) => { console.log('error adding token to user ' + user.user_id); console.log(err) })
+        let userData = await this.apiService.getSingleEntity('users', user.user_id);
+        if (userData.data.user_push_token != user.user_push_token)
+            this.apiService.editEntity('users', user)
+                .then((data) => { console.log('added token to user ' + user.user_id) })
+                .catch((err) => { console.log('error adding token to user ' + user.user_id); console.log(err) })
     }
 
     async grantLocationPermissionForAndroid() {

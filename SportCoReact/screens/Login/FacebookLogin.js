@@ -9,6 +9,7 @@ import auth from '@react-native-firebase/auth';
 import SportCoApi from '../../services/apiService';
 import { StackActions } from '@react-navigation/native';
 import { GraphRequestManager, GraphRequest, AccessToken, LoginManager } from 'react-native-fbsdk';
+import { logDebugInfo } from '../Event/Helpers';
 
 
 class FacebookLogin extends React.Component {
@@ -32,6 +33,7 @@ class FacebookLogin extends React.Component {
 
   facebookLogin = async () => {
     let data = null;
+    LoginManager.logOut()
     try {
       const result = await LoginManager.logInWithPermissions([
         "public_profile",
@@ -42,7 +44,7 @@ class FacebookLogin extends React.Component {
         throw new Error("User cancelled the login process");
       }
       data = await AccessToken.getCurrentAccessToken();
-
+      console.log(data)
       if (!data) {
         throw new Error("Something went wrong obtaining access token");
       }
@@ -53,9 +55,7 @@ class FacebookLogin extends React.Component {
       console.log(credential);
       await auth().signInWithCredential(credential);
     } catch (err) {
-      console.error("=======ERRORFACEBOOKLOGIN======");
-      console.log(err);
-      console.error("===============================");
+      logDebugInfo("FACEBOOKLOGIN",err);
       if (err.code == 'auth/account-exists-with-different-credential') {
         if (data != null) {
           console.log('req')

@@ -18,3 +18,5 @@ ios/
 android/
 app.json
 credentials.js
+services/aws3Service.js
+deployBackToHeroku.sh
