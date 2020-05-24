@@ -13,6 +13,8 @@ import ProfileInput from '../Profile/ProfileInput';
 import { TabBar, TabView, SceneMap } from 'react-native-tab-view';
 import { Layout } from '../../constants/Layout';
 import Colors from '../../constants/Colors';
+import { translate } from '../../App';
+
 
 export class OverlaySport extends React.Component {
 
@@ -29,7 +31,7 @@ export class OverlaySport extends React.Component {
                         sportsSelectedChanged={this.onSportChange.bind(this)}
                     />
                     <SaveButton
-                        title={`| That's better`}
+                        title={`| `+ translate("That's better")}
                         callback={this.props.saveSport}
                     />
                 </View>
@@ -72,7 +74,7 @@ export class OverlayDateTimePicker extends React.Component {
                                 onChange={this.props.onDateTimeChange}
                             />
                             <SaveButton
-                                title={`| Enregister?`}
+                                title={`| `+translate('Save')+`?`}
                                 callback={this.props.saveDate}
                             />
                         </View>
@@ -147,12 +149,12 @@ export class OverlayDescription extends React.Component {
                             autoFocus
                             onChangeText={this.props.onDescriptionChange}
                             defaultValue={this.props.description}
-                            placeholder='Description of event here ...'
+                            placeholder={translate('descriptionPlaceholder')}
                             multiline
                         />
                     </View>
                     <SaveButton
-                        title={`| Enregister?`}
+                        title={`| `+translate('Save')+`?`}
                         callback={this.props.saveDescription}
                     />
                 </View>
@@ -170,7 +172,7 @@ export class OverlayLevel extends React.Component {
             >
                 <View style={{ flex: 1 }}>
                     <Text style={{ flex: 0.1, alignSelf: 'center', fontSize: 20, fontWeight: 'bold' }}>
-                        Level
+                        {translate('Level')}
                     </Text>
                     <Picker
                         selectedValue={this.props.level}
@@ -185,7 +187,7 @@ export class OverlayLevel extends React.Component {
                     </Picker>
                     <View style={{ flex: 1 }}>
                         <SaveButton
-                            title={`| Enregister?`}
+                            title={`| `+translate('Save')+`?`}
                             callback={this.props.saveLevel}
                         />
                     </View>
@@ -270,7 +272,7 @@ export class OverlayMinMaxParticipants extends React.Component {
                     </View>
                     <View style={{ margin: 20 }}>
                         <SaveButton
-                            title={`| Enregister?`}
+                            title={`| `+translate('Save')+`?`}
                             callback={this.props.saveParticipants}
                         />
                     </View>
@@ -375,11 +377,11 @@ export class MapViewSpotPicker extends React.Component {
                                     }
                                 </MapView>
                             )}
-                        <Text style={{ marginTop: 50, textAlign: 'center', fontSize: 20 }}>Choose a spot or drag to create a new one !</Text>
+                        <Text style={{ marginTop: 50, textAlign: 'center', fontSize: 20 }}>{translate("Choose a spot or drag to create a new one !")}</Text>
 
                     </View>
                     <SaveButton
-                        title={`| Enregistrer?`}
+                        title={`| `+translate('Save')+`?`}
                         callback={() => { this.props.saveLocation(this.state.markerRegion) }}
                     />
                 </View>
@@ -514,13 +516,13 @@ export class OverlayShareWithin extends React.Component {
 
     FirstRoute = () => (
         <View style={{ marginTop: 20 }}>
-            {this.renderBlocSharing('Friends', 'Friend Name filter here ...', this.props.currentUserFriends, this.state.friendNameFilter)}
+            {this.renderBlocSharing('Friends', translate("Friend Name filter here ..."), this.props.currentUserFriends, this.state.friendNameFilter)}
         </View>
     );
 
     SecondRoute = () => (
         <View style={{ marginTop: 20 }}>
-            {this.renderBlocSharing('Teams', 'Team Name filter here ...', this.props.currentUserTeams, this.state.teamNameFilter)}
+            {this.renderBlocSharing('Teams', translate('Team Name filter here ...'), this.props.currentUserTeams, this.state.teamNameFilter)}
         </View>
     );
 }

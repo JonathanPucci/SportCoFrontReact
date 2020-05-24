@@ -7,7 +7,7 @@ export const styles = StyleSheet.create({
     },
   
     contentContainer: {
-      paddingTop: 30,
+      paddingTop: 20,
     },
     welcomeContainer: {
       alignItems: 'center',

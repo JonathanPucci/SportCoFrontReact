@@ -7,7 +7,8 @@ import {
   RETRIEVED_USER_INFO,
   USER_LOGGED_OUT,
   SAVE_EVENT_BEFORE_EDIT,
-  SAVE_DEVICE_TOKEN
+  SAVE_DEVICE_TOKEN,
+  USER_CHANGE_CALENDAR_PREF
 } from '../Actions';
 
 const options = {
@@ -44,6 +45,15 @@ function auth(state = { user: null, waiting: false }, action) {
         user: user,
         user_id: action.additionalInfo,
         s3Options: options
+      };
+      return nextState;
+    case USER_CHANGE_CALENDAR_PREF:
+      var nextState = {
+        ...state,
+        user: {
+          ...state.user,
+          auto_save_to_calendar: action.value
+        },
       };
       return nextState;
     case USER_LOGGED_OUT:

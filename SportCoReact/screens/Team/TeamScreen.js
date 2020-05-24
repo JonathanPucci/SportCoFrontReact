@@ -19,6 +19,7 @@ import Members from './Members';
 import { logDebugError, timeSince } from '../Event/Helpers';
 import ProfileInput from '../Profile/ProfileInput';
 import { navigateToProfile } from '../../navigation/RootNavigation';
+import { translate } from '../../App';
 
 
 class TeamScreen extends React.Component {
@@ -82,12 +83,12 @@ class TeamScreen extends React.Component {
                   {this.state.team.team_name}
                 </Text>
                 <Text h5 style={styles.name}>
-                  Alive for : {timeSince(new Date(this.state.team.team_creation_date))}
+                  {translate("Alive for")} : {timeSince(new Date(this.state.team.team_creation_date))}
                 </Text>
                 <Text h5 style={styles.name}>
                   {this.state.team.manager_has_to_accept ?
-                    "Team manager has to accept every new member" :
-                    "Anyone can join the team !"
+                    translate("Team manager has to accept every new member") :
+                    translate("Anyone can join the team !")
                   }
                 </Text>
               </View>
@@ -103,7 +104,7 @@ class TeamScreen extends React.Component {
 
             <View style={{ flexDirection: 'row' }}>
               <Text style={styles.desc}>
-                Description :  {this.state.team.team_description}
+                {translate("Description")} :  {this.state.team.team_description}
                 {this.state.team.team_description == 'Oh yeah' && (
                   <Emoji name={'man_dancing'} style={{ fontSize: 15 }} />
                 )}
@@ -147,11 +148,11 @@ class TeamScreen extends React.Component {
       <View>
         {this.state.team.team_manager == this.props.auth.user_id ?
           <View style={{ alignSelf: 'center', justifyContent: 'center' }}>
-            <Button title='Delete Team' buttonStyle={{ backgroundColor: 'red' }} onPress={this.deleteTeam}
+            <Button title={translate("Delete Team")} buttonStyle={{ backgroundColor: 'red' }} onPress={this.deleteTeam}
               icon={<Icon name='deleteusergroup' color='white' type='antdesign' size={20} />}
             />
             {this.state.members.length > 1 &&
-              <Button title='Select new manager' buttonStyle={{ backgroundColor: 'red', margin: 20 }} onPress={this.selectNewManager}
+              <Button title={translate("Select new manager")} buttonStyle={{ backgroundColor: 'red', margin: 20 }} onPress={this.selectNewManager}
                 icon={<Icon name='exit-run' color='white' type='material-community' size={20} />}
               />}
           </View>
@@ -159,7 +160,7 @@ class TeamScreen extends React.Component {
           <View>
             {this.state.members.some((member) => { return member.member_id == this.props.auth.user_id }) ?
               <View style={{ alignSelf: 'center', justifyContent: 'center' }}>
-                <Button title='Leave Team' buttonStyle={{ backgroundColor: 'red' }} onPress={this.leaveTeamOrStopWaiting}
+                <Button title={translate("Leave Team")} buttonStyle={{ backgroundColor: 'red' }} onPress={this.leaveTeamOrStopWaiting}
                   icon={<Icon name='exit-run' color='white' type='material-community' size={20} />}
                 />
               </View>
@@ -167,13 +168,13 @@ class TeamScreen extends React.Component {
               <View>
                 {this.state.waitingMembers.some((member) => { return member.member_id == this.props.auth.user_id }) ?
                   <View style={{ alignSelf: 'center', justifyContent: 'center' }}>
-                    <Button title='Waiting For Approval' buttonStyle={{ backgroundColor: 'orange' }} onPress={() => { }}
+                    <Button title={translate("Waiting For Approval")} buttonStyle={{ backgroundColor: 'orange' }} onPress={() => { }}
                       icon={<Icon name='timer-sand' color='white' type='material-community' size={20} />}
                     />
                   </View>
                   :
                   <View style={{ alignSelf: 'center', justifyContent: 'center' }}>
-                    <Button title='Join Team' buttonStyle={{ backgroundColor: 'green' }} onPress={this.joinTeam}
+                    <Button title={translate("Join Team")} buttonStyle={{ backgroundColor: 'green' }} onPress={this.joinTeam}
                       icon={<Icon name='door-open' color='white' type='material-community' size={20} />}
                     />
                   </View>
@@ -192,18 +193,18 @@ class TeamScreen extends React.Component {
         isVisible={this.state.isEditingTeam}
         onBackdropPress={() => { this.setState({ isEditingTeam: false }) }} >
         <View>
-          <ProfileInput title={'Team Name'} placeholderText={'Title here ...'}
+          <ProfileInput title={translate("Team Name")} placeholderText={translate("Title here ...")}
             data={this.state.team.team_name} callbackOnChange={this.onTeamNameChange}
             isAdding={this.state.isAdding} />
-          <ProfileInput title={'Bio'} placeholderText={'Description here ...'}
+          <ProfileInput title={translate('Bio')} placeholderText={translate('Description here ...')}
             data={this.state.team.team_description} callbackOnChange={this.onDescriptionChange}
             isAdding={this.state.isAdding} />
           <CheckBox
             checked={!this.state.manager_has_to_acceptDraft}
-            title='Joinable without manager acceptance'
+            title={translate("Joinable without manager acceptance")}
             onPress={() => { this.setState({ manager_has_to_acceptDraft: !this.state.manager_has_to_acceptDraft }) }} />
           <SaveButton
-            title={`| Enregister?`}
+            title={`| ` + translate("Save") + `?`}
             callback={this.saveTeam} />
         </View>
       </Overlay>
@@ -220,7 +221,7 @@ class TeamScreen extends React.Component {
           {this.state.newManagerId != -1 &&
             <Button
               buttonStyle={{ alignSelf: 'flex-start' }}
-              title="Yep, that's him"
+              title={translate("Yep, that's him")}
               icon={<Icon name='check' size={15} />}
               onPress={this.doSelectNewManager} />
           }

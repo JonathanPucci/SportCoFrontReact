@@ -12,6 +12,7 @@ import * as RootNavigation from '../../navigation/RootNavigation.js';
 import { DEFAULT_PROFILE_PIC } from '../../constants/AppConstants'
 import ProfileInput from './ProfileInput';
 import { convertUTCDateToLocalDate } from '../Event/Helpers';
+import { translate } from '../../App';
 
 
 class TeamsList extends React.Component {
@@ -76,12 +77,12 @@ class TeamsList extends React.Component {
                                 <ScrollView
                                     style={{ height: isAdding?'70%' : '90%' }}
                                     keyboardShouldPersistTaps='handled'>
-                                    <ProfileInput title={isAdding ? 'Teams' : 'My Teams'} placeholderText={'Find by name...'}
+                                    <ProfileInput title={isAdding ? translate('Teams') : translate("My Teams")} placeholderText={'Find by name...'}
                                         data={this.state.teamsNameFilter} callbackOnChange={this.onTeamNameFilterChanged}
                                         isAdding={isAdding} />
                                     <View style={{ flexDirection: "column" }}>
                                         {dataToShow.length == 0 && (
-                                            <Text style={{ textAlign: 'center' }}>You may want to change the filter up there ...</Text>
+                                            <Text style={{ textAlign: 'center' }}>{translate("You may want to change the filter up there ...")}</Text>
                                         )}
                                         {dataToShow.map((team, index) => {
                                             return (
@@ -98,7 +99,7 @@ class TeamsList extends React.Component {
                                 {isAdding &&
                                     <View style={{ marginTop: 20 }}>
                                         <Button
-                                            title='Or, start a new team !'
+                                            title={translate("Or, start a new team !")}
                                             onPress={() => this.setState({ isCreatingTeam: true })}
                                             style={{ marginTop: 50, width: '60%', alignSelf: 'center' }} />
                                     </View>
@@ -181,20 +182,20 @@ class TeamsList extends React.Component {
     renderTeamCreator = () => {
         return (
             <View>
-                <ProfileInput notShowingTitle title={'Teams'}
-                    placeholderText={'Team Name Here'}
+                <ProfileInput notShowingTitle title={translate('Teams')}
+                    placeholderText={translate("Team Name Here")}
                     data={this.state.newTeamName} callbackOnChange={this.onTeamNameChanged}
                     isAdding={true} />
-                <ProfileInput notShowingTitle title={'Teams'}
-                    placeholderText={'Team Description Here'}
+                <ProfileInput notShowingTitle title={translate('Teams')}
+                    placeholderText={translate("Team Description Here")}
                     data={this.state.newTeamDesc} callbackOnChange={this.onTeamDescChanged}
                     isAdding={false} />
                 <CheckBox
                     checked={this.state.newTeamNotManaged}
-                    title='Joinable without manager acceptance'
+                    title={translate("Joinable without manager acceptance")}
                     onPress={() => { this.setState({ newTeamNotManaged: !this.state.newTeamNotManaged }) }} />
                 <Button
-                    title='All Good'
+                    title={translate("All Good")}
                     onPress={this.createTeam}
                     style={{ marginTop: 50, width: '60%', alignSelf: 'center' }} />
             </View>

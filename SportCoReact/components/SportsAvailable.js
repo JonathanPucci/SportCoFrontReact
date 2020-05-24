@@ -10,6 +10,7 @@ import Colors from "../constants/Colors";
 import { connect } from 'react-redux'
 import { mapSportIcon } from "../helpers/mapper";
 import { Layout } from '../constants/Layout'
+import { translate } from "../App";
 
 
 const LEVEL_IMAGE = require('../assets/images/medal.png')
@@ -84,8 +85,8 @@ class SportsAvailable extends Component {
                     {this.props.showStats && (
                         <View style={{ marginLeft: 20, flexDirection: 'column' }}>
                             <View style={{ marginTop: 10, flexDirection: 'column' }}>
-                                <Text>Created : {this.props.stats[sport].created}</Text>
-                                <Text>Joined : {this.props.stats[sport].joined} </Text>
+                                <Text>{translate('Created')} : {this.props.stats[sport].created}</Text>
+                                <Text>{translate('Joined')} : {this.props.stats[sport].joined} </Text>
                                 {this.props.showStats && (
                                     <View style={{ marginTop: 5, flexDirection: 'row' }}>
                                         <TouchableWithoutFeedback

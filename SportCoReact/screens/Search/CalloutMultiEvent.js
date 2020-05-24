@@ -10,6 +10,7 @@ import { mapSportIcon } from '../../helpers/mapper'
 import CardEvent from '../../components/CardEvent'
 import Colors from '../../constants/Colors';
 import SportCoApi from '../../services/apiService';
+import { translate } from '../../App';
 
 class CalloutMultiEvent extends React.Component {
 
@@ -21,7 +22,7 @@ class CalloutMultiEvent extends React.Component {
 
             <Callout onPress={() => this.goToEventLibrary(this.props.events)} >
                 <View style={eventCalloutStyles.eventContainer}>
-                    <Text h5 style={eventCalloutStyles.eventTitle}>Plusieurs évènements ici !</Text>
+                    <Text h5 style={eventCalloutStyles.eventTitle}>{translate("Many events here !")}</Text>
                     {this.props.events != undefined &&
                         (<View style={eventCalloutStyles.eventSports}>
                             {this.props.events.map((item, index) => {

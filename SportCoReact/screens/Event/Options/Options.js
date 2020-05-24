@@ -4,6 +4,7 @@ import { Button, Icon } from 'react-native-elements'
 
 import { OptionIcon } from '../OptionIcon'
 import { isOrganizedByMe, computeAlreadyJoined } from '../Helpers'
+import { translate } from '../../../App';
 
 export class Options extends React.Component {
 
@@ -38,7 +39,7 @@ export class Options extends React.Component {
           ) : (
             <View style={{marginTop:10}}>
               {!alreadyJoined ?
-                <Button title={"Join event !"} onPress={this.props.joinEvent} />
+                <Button title={translate("Join event !")} onPress={this.props.joinEvent} />
                 :
                 <Button buttonStyle={{ backgroundColor: 'green' }} icon={
                   <Icon
@@ -46,7 +47,7 @@ export class Options extends React.Component {
                     size={15}
                     color="white"
                     type='font-awesome'
-                  />} title={`| Not going?`} onPress={this.props.leaveEvent} />
+                  />} title={`| `+translate("Not going")+`?`} onPress={this.props.leaveEvent} />
                 }
                 </View>
             )}

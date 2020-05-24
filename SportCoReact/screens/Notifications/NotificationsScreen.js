@@ -11,8 +11,23 @@ import { mapSportIcon, mapNotifInfo } from '../../helpers/mapper';
 import { formatDistanceToNow } from 'date-fns'
 import { DEFAULT_PROFILE_PIC } from '../../constants/AppConstants';
 import { navigateToEvent, navigateToTeam } from '../../navigation/RootNavigation';
-import { convertUTCDateToLocalDate } from '../Event/Helpers';
+import { convertUTCDateToLocalDate, timeSince } from '../Event/Helpers';
+import { translate } from '../../App';
 
+
+function groupBy(list, keyGetter) {
+  const map = new Map();
+  list.forEach((item) => {
+    const key = keyGetter(item);
+    const collection = map.get(key);
+    if (!collection) {
+      map.set(key, [item]);
+    } else {
+      collection.push(item);
+    }
+  });
+  return map;
+}
 
 class NotificationsScreen extends React.Component {
 
@@ -75,7 +90,7 @@ class NotificationsScreen extends React.Component {
 
   checkIfAllEventsRetrieved(notifData) {
     if (this.state.eventsInNotificationsSoFar.length == notifData.length) {
-      let sortedNotifs = notifData.sort((a, b) => { if ((new Date(a.date)) > (new Date(b.date))) return -1 });
+      let sortedNotifs = this.sortAndGroupNotifs(notifData);
       this.setState({
         loading: false,
         refreshing: false,
@@ -85,19 +100,34 @@ class NotificationsScreen extends React.Component {
     }
   }
 
+  sortAndGroupNotifs = (notifData) => {
+    let newNotifs = [];
+    const groupedByEvent = groupBy(notifData, notif => notif.data_value);
+    for (var [key, value] of groupedByEvent.entries()) {
+      const groupedByType = groupBy(value, notif => notif.message_type);
+      for (var [key, value] of groupedByType.entries()) {
+        let events = value.sort((a, b) => { if ((new Date(a.date)) > (new Date(b.date))) return -1 });
+        newNotifs.push(events[0]);
+      }
+    }
+
+    newNotifs = newNotifs.sort((a, b) => { if ((new Date(a.date)) > (new Date(b.date))) return -1 });
+    return newNotifs;
+  }
+
+
   render() {
     if (this.state.loading)
       return (
         <View style={{ marginTop: 100, alignSelf: 'center', justifyContent: 'center', alignItems: 'center' }}>
-          <Text>Loading...</Text>
+          <Text>{translate("Loading")}</Text>
         </View>
       )
     if (this.state.notificationHistory.length == 0)
       return (
         <View style={{ marginTop: 100, alignSelf: 'center', justifyContent: 'center', alignItems: 'center' }}>
-          <Text>No Notifications yet...</Text>
-          <Text>Join an event or create one !</Text>
-          <Button onPress={this.getData.bind(this)} title='Refresh' />
+          <Text>{translate("NoNotifs")}</Text>
+          <Button onPress={this.getData.bind(this)} title={translate('Refresh')} />
         </View>
       )
     return (
@@ -130,7 +160,7 @@ class NotificationsScreen extends React.Component {
                   {this.renderEventInfo(event, isCanceled)}
 
                   <View style={styles.notifDate}>
-                    <Text style={styles.notifDateText}>{formatDistanceToNow(convertUTCDateToLocalDate(new Date(item.date)))}</Text>
+                    <Text style={styles.notifDateText}>{timeSince(convertUTCDateToLocalDate(new Date(item.date)))}</Text>
                   </View>
                 </View>
               </TouchableWithoutFeedback>
@@ -178,10 +208,10 @@ class NotificationsScreen extends React.Component {
       <View style={{ flexDirection: 'column' }}>
         <View style={styles.descriptionText}>
           <Emoji name={info.emojiName} style={{ fontSize: 15, marginTop: 15 }} />
-          <Text numberOfLines={2} style={{ flex: 1, marginTop: 15 }}>{info.messageBody}</Text>
+          <Text numberOfLines={2} style={{ flex: 1, marginTop: 15 }}>{translate(info.messageBody)}</Text>
         </View>
-        {info.additionalInfo != '' &&
-          <Text numberOfLines={2} style={{ fontSize: 11 }}>{info.additionalInfo}</Text>
+        {info.additionalInfo != '' && info.additionalInfo != undefined &&
+          <Text numberOfLines={2} style={{ fontSize: 11 }}>{translate(info.additionalInfo)}</Text>
         }
       </View>
 
@@ -195,7 +225,7 @@ class NotificationsScreen extends React.Component {
       return (
         <View style={[styles.eventInfo, { right: 10 }]}>
           <Text style={{ fontSize: 10, textAlign: 'center', justifyContent: 'center' }}>
-            {`Event has been \ncanceled\nor does not\nexist anymore`}
+            {translate("eventcanceledornotexists")}
           </Text>
         </View>
       )

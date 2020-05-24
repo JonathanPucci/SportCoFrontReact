@@ -23,6 +23,7 @@ import { APP_URL, DEFAULT_PROFILE_PIC } from '../../constants/AppConstants'
 import Share from 'react-native-share';
 import AdMobInterstitial from '../../services/AdMob/AdMobInterstitial';
 import AdMobBanner from '../../services/AdMob/AdMobBanner';
+import { translate } from '../../App';
 
 const newEmptyEvent = {
   event: {
@@ -144,7 +145,7 @@ class EventScreen extends React.Component {
           <RefreshControl refreshing={this.state.refreshing} onRefresh={() => { this.getData().then(() => { this.setInitEventData() }) }} />
         }>
 
-        {this.state.eventData.event.event_id != "" && displayAd && <AdMobInterstitial />}
+        {/* {this.state.eventData.event.event_id != "" && displayAd && <AdMobInterstitial />} */}
 
         {this.renderHostHeader(eventData, photoUrl, eventIcon)}
         <View style={{ flex: 1, width: '100%', alignSelf: 'center', marginTop: 20 }}>
@@ -156,7 +157,7 @@ class EventScreen extends React.Component {
               />
               <View style={{ marginTop: 20 }}>
                 <DescriptionText
-                  title='Visibility'
+                  title={translate('Visibility')}
                   data={eventData.event.visibility.toUpperCase()}
                   editing={this.state.editing}
                   setEditingProperty={this.setEditingProperty}
@@ -166,7 +167,7 @@ class EventScreen extends React.Component {
             <View style={{ flexDirection: 'column', flex: 1, marginLeft: 10 }}>
               {this.renderDescriptionText('Description', eventData.event.description)}
               {this.renderDescriptionText('Date', date)}
-              {this.renderDescriptionText('Level', eventData.event.sport_level.toLocaleUpperCase())}
+              {this.renderDescriptionText(translate('Level'), eventData.event.sport_level.toLocaleUpperCase())}
               <View style={{ flexDirection: 'row', marginLeft: -20 }}>
                 {this.renderDescriptionText('Min', eventData.event.participants_min, true)}
                 {this.renderDescriptionText('Going', eventData.participants.length, true, false)}
@@ -213,12 +214,12 @@ class EventScreen extends React.Component {
             navigation={this.props.navigation} />
           <View style={{ flexDirection: 'row', alignSelf: 'center', justifyContent: 'center' }}>
             <View style={{ flexDirection: 'row', alignSelf: 'center', justifyContent: 'center', alignItems: 'center' }}>
-              <Text style={{ textAlign: 'center', fontSize: 12 }}> Social Share </Text>
+              <Text style={{ textAlign: 'center', fontSize: 12 }}> {translate("Social Share")} </Text>
               <OptionIcon callback={this.onShare} size={20} name="share" color={'blue'} />
             </View>
             <View style={{ flexDirection: 'row', alignSelf: 'center', justifyContent: 'center', alignItems: 'center' }}>
               <OptionIcon callback={this.onShareWithin} size={20} name="share" color={'blue'} />
-              <Text style={{ textAlign: 'center', fontSize: 12 }}> To Friends or Team </Text>
+              <Text style={{ textAlign: 'center', fontSize: 12 }}> {translate("To Friends or Team")}</Text>
               <OverlayShareWithin
                 sharingWithin={this.state.sharingWithin}
                 stopSharingWithin={() => { this.setState({ sharingWithin: false }) }}
@@ -250,22 +251,24 @@ class EventScreen extends React.Component {
                   query: (eventData.spot.spot_latitude + ',' + eventData.spot.spot_longitude)
                 })
               }
-              title="Click To Open in Maps" />
+              title={translate("Click To Open in Maps")} />
           </View>
-          {this.state.eventData.event.event_id != "" &&
+          {/* {this.state.eventData.event.event_id != "" &&
             <View>
               <AdMobBanner style={{ left: -15, marginVertical: 10 }} />
               <Text style={{ textAlign: 'center' }}>Well.. we know ads are bad, sorry about that !</Text>
             </View>
-          }
+          } */}
           <View style={{ height: 15 }} />
           <Comments
             comments={this.state.eventData.comments}
+            canCommentAlready={this.state.eventData.event.event_id != ""}
             addComment={this.addComment}
             validateComment={this.validateComment}
             onCommentChangeText={this.onCommentChangeText}
             cancelComment={this.cancelComment}
             setEditingProperty={this.setEditingProperty}
+
           />
         </View>
         <View style={{ height: 200 }}></View>
@@ -354,8 +357,8 @@ class EventScreen extends React.Component {
     try {
       const initialUrl = APP_URL;
       let url = initialUrl + this.state.eventData.event.event_id;
-      let title = 'You should have a look at this event !';
-      let message = `Click here to see the event ` + url
+      let title = translate('notifHaveALook');
+      let message = translate('clickToSeeEvent') + url
 
       const options = {
         title,

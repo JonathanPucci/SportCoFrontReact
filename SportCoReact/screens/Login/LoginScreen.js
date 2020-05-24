@@ -10,7 +10,7 @@ import {
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import SportCoApi from '../../services/apiService';
 
-import { firebase } from '@react-native-firebase/auth';
+import auth from '@react-native-firebase/auth';
 
 import FacebookLogin from './FacebookLogin';
 import { AppleLogin } from './AppleLogin';
@@ -20,6 +20,8 @@ import { logDebugInfo, logDebugError } from '../Event/Helpers';
 import Spinner from 'react-native-loading-spinner-overlay';
 import Register from './Register';
 import { Divider } from 'react-native-elements';
+import { GraphRequestManager, GraphRequest, AccessToken, LoginManager } from 'react-native-fbsdk';
+import { translate } from '../../App';
 
 
 
@@ -41,9 +43,14 @@ class LoginScreen extends React.Component {
     this.setState({ authFlag: true })
     try {
       // firebase.auth().signOut();
-      firebase.auth().onAuthStateChanged(user => {
+      auth().onAuthStateChanged(user => {
+        // if (user != null)
+        //   logDebugInfo('USERFB', user.providerData);
         if (this.state.authFlag) {
           this.setState({ authFlag: false });
+          this.timeoutFlag = setTimeout(() => {
+            this.setState({ authFlag: true })
+          }, 2000);
           this.saveToBackendUser(user);
         }
       });
@@ -56,10 +63,11 @@ class LoginScreen extends React.Component {
   loginAction(user, id) {
     logDebugInfo('Logged with user', user);
     // user['photo_url'] = user.photoURL;
-    if (this.loadingTimeout) {
-      clearTimeout(this.loadingTimeout);
-      this.loadingTimeout = 0;
-    }
+    console.log('clear')
+    clearTimeout(this.loadingTimeout);
+    clearTimeout(this.timeoutFlag);
+    this.timeoutFlag = 0;
+    this.loadingTimeout = 0;
 
     const action = {
       type: USER_LOGGED,
@@ -106,7 +114,7 @@ class LoginScreen extends React.Component {
 
           <Spinner
             visible={this.state.isSpinnerVisible}
-            textContent={'Loading...'}
+            textContent={translate("Loading")}
             textStyle={{ color: 'white' }}
           />
 
@@ -130,7 +138,8 @@ class LoginScreen extends React.Component {
       // logDebugInfo("UserSave", user)
       let userDB = {
         photo_url: user.photoURL,
-        email: user.providerId == 'firebase' ? user.email : user.providerData[0].email
+        email: user.providerId == 'firebase' && user.providerData[0].providerId != 'facebook.com' ? user.email : user.providerData[0].email,
+        photo_to_use : user.providerData[0].providerId == 'facebook.com' ? 'fb':'default'
       }
       this.apiService.getSingleEntity('users/email', userDB.email)
         .then((datauser) => {
@@ -181,9 +190,13 @@ class LoginScreen extends React.Component {
 
     this.setState({ isSpinnerVisible: true })
     this.loadingTimeout = setTimeout(() => {
-      this.setState({ isSpinnerVisible: false }, () => {
-        this.alertTimeout = setTimeout(() => { alert('Well obviously something went wrong... Sorry about that !') }, 200);
-      })
+      if (this.loadingTimeout) {
+        this.setState({ isSpinnerVisible: false }, () => {
+          alert('Well obviously something went wrong... Sorry about that !');
+          LoginManager.logOut();
+          auth().signOut();
+        })
+      }
     }, 5000)
   }
 }

@@ -9,6 +9,7 @@ import { mapSportIcon } from '../../helpers/mapper';
 import * as RootNavigation from '../../navigation/RootNavigation.js';
 import { DEFAULT_PROFILE_PIC } from '../../constants/AppConstants'
 import Colors from '../../constants/Colors';
+import { translate } from '../../App';
 
 
 class Members extends React.Component {
@@ -21,7 +22,7 @@ class Members extends React.Component {
         let nuplets = this.buildNUplets(this.props.items);
         return (
             <View>
-                <Text style={styles.desc}>Members {this.props.toBeValidated ? 'to validate' : ''}</Text>
+                <Text style={styles.desc}>{translate("Members")} {this.props.toBeValidated ? translate("to validate") : ''}</Text>
                 <View style={{ marginTop: 10, flexDirection: 'column', marginLeft: 15 }}>
                     {nuplets.map((memberLine, index) => {
                         return (

@@ -1,11 +1,12 @@
 import * as React from 'react';
 import { Image, Text, View } from 'react-native';
 import { Button, Icon } from 'react-native-elements';
-import { ScrollView } from 'react-native-gesture-handler';
+import { ScrollView, TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { connect } from 'react-redux'
 import { styles } from './styles'
 
 import SportCoApi from '../../services/apiService';
+import { translate } from '../../App';
 
 class HomeScreen extends React.Component {
 
@@ -45,42 +46,29 @@ class HomeScreen extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+        <ScrollView
+          ref={(sc) => this.scrollView = sc}
+          style={styles.container} contentContainerStyle={styles.contentContainer}>
+
+
+
+          <View style={styles.welcomeContainer}>
+            <Text style={styles.text}>{translate('Welcome to Timaka') }</Text>
+            <Text style={[styles.text]}>{translate('Amazing sport sessions ahead !')}</Text>
+          </View>
 
           <View style={styles.imageContainer}>
             <Image source={require('../../assets/images/logomultisports.png')} style={styles.image} />
           </View>
 
           <View style={styles.welcomeContainer}>
-            <Text style={styles.text}>Welcome to Timaka </Text>
-            <Text style={[styles.text, { textDecorationLine: 'underline' }]}>Amazing sport sessions ahead !</Text>
-            <Text style={styles.text}>{`\nFrom this tab, you can help the community \nby adding your favorite spots \nto the database via this button`} </Text>
+            <Text style={styles.text}>{translate('searchAndCreateLabel')} </Text>
           </View>
 
-          <View style={styles.buttonView}>
-            <Button
-              title={`  Add Spot`}
-              color='white'
-              icon={
-                <Icon
-                  name="map-marker-plus"
-                  type='material-community'
-                  size={20}
-                  color="white"
-                />
-              }
-              onPress={this.navigateToSpotManager.bind(this)}
-            />
-          </View>
-
-          <View style={styles.welcomeContainer}>
-            <Text style={styles.text}>{`\nThrough these ones \nyou can start searching sessions\n or create some `} </Text>
-          </View>
-
-          <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-around'}}>
             <View style={styles.buttonView}>
               <Button
-                title={"Search"}
+                title={`   `+translate('Search')}
                 color='white'
                 icon={
                   <Icon
@@ -94,7 +82,7 @@ class HomeScreen extends React.Component {
 
             <View style={styles.buttonView}>
               <Button
-                title={"Create"}
+                title={`   `+translate(`Create`)}
                 color='white'
                 icon={
                   <Icon
@@ -106,6 +94,46 @@ class HomeScreen extends React.Component {
                 onPress={this.navigateToEventCreation.bind(this)} />
             </View>
           </View>
+
+
+          <Button
+            containerStyle={{ marginTop: 10 }}
+            title={''}
+            color='white'
+            type='clear'
+            icon={
+              <Icon
+                name='arrow-down'
+                size={50}
+                color='grey'
+                type='simple-line-icon'
+              />
+            }
+            TouchableComponent={TouchableWithoutFeedback}
+            onPress={() => { this.scrollView.scrollToEnd() }} />
+
+
+          <View style={styles.welcomeContainer}>
+            <Text style={styles.text}>{translate('addFavSports')} </Text>
+          </View>
+
+          <View style={styles.buttonView}>
+            <Button
+              title={`   `+translate(`AddSpot`)}
+              color='white'
+              icon={
+                <Icon
+                  name="map-marker-plus"
+                  type='material-community'
+                  size={20}
+                  color="white"
+                />
+              }
+              onPress={this.navigateToSpotManager.bind(this)}
+            />
+          </View>
+
+
 
 
         </ScrollView>

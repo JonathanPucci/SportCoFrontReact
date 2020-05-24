@@ -1,3 +1,4 @@
+
 const MAP_SPORT_ICON = {
     soccer: {
         image: require('../assets/images/SoccerField.png'),
@@ -70,42 +71,42 @@ const MAP_SPORT_ICON = {
 
 MAP_NOTIF_INFO = {
     EVENT_CHANGED: {
-        messageBody: ` Event has changed, check it out !`,
+        messageBody: ('  Event has changed, check it out !'),
         emojiName: 'man-raising-hand',
         iconName: 'new-message'
     },
     NEW_EVENT: {
-        messageBody: '  New event nearby, interested?',
+        messageBody: ('  New event nearby, interested?'),
         emojiName: 'man-bowing',
         iconName: 'new'
     },
     INVIT_EVENT: {
-        messageBody: '  shared an event with you, check it out !',
+        messageBody: ('  shared an event with you, check it out !'),
         emojiName: 'man-bowing',
         iconName: 'new'
     },
     EVENT_CANCELED: {
-        messageBody: `  Event has been canceled, sorry !`,
+        messageBody: ('  Event has been canceled, sorry !'),
         emojiName: 'man-shrugging',
         iconName: 'circle-with-cross'
     },
     PARTICIPANT_JOINED: {
-        messageBody: '  New participant to your event',
+        messageBody: ('  New participant to your event'),
         emojiName: 'man-running',
         iconName: 'add-user'
     },
     PARTICIPANT_LEFT: {
-        messageBody: '  Participant left your event',
+        messageBody: ('  Participant left your event'),
         emojiName: 'man-running',
         iconName: 'remove-user'
     },
     WANTS_TO_JOIN_TEAM: {
-        messageBody: '  Someone wants to join your team',
+        messageBody: ('  Someone wants to join your team'),
         emojiName: 'man-raising-hand',
         iconName: 'new'
     },
     NEW_TEAM_MEMBER: {
-        messageBody: '  Someone joined your team',
+        messageBody: ('  Someone joined your team'),
         emojiName: 'man-raising-hand',
         iconName: 'new'
     },

@@ -2,6 +2,7 @@ import { LEVELS } from '../../constants/DbConstants.js'
 import { format, formatDistanceToNow } from 'date-fns'
 import { NativeModules, Platform } from 'react-native';
 import { enGB, fr } from 'date-fns/locale'
+import * as RNLocalize from 'react-native-localize';
 
 const locales = { enGB, fr }
 
@@ -51,7 +52,11 @@ export function isEmpty(obj) {
 }
 
 export function timeSince(date) {
-    return formatDistanceToNow(date)
+    const fallback = { languageTag: 'en' }
+    const { languageTag } =
+        RNLocalize.findBestAvailableLanguage(['en','fr']) ||
+        fallback;
+    return formatDistanceToNow(date, { locale: languageTag == 'fr'? fr : enGB })
 }
 
 export function convertUTCDateToLocalDate(date) {

@@ -6,6 +6,8 @@ import { timeSince } from '../Helpers'
 import { DescriptionText } from '../DescriptionText/DescriptionText'
 import { OptionIcon } from '../OptionIcon'
 import { DEFAULT_PROFILE_PIC } from '../../../constants/AppConstants';
+import ProfilePic from '../../Profile/ProfilePic';
+import { translate } from '../../../App';
 
 export class Comments extends React.Component {
 
@@ -36,21 +38,28 @@ export class Comments extends React.Component {
         else
           return (new Date(a.date)) - (new Date(b.date));
       });
-
+    // console.log(comments)
     return (
       <View style={{ marginTop: 30 }}>
-        <DescriptionText title='Comments' data='' centered='auto' isMutable={false} setEditingProperty={this.props.setEditingProperty} />
+        <DescriptionText title={translate('Comments')} data='' centered='auto' isMutable={false} setEditingProperty={this.props.setEditingProperty} />
         {comments.map((comment, index) => {
           let photoUrl = comment.photo_url;
           return (
             <View key={"comment-" + index} style={styles.commentBloc}>
               <View style={styles.commentInfo}>
                 <View style={{ flexDirection: 'row' }}>
-                  <View style={styles.imageContainerComment}>
+                  {/* <View style={styles.imageContainerComment}>
                     {photoUrl != undefined ?
                       <Image source={{ uri: photoUrl + '?type=large&width=500&height=500' }} style={styles.imageComment} />
                       : <Image source={DEFAULT_PROFILE_PIC} resizeMode='contain' style={styles.imageCommentNoBorder} />}
-                  </View>
+                  </View> */}
+                  <ProfilePic
+                    edition={false}
+                    user={comment}
+                    stylePic={styles.imageComment}
+                    styleDefault={styles.imageCommentNoBorder}
+                    styleContainer={styles.imageContainerComment}
+                  />
                   <Text style={styles.commentUserName}>{comment.user_name.split(' ')[0]} : </Text>
                 </View>
                 <Text style={styles.commentDate}>{timeSince(comment.isNew ? new Date() : new Date(comment.date))}</Text>
@@ -84,10 +93,16 @@ export class Comments extends React.Component {
             </View>
           )
         })}
-        {(!comments.length ||
-          (comments.length && !comments[comments.length - 1].isNew)) &&
+        {(this.props.canCommentAlready && (
+          !comments.length ||
+          (comments.length && !comments[comments.length - 1].isNew))) &&
           <View style={{ flex: 1 }}>
             <OptionIcon name='plus' color='blue' callback={this.props.addComment} />
+          </View>
+        }
+        {!this.props.canCommentAlready &&
+          <View style={{ flex: 1, alignSelf: 'center' }}>
+            <Text style={{ textAlign: 'center' }}>{translate('First submit your event, then comments will be available')}</Text>
           </View>
         }
       </View>

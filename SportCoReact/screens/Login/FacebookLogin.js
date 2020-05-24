@@ -1,15 +1,13 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { StyleSheet, Text, TouchableHighlight, TouchableOpacity, View } from 'react-native';
-// import * as Facebook from 'expo-facebook';
-// import firebase from 'firebase';
+import { StyleSheet, Text, TouchableHighlight, View } from 'react-native';
 import auth from '@react-native-firebase/auth';
 
 import SportCoApi from '../../services/apiService';
-import { StackActions } from '@react-navigation/native';
 import { GraphRequestManager, GraphRequest, AccessToken, LoginManager } from 'react-native-fbsdk';
 import { logDebugInfo } from '../Event/Helpers';
+import { translate } from '../../App';
 
 
 class FacebookLogin extends React.Component {
@@ -105,7 +103,7 @@ class FacebookLogin extends React.Component {
           onPress={this.facebookLogin}
         >
           <Text style={styles.facebookButtonText}>
-            Sign in with Facebook
+            {translate("Sign in with Facebook")}
             </Text>
         </TouchableHighlight>
         <View style={styles.space} />

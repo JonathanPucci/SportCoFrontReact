@@ -1,12 +1,13 @@
 
 
 import * as React from 'react';
-import { View, TextInput, TouchableWithoutFeedback } from 'react-native';
+import { View, Keyboard, TextInput, TouchableWithoutFeedback } from 'react-native';
 import { Text } from 'react-native-elements'
 
 import { connect } from 'react-redux'
 
 import { styles } from './styles'
+import { translate } from '../../App';
 
 
 class ProfileInput extends React.Component {
@@ -21,12 +22,13 @@ class ProfileInput extends React.Component {
                     {!this.props.notShowingTitle && <Text style={{ alignSelf: 'center', fontSize: 20, fontWeight: 'bold' }}>{title}</Text>}
                     <View style={styles.inputView}>
                         <TextInput
-                            style={title != 'Friends' && !title.includes('Teams') ? styles.textInput : styles.textInputFriends}
+                            style={title != translate('Friends') && !title.includes(translate('Teams')) ? styles.textInput : styles.textInputFriends}
                             ref={(input) => { this.input = input; }}
-                            autoFocus={title == 'Friends' || title.includes('Teams') ? isAdding : !this.props.noautofocus}
+                            autoFocus={title == translate('Friends') || title.includes(translate('Teams')) ? isAdding : !this.props.noautofocus}
                             onChangeText={callbackOnChange}
                             defaultValue={data}
                             placeholder={placeholderText}
+                            onSubmitEditing={Keyboard.dismiss}
                             multiline
                         />
                     </View>

@@ -13,13 +13,13 @@ import { logDebugInfo } from '../Event/Helpers';
 
 class Register extends React.Component {
     state = {
-        user_name: 'MyNAME',
+        user_name: '',//'MyNAME',
         errorName: '',
-        email: 'zpivjr@ecpi.com',
+        email: '',//'zpivjr@ecpi.com',
         errorEmail: '',
-        password: 'blablabla',
+        password: '',//'blablabla',
         errorPassword: '',
-        isSigninUp: true,
+        isSigninUp: false,
     }
 
     handleSignUpOrLogin = async () => {
@@ -39,7 +39,7 @@ class Register extends React.Component {
                     })
                     .catch(this.manageError)
             else
-                this.setState({ errorName: 'Please enter something up there' })
+                this.setState({ errorName: translate('Please enter something up there') })
         }
         else
             auth()

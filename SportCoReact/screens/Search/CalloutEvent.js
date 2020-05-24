@@ -10,6 +10,7 @@ import SportCoApi from '../../services/apiService';
 import { computeDate } from '../Event/Helpers';
 import Colors from '../../constants/Colors';
 import { DEFAULT_PROFILE_PIC } from '../../constants/AppConstants';
+import { translate } from '../../App';
 
 class CalloutEvent extends React.Component {
 
@@ -39,7 +40,7 @@ class CalloutEvent extends React.Component {
                     <View style={eventCalloutStyles.eventDescriptionRow}>
                         <View style={eventCalloutStyles.eventDescriptionView}>
                             <View style={eventCalloutStyles.eventDescription}>
-                                <Text h5 >Participants : {eventInfo.participants.length}/{eventInfo.event.participants_max}</Text>
+                                <Text h5 >{translate("Participants")} : {eventInfo.participants.length}/{eventInfo.event.participants_max}</Text>
                                 <Text h5 >{computeDate(eventInfo.event.date)}</Text>
                             </View>
                         </View>

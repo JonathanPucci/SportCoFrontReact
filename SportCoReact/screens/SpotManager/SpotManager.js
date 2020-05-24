@@ -13,6 +13,7 @@ import { initialZoom } from '../../screens/Search/SearchScreen';
 import { OptionIcon} from '../../screens/Event/OptionIcon';
 import { SpotMap } from './SpotMap';
 import Geolocation from 'react-native-geolocation-service';
+import { translate } from '../../App';
 
 class SpotManager extends React.Component {
 
@@ -172,22 +173,22 @@ class SpotManager extends React.Component {
         if (spot == null)
             return (
                 <View style={{ alignSelf: 'center', marginTop: 30 }}>
-                    <Text style={{ fontSize: 18 }}>Select a spot or create a new one !</Text>
+                    <Text style={{ fontSize: 18 }}>{translate("Select a spot or create a new one !")}</Text>
                 </View>
             );
         return (
             <View>
-                <Text style={styles.selectedTitle}>Selected Spot Informations</Text>
+                <Text style={styles.selectedTitle}>{translate("Selected Spot Informations")}</Text>
                 {this.renderOptions()}
 
                 {this.state.isEditing ? (
                     <Input
-                        placeholder='Spot Name Here ...'
+                        placeholder={translate("Spot Name Here ...")}
                         value={spot.spot_name}
                         onChangeText={this.changeName.bind(this)}
                     />
                 ) : (
-                        <Text h4 style={styles.spotName}>Spot Name : {spot.spot_name} </Text>
+                        <Text h4 style={styles.spotName}>{translate("Spot Name")} : {spot.spot_name} </Text>
                     )}
                 {this.state.sportsAvailable.map((sport, index) => {
                     return (
@@ -207,7 +208,7 @@ class SpotManager extends React.Component {
                 <Text style={{ alignSelf: 'center', textAlign: 'center' }}>{sport}</Text>
                 <CheckBox
                     center
-                    title='Available'
+                    title={translate("Available")}
                     checked={this.state.sportsInSpotSelected.includes(sport)}
                     onPress={this.pressedSport.bind(this, sport)}
                 />

@@ -7,6 +7,7 @@ target 'Timaka' do
   rnPrefix = "../node_modules/react-native"
 
   # React Native and its dependencies
+  pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
   pod 'FBLazyVector', :path => "#{rnPrefix}/Libraries/FBLazyVector"
   pod 'FBReactNativeSpec', :path => "#{rnPrefix}/Libraries/FBReactNativeSpec"
   pod 'RCTRequired', :path => "#{rnPrefix}/Libraries/RCTRequired"
@@ -35,7 +36,6 @@ target 'Timaka' do
   pod 'DoubleConversion', :podspec => "#{rnPrefix}/third-party-podspecs/DoubleConversion.podspec"
   pod 'glog', :podspec => "#{rnPrefix}/third-party-podspecs/glog.podspec"
   pod 'Folly', :podspec => "#{rnPrefix}/third-party-podspecs/Folly.podspec"
-  pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
   pod 'react-native-google-maps', :path => '../node_modules/react-native-maps'
   pod 'GoogleMaps'
   pod 'Google-Maps-iOS-Utils'

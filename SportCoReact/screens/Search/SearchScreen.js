@@ -20,6 +20,7 @@ import { SPORTS } from '../../constants/DbConstants';
 import { logDebugInfo, logDebugError } from '../Event/Helpers';
 import InputScrollView from 'react-native-input-scroll-view';
 import { Keyboard } from 'react-native';
+import { translate } from '../../App';
 
 
 
@@ -241,7 +242,7 @@ class SearchScreen extends React.Component {
     if (this.state.loading) {
       return (
         <View style={{ marginTop: 200, alignSelf: "center", justifyContent: 'center', alignItems: 'center' }}>
-          <Text style={{ alignSelf: "center", justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>Loading</Text>
+          <Text style={{ alignSelf: "center", justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>{translate("Loading")}</Text>
           <Button onPress={this.initMap} title='Reload Position' style={{ alignSelf: "center", justifyContent: 'center', alignItems: 'center' }} />
         </View>
       );
@@ -318,14 +319,14 @@ class SearchScreen extends React.Component {
             <Button
               titleStyle={{ fontSize: 20 }}
               buttonStyle={{ marginTop: 50 }}
-              title={'Select All'}
+              title={translate('Select All')}
               onPress={() => { this.selectAllSports(); this.filterBySport() }}
             />
             {this.renderHostNameFilter()}
             <Button
               titleStyle={{ fontSize: 20 }}
               buttonStyle={{ marginTop: 50, backgroundColor: 'green' }}
-              title={'Yep, all good'}
+              title={translate("Yep, all good")}
               onPress={() => { this.filterBySport(true) }}
             />
           </InputScrollView>
@@ -340,7 +341,7 @@ class SearchScreen extends React.Component {
       let user = this.state.allUsers.find(item => { return item.user_id == this.state.hostIdFilter });
       return (
         <View>
-          <Text style={{ textAlign: 'center', marginTop: 20 }}> Only show events hosted by </Text>
+          <Text style={{ textAlign: 'center', marginTop: 20 }}> {translate("Only show events hosted by")} </Text>
           <TouchableWithoutFeedback
             style={{ flexDirection: 'row', justifyContent: "center", alignSelf: 'center' }}
             onPress={() => { this.setState({ hostIdFilter: '' }) }}
@@ -361,7 +362,7 @@ class SearchScreen extends React.Component {
       dataToShow = this.state.allUsers.filter((item) => { return item.user_name.toLowerCase().includes(this.state.hostNameFilter.toLowerCase()) }).slice(0, 1);
     return (
       <View style={{ marginTop: 20 }}>
-        {this.renderHostNameInput('Filter By Host Name', 'Find by name...', this.state.hostNameFilter, this.onHostNameFilterChanged)}
+        {this.renderHostNameInput(translate('Filter By Host Name'), translate('Find by name') + '...', this.state.hostNameFilter, this.onHostNameFilterChanged)}
         <View style={{ flexDirection: "column" }}>
           {dataToShow.map((user, index) => {
             return (

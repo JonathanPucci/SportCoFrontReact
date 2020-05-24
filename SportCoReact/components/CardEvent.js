@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, View, TouchableWithoutFeedback, Image, Text } from 'react-native';
 import { mapSportIcon } from '../helpers/mapper'
 import {Layout} from '../constants/Layout'
+import { translate } from '../App';
 
 export const CARD_HEIGHT = (Layout.window.height - 40) / 4.5;
 export const CARD_WIDTH = (Layout.window.width) / 3;//CARD_HEIGHT*0.75;
@@ -38,7 +39,7 @@ export default class CardEvent extends React.Component {
                         <Text numberOfLines={1} style={markerStyles.cardDescription}>{hour}</Text>
                         <Text numberOfLines={1} style={markerStyles.cardDescription}>{item.event.description}</Text>
                         <Text numberOfLines={1} style={markerStyles.cardDescription}>
-                            {'Going : ' + item.participants.length + '/' + item.event.participants_max}</Text>
+                            {translate('Going')+' : ' + item.participants.length + '/' + item.event.participants_max}</Text>
                     </View>
                 </View>
             </TouchableWithoutFeedback>

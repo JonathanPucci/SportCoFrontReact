@@ -42,6 +42,7 @@ export const styles = StyleSheet.create({
   },
   mapStyle: {
     height: 400,
+    width: Layout.window.width-30,
   },
   image: {
     alignSelf: 'center',

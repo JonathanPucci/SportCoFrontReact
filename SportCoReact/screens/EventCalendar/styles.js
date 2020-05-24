@@ -3,7 +3,7 @@ import { useHeaderHeight } from '@react-navigation/stack';
 
 export const styles = StyleSheet.create({
     container: {
-      flex: 1,
+      flex: 9,
       backgroundColor: '#fff',
     },
   

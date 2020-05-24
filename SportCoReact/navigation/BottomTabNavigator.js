@@ -12,7 +12,7 @@ import Colors from '../constants/Colors';
 import { Layout, TOP_NAV_BAR_HEIGHT, BOTTOM_TAB_HEIGHT } from '../constants/Layout';
 
 const BottomTab = createBottomTabNavigator();
-const INITIAL_ROUTE_NAME = 'My Profile';
+const INITIAL_ROUTE_NAME = 'Calendar';
 
 export default function BottomTabNavigator({ navigation, route }) {
   // Set the header title on the parent stack navigator depending on the

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { SocialIcon } from 'react-native-elements'
 import { Linking } from 'react-native';
+import { translate } from '../App';
 
 export class Social extends React.Component {
   render() {
@@ -17,12 +18,12 @@ export class Social extends React.Component {
       case 'instagram':
         // if (this.props.instagramUserName != null)
         //   Linking.openURL('instagram://user?username=' + this.props.instagramUserName)
-        alert('You curious little human, this is not available yet, but will be soon')
+        alert(translate('alertInstagramLink'))
         break;
       case 'facebook':
         // if (this.props.facebookUserId != null)
         // Linking.openURL('fb://page/3147119735300212')
-        alert('Got you ! Available soon')
+        alert(translate("alertFBLink"))
 
         break;
 

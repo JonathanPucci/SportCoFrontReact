@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 import { Layout } from '../../constants/Layout'
 import Colors from '../../constants/Colors';
 
@@ -51,27 +51,26 @@ export const styles = StyleSheet.create({
         alignSelf: 'center',
         height: 120,
         width: 120,
-        borderWidth: 3,
-        borderRadius: 60,
-        borderColor : "#ccc"
+        borderWidth: Platform.OS == 'ios' ? 3 : 0,
+        borderRadius: 120,
+        borderColor: "#ccc"
     },
     imageNoBorder: {
         alignSelf: 'center',
         height: 120,
         width: 120,
-
     },
     imageUserEvent: {
         height: (Layout.window.width / MAX_ON_LINE) - MARGIN_BETWEEN_ICONS,
         width: (Layout.window.width / MAX_ON_LINE) - MARGIN_BETWEEN_ICONS,
         borderRadius: Layout.window.width / (MAX_ON_LINE * 2)
     },
-    friendImage : {
+    friendImage: {
         height: (Layout.window.width / MAX_ON_LINE) - MARGIN_BETWEEN_ICONS,
         width: (Layout.window.width / MAX_ON_LINE) - MARGIN_BETWEEN_ICONS,
-        borderRadius: Layout.window.width / (MAX_ON_LINE * 2)
+        borderRadius: Layout.window.width 
     },
-    friendImageNoBorder : {
+    friendImageNoBorder: {
         height: (Layout.window.width / MAX_ON_LINE) - MARGIN_BETWEEN_ICONS,
         width: (Layout.window.width / MAX_ON_LINE) - MARGIN_BETWEEN_ICONS,
     },
@@ -90,7 +89,7 @@ export const styles = StyleSheet.create({
         height: 20,
         width: 20,
         left: 15,
-        bottom : 0,
+        bottom: 0,
         borderRadius: 10,
     },
     desc: {
@@ -133,20 +132,20 @@ export const styles = StyleSheet.create({
         height: 100
     },
     textInputFriends: {
-        top : 4,
+        top: 4,
         textAlign: 'center',
-        height : 40,
+        height: 40,
     },
     inputView: {
-        width: 0.7*Layout.window.width,
+        width: 0.7 * Layout.window.width,
         borderColor: 'gray',
         borderWidth: 1,
         borderRadius: 20,
         marginVertical: 30,
-        justifyContent : 'center',
+        justifyContent: 'center',
         alignSelf: 'center'
     },
-    overlay : {
-        width : Layout.window.width -20
+    overlay: {
+        width: Layout.window.width - 20
     }
 });

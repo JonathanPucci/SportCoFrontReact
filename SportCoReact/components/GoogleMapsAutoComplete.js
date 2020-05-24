@@ -5,14 +5,16 @@ import { Icon } from 'react-native-elements';
 import { Keyboard} from 'react-native';
 
 import {GOOGLE_PLACES_API_KEY} from "../credentials"
+import { translate } from '../App';
 
 export class GoogleMapsAutoComplete extends React.Component {
 
     render() {
         return (
             <PlacesInput
+            queryCountries={['fr']}
                 googleApiKey={GOOGLE_PLACES_API_KEY}
-                placeHolder={"Search for a place, address, city,..."}
+                placeHolder={translate("SearchGmapsPlaceholder")}
                 language={"en-US"}
                 onSelect={place => {
                     Keyboard.dismiss();
