@@ -25,12 +25,12 @@ class ProfileBubbles extends React.Component {
     }
 
     componentDidMount() {
-        if (this.props.title == translate('Teams'))
+        if (this.props.title == ('Teams'))
             this.getTeamsInfo();
     }
 
     componentDidUpdate(prevProps) {
-        if (prevProps.items.length != this.props.items.length && this.props.title == translate('Teams'))
+        if (prevProps.items.length != this.props.items.length && this.props.title == ('Teams'))
             this.getTeamsInfo();
     }
 
@@ -38,7 +38,7 @@ class ProfileBubbles extends React.Component {
         let { title, defaultText, items, user, waitingTeams } = this.props;
         let itemsToShow = [];
         itemsToShow = itemsToShow.concat(items);
-        if (title == translate('Teams'))
+        if (title == ('Teams'))
             for (let index = 0; index < waitingTeams.length; index++) {
                 const waitingTeam = waitingTeams[index];
                 waitingTeam['isWaiting'] = true;
@@ -47,26 +47,26 @@ class ProfileBubbles extends React.Component {
         return (
             <View>
                 <Text style={styles.desc}>
-                    {title}
+                    {translate(title)}
                 </Text>
                 {itemsToShow.length == 0 && (<Text style={{ marginLeft: 25 }}> {defaultText}</Text>)}
                 <View style={{ marginTop: 10, marginLeft: MARGIN_BETWEEN_ICONS, flexDirection: 'row' }}>
-                    {itemsToShow.slice(0, (title == translate('Friends') || title == translate('Teams')) ? MAX_ON_LINE - 2 : MAX_ON_LINE).map((item, index) => {
+                    {itemsToShow.slice(0, (title == ('Friends') || title == ('Teams')) ? MAX_ON_LINE - 2 : MAX_ON_LINE).map((item, index) => {
                         let actionNeededFromUserIfWaiterInTeam = false
-                        if (title == translate('Teams'))
+                        if (title == ('Teams'))
                             actionNeededFromUserIfWaiterInTeam = this.actionNeededFromUser(item.team_id)
                         return (
                             <TouchableWithoutFeedback
                                 key={title.split(' ')[title.split(' ').length - 1] + index}
                                 style={{ marginLeft: MARGIN_BETWEEN_ICONS }}
                                 onPress={() => {
-                                    (title == translate('Friends')) ?
+                                    (title == ('Friends')) ?
                                         RootNavigation.navigateToProfile(item.email) :
-                                        title == translate('Teams') ?
+                                        title == ('Teams') ?
                                             RootNavigation.navigateToTeam(item.team_id, this.props.getData) :
                                             RootNavigation.navigateToEvent(item.event_id)
                                 }}>
-                                {title != translate('Friends') && title != translate('Teams') ?
+                                {title != ('Friends') && title != ('Teams') ?
                                     <Image
                                         source={mapSportIcon(item.sport.toLowerCase()).image}
                                         style={styles.imageUserEvent}
@@ -85,7 +85,7 @@ class ProfileBubbles extends React.Component {
                                     {title.includes('Joined') || title.includes('Created') && (
                                         <Icon name={title.includes('Joined') ? 'fast-rewind' : 'record-voice-over'} color='white' size={10} />
                                     )}
-                                    {title.includes(translate('Friends')) && (
+                                    {title.includes(('Friends')) && (
                                         <View style={styles.iconOnEventFriends}>
                                             <Text style={{ color: "white", fontSize: 8, textAlign: "center" }}>
                                                 {item.user_name != undefined ?
@@ -95,13 +95,13 @@ class ProfileBubbles extends React.Component {
                                             </Text>
                                         </View>
                                     )}
-                                    {title == translate('Teams') && item.isWaiting && (
+                                    {title == ('Teams') && item.isWaiting && (
                                         <Icon name='timer-sand' type='material-community' reverse size={10}
                                             color='orange'
                                             style={{ margin: 30 }}
                                         />
                                     )}
-                                    {title == translate('Teams') && item.team_manager == this.props.auth.user_id && (
+                                    {title == ('Teams') && item.team_manager == this.props.auth.user_id && (
                                         <View style={{ marginBottom: 30 }}>
                                             {!actionNeededFromUserIfWaiterInTeam ?
                                                 <Icon name='crown' type='material-community' reverse size={10}
@@ -121,18 +121,18 @@ class ProfileBubbles extends React.Component {
                         )
                     })}
 
-                    {((title == translate('Friends') && user.userFriends.length > MAX_ON_LINE - 2) || (title == translate('Teams') && user.userTeams.length > MAX_ON_LINE - 2)) && (user.user_id == this.props.auth.user_id)  && (
+                    {((title == ('Friends') && user.userFriends.length > MAX_ON_LINE - 2) || (title == ('Teams') && user.userTeams.length > MAX_ON_LINE - 2)) && (user.user_id == this.props.auth.user_id)  && (
                         <TouchableWithoutFeedback
                             style={{ marginLeft: MARGIN_BETWEEN_ICONS, alignItems: 'center', justifyContent: 'center' }}
-                            onPress={title == translate('Friends') ? this.props.wantsToSeeFriends : this.props.wantsToSeeTeams}>
+                            onPress={title == ('Friends') ? this.props.wantsToSeeFriends : this.props.wantsToSeeTeams}>
                             <Icon name='more-horiz' size={15} raised color='blue' />
 
                         </TouchableWithoutFeedback>
                     )}
-                    {(title == translate('Friends') || title == translate('Teams')) && (user.user_id == this.props.auth.user_id) && (
+                    {(title == ('Friends') || title == ('Teams')) && (user.user_id == this.props.auth.user_id) && (
                         <TouchableWithoutFeedback
                             style={{ alignItems: 'center', justifyContent: 'center' }}
-                            onPress={title == translate('Friends') ? this.props.wantsToAddFriend : this.props.wantsToJoinTeam}>
+                            onPress={title == ('Friends') ? this.props.wantsToAddFriend : this.props.wantsToJoinTeam}>
                             <Icon name='add' size={15} raised color='blue' />
 
                         </TouchableWithoutFeedback>

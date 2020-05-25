@@ -45,7 +45,7 @@ export class EventMapView extends React.Component {
         return (
             <View style={{ flex: 1 }}>
                 <View>
-                    <DescriptionText title={translate('Location')} data={''} editing={this.props.editing} setEditingProperty={this.props.setEditingProperty} />
+                    <DescriptionText title={'Location'} data={''} editing={this.props.editing} setEditingProperty={this.props.setEditingProperty} />
                     {!isNaN(eventRegion.latitude) ? (
                         <MapView
                             ref={ref => this.mapView = ref}

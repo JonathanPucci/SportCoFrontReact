@@ -154,13 +154,13 @@ class ProfileScreen extends React.Component {
               )}
             </View>
             <Divider style={styles.divider} />
-            <ProfileBubbles title={translate('Last Events Created')} defaultText={translate("(Not yet, but I'll create one!)")}
+            <ProfileBubbles title={('Last Events Created')} defaultText={translate("(Not yet, but I'll create one!)")}
               items={this.state.user.eventsCreated} user={this.state.user} />
             <Divider style={styles.divider} />
-            <ProfileBubbles title={translate("Last Events Joined")} defaultText={translate("(On my way !)")}
+            <ProfileBubbles title={("Last Events Joined")} defaultText={translate("(On my way !)")}
               items={this.state.user.eventsJoined} user={this.state.user} />
             <Divider style={styles.divider} />
-            <ProfileBubbles title={translate("Teams")} defaultText={translate("(I'm more of a lonesome cowboy)")}
+            <ProfileBubbles title={("Teams")} defaultText={translate("(I'm more of a lonesome cowboy)")}
               items={this.state.user.userTeams} user={this.state.user}
               wantsToJoinTeam={this.wantsToJoinTeam}
               wantsToSeeTeams={this.wantsToSeeTeams}
@@ -168,7 +168,7 @@ class ProfileScreen extends React.Component {
               getData={this.getData}
             />
             <Divider style={styles.divider} />
-            <ProfileBubbles title={translate('Friends')} defaultText={translate("(We're all friends anyway)")}
+            <ProfileBubbles title={('Friends')} defaultText={translate("(We're all friends anyway)")}
               items={this.state.user.userFriends} user={this.state.user}
               wantsToAddFriend={this.wantsToAddFriend}
               wantsToSeeFriends={this.wantsToSeeFriends} />

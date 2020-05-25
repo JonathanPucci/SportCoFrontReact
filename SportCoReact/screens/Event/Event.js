@@ -77,6 +77,8 @@ class EventScreen extends React.Component {
     this.leaveEvent = EventApi.leaveEvent.bind(this);
     this.cancelEvent = EventApi.cancelEvent.bind(this);
     this.updateEvent = EventApi.updateEvent.bind(this);
+    this.saveNewSpotAndRetry = EventApi.saveNewSpotAndRetry.bind(this);
+    this.tryToGetSpotOrSaveNew = EventApi.tryToGetSpotOrSaveNew.bind(this);
   }
 
   componentDidMount() {
@@ -157,13 +159,21 @@ class EventScreen extends React.Component {
               isEditingMapMarker={true}
               setEditingProperty={this.setEditingProperty}
               setStateEventDataProperty={this.setStateEventDataProperty}
-              regionChanged={(region) => { this.setState({ regionPicked: region }) }}
+              regionChanged={(region) => {
+                this.setState({
+                  regionPicked: region,
+                  eventData: {
+                    ...this.state.eventData,
+                    spot: { ...this.state.eventData.spot, spot_latitude: region.latitude, spot_longitude: region.longitude }
+                  }
+                })
+              }}
               sport={this.state.eventData.event.sport}
               onSportChange={(sport) => this.setStateEventDataProperty('event', 'sport', sport)}
               saveSport={() => { this.setEditingProperty('Sport', false); }}
               onDateChange={(d) => this.setStateEventDataProperty('event', 'fulldate', null, d)}
               exitEventCreation={() => { this.stopCreationFlow(); this.props.navigation.goBack() }}
-              successCreation={() => { this.updateEvent().then(this.stopCreationFlow) }}
+              successCreation={() => { this.stopCreationFlow() }}
             />
           </OverlayTimaka>
         )}
@@ -190,7 +200,7 @@ class EventScreen extends React.Component {
                 />
                 <View style={{ marginTop: 20 }}>
                   <DescriptionText
-                    title={translate('Visibility')}
+                    title={'Visibility'}
                     data={eventData.event.visibility.toUpperCase()}
                     editing={this.state.editing}
                     setEditingProperty={this.setEditingProperty}
@@ -200,7 +210,7 @@ class EventScreen extends React.Component {
               <View style={{ flexDirection: 'column', flex: 1, marginLeft: 10 }}>
                 {this.renderDescriptionText('Description', eventData.event.description)}
                 {this.renderDescriptionText('Date', date)}
-                {this.renderDescriptionText(translate('Level'), eventData.event.sport_level.toLocaleUpperCase())}
+                {this.renderDescriptionText('Level', eventData.event.sport_level.toLocaleUpperCase())}
                 <View style={{ flexDirection: 'row', marginLeft: -20 }}>
                   {this.renderDescriptionText('Min', eventData.event.participants_min, true)}
                   {this.renderDescriptionText('Going', eventData.participants.length, true, false)}
@@ -456,6 +466,8 @@ class EventScreen extends React.Component {
 
   getData = async () => {
     let eventData = !isEmpty(this.props.route.params.eventData) ? this.props.route.params.eventData : this.state.eventData;
+    if (this.state.eventData != undefined)
+      eventData = this.state.eventData;
     let eventId = (eventData.event.event_id == "") ? -1 : eventData.event.event_id;
     try {
       const eventData = await this.apiService.getSingleEntity("events", eventId)
@@ -526,7 +538,7 @@ class EventScreen extends React.Component {
       case 'Level':
         this.setState({ isEditingLevel: isEditing })
         break;
-      case 'Localisation':
+      case 'Location':
         this.setState({ isEditingMapMarker: isEditing, regionPicked: this.state.initialRegion })
         break;
       case 'Visibility':
@@ -551,7 +563,7 @@ class EventScreen extends React.Component {
         break;
       case 'WHOLE':
         //Only for map picking location so far
-        this.setEditingProperty('Localisation', false);
+        this.setEditingProperty('Location', false);
         newValue = {
           ...this.state.eventData.spot,
           spot_id: value.spot_id,

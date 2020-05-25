@@ -1,5 +1,5 @@
 import SportCoApi from "../../services/apiService";
-import { convertUTCDateToLocalDate } from './Helpers'
+import { convertUTCDateToLocalDate, logDebugInfo } from './Helpers'
 import { saveOrUpdateEventToNativeCalendar, removeEventFromNativeCalendar } from "../EventCalendar/EventCalendar";
 const apiService = new SportCoApi();
 
@@ -10,83 +10,128 @@ const apiService = new SportCoApi();
  *************************                 ***************************************
  ********************************************************************************/
 
+export async function saveNewSpotAndRetry() {
+    //Spot is unknown yet, let's add it and retry
+    let spotCopy = {
+        ...this.state.eventData.spot,
+        spot_name: 'Another spot...',
+    };
+    logDebugInfo('spot', this.state.eventData.spot);
+    const newSpotData = await this.apiService.addEntity('spots', spotCopy);
+    if (newSpotData.data.data.spot_id) {
+        this.setState({
+            eventData: {
+                ...this.state.eventData,
+                spot: { ...this.state.eventData.spot, spot_id: newSpotData.data.data.spot_id },
+                event: { ...this.state.eventData.event, spot_id: newSpotData.data.data.spot_id }
+            }
+        }, () => {
+            logDebugInfo('newSpotAddedInEventData', this.state.eventData.event.spot)
+            this.updateEvent();
+        });
+    }
+}
+
+export async function tryToGetSpotOrSaveNew() {
+    try {
+        let area = {
+            longitude: this.state.eventData.spot.spot_longitude,
+            latitude: this.state.eventData.spot.spot_latitude,
+        }
+        console.log(area)
+        let d = await this.apiService.getEntities("spots/coordinates", area);
+        logDebugInfo('FIRST', d)
+        if (d.data.length != 0)
+            return d.data[0];
+        else {
+            this.saveNewSpotAndRetry();
+            return null;
+        }
+    } catch (err) {
+        this.saveNewSpotAndRetry();
+        return null;
+    }
+}
+
 export async function updateEvent() {
     try {
         if (this.state.eventData.event.event_id == '') {
             // Get Spot from region (create if not exist)
             // Then add spotId to event
             try {
-                let spotData = {};
+                let spotData = null;
                 if (this.state.eventData.spot == undefined || this.state.eventData.spot.spot_id == '' || this.state.eventData.spot.spot_id == undefined) {
-                    let d = await this.apiService.getEntities("spots/coordinates", this.state.regionPicked);
-                    if (d.data.length != 0)
-                        spotData = d.data[0];
-                    else {
-                        //Spot is unknown yet, let's add it and retry
-                        this.state.eventData.spot["spot_name"] = "Another spot.."
-                        const newSpotData = await this.apiService.addEntity('spots', this.state.eventData.spot);
-                        if (newSpotData.data.data.spot_id) {
-                            this.state.eventData.spot['spot_id'] = newSpotData.data.data.spot_id
-                            this.updateEvent();
-                            throw "savedNewSpot";
-                        }
-                    }
+                    spotData = await this.tryToGetSpotOrSaveNew();
                 }
                 else {
                     /*************************************
-                     * ************ CREATION *************
+                     ************** CREATION *************
                      *************************************/
                     let d = await this.apiService.getSingleEntity("spots", this.state.eventData.spot.spot_id);
+                    logDebugInfo('SECOND', d)
                     spotData = d.data;
                 }
-                let updatedEventWithSpot = {
-                    ...this.state.eventData.event,
-                    spot_id: spotData.spot_id
-                }
-                updatedEventWithSpot.date.setSeconds(0, 0);
-                try {
-                    const newEventAddedData = await this.apiService.addEntity('events', updatedEventWithSpot)
-                    let newEventId = newEventAddedData.data.data.event_id;
-                    let eventP = {
-                        user_id: this.props.auth.user_id,
-                        event_id: newEventId
+                if (spotData != null) {
+                    let updatedEventWithSpot = {
+                        ...this.state.eventData.event,
+                        spot_id: spotData.spot_id
                     }
-                    await this.apiService.addEntity('eventparticipant', eventP);
-                    if (this.props.auth.user.auto_save_to_calendar)
-                        saveOrUpdateEventToNativeCalendar(updatedEventWithSpot);
-                    await this.apiService.editEntity('userstats',
-                        {
-                            user_id: this.state.eventData.host.user_id,
-                            statToUpdate: this.state.eventData.event.sport + '_created',
-                            adding: true
-                        });
-                    this.setState({
-                        editing: false,
-                        refreshing: false,
-                        eventData: {
-                            ...this.state.eventData,
-                            event: {
-                                ...this.state.eventData.event,
-                                event_id: newEventId
-                            }
+
+                    updatedEventWithSpot.date.setSeconds(0, 0);
+                    try {
+                        const newEventAddedData = await this.apiService.addEntity('events', updatedEventWithSpot)
+                        let newEventId = newEventAddedData.data.data.event_id;
+                        let eventP = {
+                            user_id: this.props.auth.user_id,
+                            event_id: newEventId
                         }
-                    })
-                } catch (error) {
-                    console.log("0" + error)
+                        await this.apiService.addEntity('eventparticipant', eventP);
+                        if (this.props.auth.user.auto_save_to_calendar)
+                            saveOrUpdateEventToNativeCalendar(updatedEventWithSpot);
+                        await this.apiService.editEntity('userstats',
+                            {
+                                user_id: this.state.eventData.host.user_id,
+                                statToUpdate: this.state.eventData.event.sport + '_created',
+                                adding: true
+                            });
+                        this.setState({
+                            editing: false,
+                            refreshing: false,
+                            eventData: {
+                                ...this.state.eventData,
+                                event: {
+                                    ...this.state.eventData.event,
+                                    event_id: newEventId,
+                                    spot_id: spotData.spot_id
+                                },
+                                spot: {
+                                    ...this.state.eventData.spot,
+                                    spot_id: spotData.spot_id
+                                },
+                            }
+                        })
+                    } catch (error) {
+                        console.log("0" + error)
+                    }
                 }
             } catch (error) {
                 console.log("1" + error)
             }
         } else {
-            //avoid setState as we just want to set in DB and then getData !
-            //TODO : check if there's not easier...
-            //this.state.eventData.event.date.setMinutes(this.state.eventData.event.date.getMinutes() - this.state.eventData.event.date.getTimezoneOffset());
+            let spotData = null;
+            spotData = await this.tryToGetSpotOrSaveNew();
+            logDebugInfo('THIRD', spotData)
+            if (spotData != null) {
+                let eventCopy = {
+                    ...this.state.eventData.event,
+                    spot_id: spotData.spot_id,
+                    reason_for_update: 'EVENT_CHANGED',
+                    data_name: 'event_id'
+                }
 
-            this.state.eventData.event['reason_for_update'] = 'EVENT_CHANGED';
-            this.state.eventData.event['data_name'] = 'event_id';
-
-            await this.apiService.editEntity('events', this.state.eventData.event)
-            this.getData(true);
+                await this.apiService.editEntity('events', eventCopy)
+                this.getData(true);
+            }
         }
     } catch (err) {
         console.log("2" + err)

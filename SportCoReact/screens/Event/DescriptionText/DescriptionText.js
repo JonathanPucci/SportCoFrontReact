@@ -31,7 +31,7 @@ export class DescriptionText extends React.Component {
         let centered = this.props.centered || 'auto';
         let isMutable = this.props.isMutable != undefined ? this.props.isMutable : true;
         let levelImage = null;
-        if (title == translate('Level')) {
+        if (title == 'Level') {
             levelImage = mapLevelImage(this.props.sport, null, data.toLowerCase());
         }
         return (
@@ -50,22 +50,24 @@ export class DescriptionText extends React.Component {
                             size={title == 'Min' ? 8 : 15}
                             onPress={() => this.props.setEditingProperty(title, true)} />
                     )}
-                    <Text style={[
+                    <Text 
+                    numberOfLines={1}
+                    style={[
                         styles.titleDescription,
                         centered != 'auto' ? { textAlign: 'center' } : {},
                         this.props.editing ? { top: 15 } : {}
-                    ]}>{title}</Text>
+                    ]}>{translate(title)}</Text>
                 </View>
                 <View style={[
                     styles.titleDescriptionText,
                     {
                         flexDirection: 'row',
-                        marginTop: title == 'Min' || title == 'Going' || title == 'Max' || title == translate('Visibility') ? this.props.editing ? 20 : 10 : 0,
-                        bottom: this.props.editing && (title == 'Min' || title == translate('Visibility')) ? 5 : 0,
-                        width: title == translate('Visibility') ? 140 : 'auto',
+                        marginTop: title == 'Min' || title == 'Going' || title == 'Max' || title == 'Visibility' ? this.props.editing ? 20 : 10 : 0,
+                        bottom: this.props.editing && (title == 'Min' || title == 'Visibility') ? 5 : 0,
+                        width: title == 'Visibility' ? 140 : 'auto',
                         alignSelf: centered
                     }]}>
-                    {title == translate('Level') && (
+                    {title == 'Level' && (
                         <Image source={levelImage} style={{
                             position: 'absolute',
                             bottom: this.props.editing ? 40 : 50,
@@ -83,7 +85,7 @@ export class DescriptionText extends React.Component {
                     ]}>
                         {data}
                     </Text>
-                    {title == translate('Visibility') && (
+                    {title == 'Visibility' && (
                         <View style={{ flexDirection: 'row', right: 10, bottom: this.props.editing ? 15 : 28 }}>
                             <Icon name={'eye'} type='material-community' />
                             <View style={{ bottom: 3 }}>

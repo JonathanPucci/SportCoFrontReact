@@ -3,8 +3,9 @@ import { Layout } from '../../constants/Layout'
 import Colors from '../../constants/Colors';
 
 
-export const MAX_ON_LINE = 6;
+export const MAX_ON_LINE = 5;
 export const MARGIN_BETWEEN_ICONS = 15;
+export const MARGIN_LEFT_PROFILE = 30;
 
 export const styles = StyleSheet.create({
     container: {
@@ -61,18 +62,18 @@ export const styles = StyleSheet.create({
         width: 120,
     },
     imageUserEvent: {
-        height: (Layout.window.width / MAX_ON_LINE) - MARGIN_BETWEEN_ICONS,
-        width: (Layout.window.width / MAX_ON_LINE) - MARGIN_BETWEEN_ICONS,
-        borderRadius: Layout.window.width / (MAX_ON_LINE * 2)
+        height: ((Layout.window.width - 2*MARGIN_LEFT_PROFILE) / MAX_ON_LINE) - MARGIN_BETWEEN_ICONS,
+        width: ((Layout.window.width - 2*MARGIN_LEFT_PROFILE) / MAX_ON_LINE) - MARGIN_BETWEEN_ICONS,
+        borderRadius: ((Layout.window.width - 2*MARGIN_LEFT_PROFILE) / MAX_ON_LINE) - MARGIN_BETWEEN_ICONS
     },
     friendImage: {
-        height: (Layout.window.width / MAX_ON_LINE) - MARGIN_BETWEEN_ICONS,
-        width: (Layout.window.width / MAX_ON_LINE) - MARGIN_BETWEEN_ICONS,
-        borderRadius: Layout.window.width 
+        height: ((Layout.window.width - 2*MARGIN_LEFT_PROFILE) / MAX_ON_LINE) - MARGIN_BETWEEN_ICONS,
+        width: ((Layout.window.width - 2*MARGIN_LEFT_PROFILE) / MAX_ON_LINE) - MARGIN_BETWEEN_ICONS,
+        borderRadius: ((Layout.window.width - 2*MARGIN_LEFT_PROFILE) / MAX_ON_LINE) - MARGIN_BETWEEN_ICONS
     },
     friendImageNoBorder: {
-        height: (Layout.window.width / MAX_ON_LINE) - MARGIN_BETWEEN_ICONS,
-        width: (Layout.window.width / MAX_ON_LINE) - MARGIN_BETWEEN_ICONS,
+        height: ((Layout.window.width - 2*MARGIN_LEFT_PROFILE) / MAX_ON_LINE) - MARGIN_BETWEEN_ICONS,
+        width: ((Layout.window.width - 2*MARGIN_LEFT_PROFILE) / MAX_ON_LINE) - MARGIN_BETWEEN_ICONS,
     },
     iconOnEvent: {
         height: 25,

@@ -104,9 +104,9 @@ class FormStepDateTime extends Component {
 }
 
 const FormSteps = [
-    'mapPicker',
     'datetimePicker',
     'sportPicker',
+    'mapPicker',
 ]
 
 class FormCarousel extends Component {

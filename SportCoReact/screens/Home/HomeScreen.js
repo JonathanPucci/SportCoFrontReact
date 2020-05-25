@@ -38,9 +38,9 @@ class HomeScreen extends React.Component {
   }
 
   componentDidMount() {
-    setTimeout(()=> {
-      this.navigateToEventCreation()
-    },500);
+    // setTimeout(()=> {
+    //   this.navigateToEventCreation()
+    // },500);
   }
 
   render() {

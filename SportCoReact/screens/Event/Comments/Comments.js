@@ -41,7 +41,7 @@ export class Comments extends React.Component {
     // console.log(comments)
     return (
       <View style={{ marginTop: 30 }}>
-        <DescriptionText title={translate('Comments')} data='' centered='auto' isMutable={false} setEditingProperty={this.props.setEditingProperty} />
+        <DescriptionText title={'Comments'} data='' centered='auto' isMutable={false} setEditingProperty={this.props.setEditingProperty} />
         {comments.map((comment, index) => {
           let photoUrl = comment.photo_url;
           return (

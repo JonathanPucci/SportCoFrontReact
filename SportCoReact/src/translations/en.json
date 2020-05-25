@@ -98,6 +98,7 @@
     "To Friends or Team":"To Friends or Team",
     "Visibility":"Visibility",
     "Location":"Location",
+    "Localisation":"Location",
     "First submit your event, then comments will be available":"First submit your event, then comments will be available",
     "Sync with my phone calendar":"Sync with my phone calendar",
     "Always Sync with my phone calendar":"Always Sync with my phone calendar",
@@ -107,6 +108,8 @@
     "Forget it":"Forget it",
     "Let's Go" :  "Let's Go",
     "Sport":"Sport",
-    "Date":"Date"
+    "Date":"Date",
+    "Min":"Min",
+    "Max":"Max"
 
 }

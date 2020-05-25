@@ -149,11 +149,11 @@ class SearchScreen extends React.Component {
     // console.log(Platform.OS + " retrieve In Area");
     this.sportCoApi.getEntities("events/area", this.state.region)
       .then((eventsdata) => {
+        if (eventsdata == null)
+        logDebugInfo('THERE IT WAS NULL', eventsdata)
+        if (eventsdata == null)
+        return
         let events = eventsdata.data;
-        if (eventsdata == null)
-          logDebugInfo('THERE IT WAS NULL', eventsdata)
-        if (eventsdata == null)
-          return
         if (events.length == 0) {
           this.setState({ loading: false, moved: false, optionsVisible: false })
         }

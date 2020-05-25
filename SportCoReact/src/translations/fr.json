@@ -99,6 +99,7 @@
     "To Friends or Team":"Amis ou Equipes",
     "Visibility":"Visibilité",
     "Location":"Localisation",
+    "Localisation":"Localisation",
     "First submit your event, then comments will be available":"Publie déjà la session, puis on pourra commenter !",
     "Sync with my phone calendar" :"Synchroniser avec mes calendriers",
     "Always Sync with my phone calendar":"Toujours synchroniser avec mes calendriers",
@@ -108,5 +109,7 @@
     "Forget it":"En fait non, oublie !",
     "Let's Go" :  "C'est parti",
     "Sport":"Sport",
-    "Date":"Date"
+    "Date":"Date",
+    "Min":"Min",
+    "Max":"Max"
 }
