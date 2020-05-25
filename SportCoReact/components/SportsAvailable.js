@@ -49,7 +49,7 @@ class SportsAvailable extends Component {
     render() {
         return (
             <View >
-                <Text h4 style={styles.name} >Sports {this.props.showStats ? 'Stats' : ''}</Text>
+                {/* <Text h4 style={styles.name} >Sports {this.props.showStats ? 'Stats' : ''}</Text> */}
                 {this.state.sportPairs.map((item, index) => {
                     return (
                         <View key={"pairSport" + index} style={styles.sportLine}>

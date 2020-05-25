@@ -15,8 +15,8 @@ const MAP_SPORT_ICON = {
     futsal: {
         image: require('../assets/images/futsal.jpeg'),
         sportIcon: require('../assets/images/sportMapIcons/soccer3.png'),
-        iconName: 'ios-football',
-        iconFamily: 'ionicon'
+        iconName: 'soccer-field',
+        iconFamily: 'material-community'
     },
     volley: {
         image: require('../assets/images/volley.jpg'),
@@ -27,7 +27,7 @@ const MAP_SPORT_ICON = {
     beachvolley: {
         image: require('../assets/images/volley.jpg'),
         sportIcon: require('../assets/images/sportMapIcons/volley3.png'),
-        iconName: 'volleyball',
+        iconName: 'beach',
         iconFamily: 'material-community'
     },
     tennis: {
@@ -51,8 +51,8 @@ const MAP_SPORT_ICON = {
     vtt: {
         image: require('../assets/images/VTT.jpg'),
         sportIcon: require('../assets/images/sportMapIcons/VTT.png'),
-        iconName: 'ios-bicycle',
-        iconFamily: 'ionicon'
+        iconName: 'mountains',
+        iconFamily: 'foundation'
     },
     roadbike: {
         image: require('../assets/images/roadbike.jpeg'),

@@ -24,6 +24,9 @@ import Share from 'react-native-share';
 import AdMobInterstitial from '../../services/AdMob/AdMobInterstitial';
 import AdMobBanner from '../../services/AdMob/AdMobBanner';
 import { translate } from '../../App';
+import FormCarousel from './FormCarousel/FormCarousel';
+import { Layout } from '../../constants/Layout';
+import { OverlayTimaka } from '../../components/OverLayTimaka';
 
 const newEmptyEvent = {
   event: {
@@ -57,6 +60,8 @@ class EventScreen extends React.Component {
       isEditingDescription: false,
       isEditingMapMarker: false,
       isEditingLevel: false,
+      creationFlowOnGoing: false,
+      currentFormStep: 0,
       regionPicked: {},
       initialRegion: {},
       sharingWithin: false,
@@ -121,6 +126,11 @@ class EventScreen extends React.Component {
     );
   }
 
+  stopCreationFlow = () => {
+    console.log('stop')
+    this.setState({ creationFlowOnGoing: false })
+  }
+
   /**********************************************************************************
    ********************         RENDER             **********************************
    *********************************************************************************/
@@ -135,144 +145,167 @@ class EventScreen extends React.Component {
     let randomForAd = Math.round(Math.random() * 10);
     let displayAd = randomForAd == 2;
     return (
-      <KeyboardAwareScrollView
-        extraScrollHeight={150}
+      <View
         style={styles.container}
-        contentContainerStyle={styles.contentContainer}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl refreshing={this.state.refreshing} onRefresh={() => { this.getData().then(() => { this.setInitEventData() }) }} />
-        }>
+      >
+        {this.state.creationFlowOnGoing && (
+          <OverlayTimaka>
+            <FormCarousel
+              eventData={this.state.eventData}
+              editing={this.state.editing}
+              regionPicked={this.state.regionPicked}
+              isEditingMapMarker={true}
+              setEditingProperty={this.setEditingProperty}
+              setStateEventDataProperty={this.setStateEventDataProperty}
+              regionChanged={(region) => { this.setState({ regionPicked: region }) }}
+              sport={this.state.eventData.event.sport}
+              onSportChange={(sport) => this.setStateEventDataProperty('event', 'sport', sport)}
+              saveSport={() => { this.setEditingProperty('Sport', false); }}
+              onDateChange={(d) => this.setStateEventDataProperty('event', 'fulldate', null, d)}
+              exitEventCreation={() => { this.stopCreationFlow(); this.props.navigation.goBack() }}
+              successCreation={() => { this.updateEvent().then(this.stopCreationFlow) }}
+            />
+          </OverlayTimaka>
+        )}
+        <KeyboardAwareScrollView
+          extraScrollHeight={150}
+          style={styles.container}
+          contentContainerStyle={styles.contentContainer}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={this.state.refreshing} onRefresh={() => { this.getData().then(() => { this.setInitEventData() }) }} />
+          }>
 
-        {/* {this.state.eventData.event.event_id != "" && displayAd && <AdMobInterstitial />} */}
+          {/* {this.state.eventData.event.event_id != "" && displayAd && <AdMobInterstitial />} */}
 
-        {this.renderHostHeader(eventData, photoUrl, eventIcon)}
-        <View style={{ flex: 1, width: '100%', alignSelf: 'center', marginTop: 20 }}>
-          <View style={styles.descriptionView}>
-            <View style={{ flex: 1, flexDirection: 'column' }}>
-              <Image
-                source={eventIcon.image}
-                style={styles.imageSport}
-              />
-              <View style={{ marginTop: 20 }}>
-                <DescriptionText
-                  title={translate('Visibility')}
-                  data={eventData.event.visibility.toUpperCase()}
-                  editing={this.state.editing}
-                  setEditingProperty={this.setEditingProperty}
+
+          {this.renderHostHeader(eventData, photoUrl, eventIcon)}
+          <View style={{ flex: 1, width: '100%', alignSelf: 'center', marginTop: 20 }}>
+            <View style={styles.descriptionView}>
+              <View style={{ flex: 1, flexDirection: 'column' }}>
+                <Image
+                  source={eventIcon.image}
+                  style={styles.imageSport}
+                />
+                <View style={{ marginTop: 20 }}>
+                  <DescriptionText
+                    title={translate('Visibility')}
+                    data={eventData.event.visibility.toUpperCase()}
+                    editing={this.state.editing}
+                    setEditingProperty={this.setEditingProperty}
+                  />
+                </View>
+              </View>
+              <View style={{ flexDirection: 'column', flex: 1, marginLeft: 10 }}>
+                {this.renderDescriptionText('Description', eventData.event.description)}
+                {this.renderDescriptionText('Date', date)}
+                {this.renderDescriptionText(translate('Level'), eventData.event.sport_level.toLocaleUpperCase())}
+                <View style={{ flexDirection: 'row', marginLeft: -20 }}>
+                  {this.renderDescriptionText('Min', eventData.event.participants_min, true)}
+                  {this.renderDescriptionText('Going', eventData.participants.length, true, false)}
+                  {this.renderDescriptionText('Max', eventData.event.participants_max, true, false)}
+                </View>
+                <OverlayDescription
+                  isEditingDescription={this.state.isEditingDescription}
+                  stopEditingDescription={() => this.setEditingProperty('Description', false)}
+                  description={eventData.event.description}
+                  onDescriptionChange={(desc) => this.setStateEventDataProperty('event', 'description', desc)}
+                  saveDescription={() => this.setEditingProperty('Description', false)}
+                />
+                <OverlayDateTimePicker
+                  isEditingDate={this.state.isEditingDate}
+                  isEditingTime={this.state.isEditingTime}
+                  stopEditingDate={() => this.setEditingProperty('Date', false)}
+                  event={eventData}
+                  onDateChange={(d) => this.setStateEventDataProperty('event', 'fulldate', null, d)}
+                  saveDate={() => this.setEditingProperty('Date', false)}
+                />
+                <OverlayLevel
+                  isEditingLevel={this.state.isEditingLevel}
+                  stopEditingLevel={() => this.setEditingProperty('Level', false)}
+                  level={eventData.event.sport_level}
+                  levels={LEVELS}
+                  onLevelChange={(level) => this.setStateEventDataProperty('event', 'sport_level', level)}
+                  saveLevel={() => this.setEditingProperty('Level', false)}
+                />
+                <OverlayMinMaxParticipants
+                  isEditingParticipantNumbers={this.state.isEditingParticipantNumbers}
+                  stopEditingParticipantNumbers={() => this.setEditingProperty('Participants', false)}
+                  event={eventData}
+                  onPMinChange={(min) => this.setStateEventDataProperty('event', 'participants_min', min)}
+                  onPMaxChange={(max) => this.setStateEventDataProperty('event', 'participants_max', max)}
+                  saveParticipants={() => this.setEditingProperty('Participants', false)}
                 />
               </View>
             </View>
-            <View style={{ flexDirection: 'column', flex: 1, marginLeft: 10 }}>
-              {this.renderDescriptionText('Description', eventData.event.description)}
-              {this.renderDescriptionText('Date', date)}
-              {this.renderDescriptionText(translate('Level'), eventData.event.sport_level.toLocaleUpperCase())}
-              <View style={{ flexDirection: 'row', marginLeft: -20 }}>
-                {this.renderDescriptionText('Min', eventData.event.participants_min, true)}
-                {this.renderDescriptionText('Going', eventData.participants.length, true, false)}
-                {this.renderDescriptionText('Max', eventData.event.participants_max, true, false)}
+            <Participants
+              eventData={this.state.eventData}
+              editing={this.state.editing}
+              setEditingProperty={this.setEditingProperty}
+              navigation={this.props.navigation} />
+            <View style={{ flexDirection: 'row', alignSelf: 'center', justifyContent: 'center' }}>
+              <View style={{ flexDirection: 'row', alignSelf: 'center', justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={{ textAlign: 'center', fontSize: 12 }}> {translate("Social Share")} </Text>
+                <OptionIcon callback={this.onShare} size={20} name="share" color={'blue'} />
               </View>
-              <OverlayDescription
-                isEditingDescription={this.state.isEditingDescription}
-                stopEditingDescription={() => this.setEditingProperty('Description', false)}
-                description={eventData.event.description}
-                onDescriptionChange={(desc) => this.setStateEventDataProperty('event', 'description', desc)}
-                saveDescription={() => this.setEditingProperty('Description', false)}
-              />
-              <OverlayDateTimePicker
-                isEditingDate={this.state.isEditingDate}
-                isEditingTime={this.state.isEditingTime}
-                stopEditingDate={() => this.setEditingProperty('Date', false)}
-                event={eventData}
-                onDateChange={(e, d) => this.setStateEventDataProperty('event', 'date', null, d)}
-                onDateTimeChange={(e, dt) => this.setStateEventDataProperty('event', 'datetime', null, dt)}
-                saveDate={() => this.setEditingProperty('Date', false)}
-              />
-              <OverlayLevel
-                isEditingLevel={this.state.isEditingLevel}
-                stopEditingLevel={() => this.setEditingProperty('Level', false)}
-                level={eventData.event.sport_level}
-                levels={LEVELS}
-                onLevelChange={(level) => this.setStateEventDataProperty('event', 'sport_level', level)}
-                saveLevel={() => this.setEditingProperty('Level', false)}
-              />
-              <OverlayMinMaxParticipants
-                isEditingParticipantNumbers={this.state.isEditingParticipantNumbers}
-                stopEditingParticipantNumbers={() => this.setEditingProperty('Participants', false)}
-                event={eventData}
-                onPMinChange={(min) => this.setStateEventDataProperty('event', 'participants_min', min)}
-                onPMaxChange={(max) => this.setStateEventDataProperty('event', 'participants_max', max)}
-                saveParticipants={() => this.setEditingProperty('Participants', false)}
-              />
+              <View style={{ flexDirection: 'row', alignSelf: 'center', justifyContent: 'center', alignItems: 'center' }}>
+                <OptionIcon callback={this.onShareWithin} size={20} name="share" color={'blue'} />
+                <Text style={{ textAlign: 'center', fontSize: 12 }}> {translate("To Friends or Team")}</Text>
+                <OverlayShareWithin
+                  sharingWithin={this.state.sharingWithin}
+                  stopSharingWithin={() => { this.setState({ sharingWithin: false }) }}
+                  currentUserTeams={this.state.currentUserTeams}
+                  currentUserFriends={this.state.currentUserFriends}
+                  notifyWithin={this.notifyWithin}
+                />
+              </View>
             </View>
-          </View>
-          <Participants
-            eventData={this.state.eventData}
-            editing={this.state.editing}
-            setEditingProperty={this.setEditingProperty}
-            navigation={this.props.navigation} />
-          <View style={{ flexDirection: 'row', alignSelf: 'center', justifyContent: 'center' }}>
-            <View style={{ flexDirection: 'row', alignSelf: 'center', justifyContent: 'center', alignItems: 'center' }}>
-              <Text style={{ textAlign: 'center', fontSize: 12 }}> {translate("Social Share")} </Text>
-              <OptionIcon callback={this.onShare} size={20} name="share" color={'blue'} />
+            <EventMapView
+              eventData={this.state.eventData}
+              editing={this.state.editing}
+              regionPicked={this.state.regionPicked}
+              isEditingMapMarker={this.state.isEditingMapMarker}
+              setEditingProperty={this.setEditingProperty}
+              setStateEventDataProperty={this.setStateEventDataProperty}
+              regionChanged={(region) => { this.setState({ regionPicked: region }) }}
+            />
+            <View style={{ marginTop: 20, marginBottom: 20, flex: 1 }}>
+              <Button
+                color={'#bdc3c7'}
+                onPress={Platform.OS == 'ios' ?
+                  createOpenLink({
+                    latitude: parseFloat(eventData.spot.spot_latitude),
+                    longitude: parseFloat(eventData.spot.spot_longitude),
+                    query: 'Oh yeah'
+                  }) :
+                  createOpenLink({
+                    query: (eventData.spot.spot_latitude + ',' + eventData.spot.spot_longitude)
+                  })
+                }
+                title={translate("Click To Open in Maps")} />
             </View>
-            <View style={{ flexDirection: 'row', alignSelf: 'center', justifyContent: 'center', alignItems: 'center' }}>
-              <OptionIcon callback={this.onShareWithin} size={20} name="share" color={'blue'} />
-              <Text style={{ textAlign: 'center', fontSize: 12 }}> {translate("To Friends or Team")}</Text>
-              <OverlayShareWithin
-                sharingWithin={this.state.sharingWithin}
-                stopSharingWithin={() => { this.setState({ sharingWithin: false }) }}
-                currentUserTeams={this.state.currentUserTeams}
-                currentUserFriends={this.state.currentUserFriends}
-                notifyWithin={this.notifyWithin}
-              />
-            </View>
-          </View>
-          <EventMapView
-            eventData={this.state.eventData}
-            editing={this.state.editing}
-            regionPicked={this.state.regionPicked}
-            isEditingMapMarker={this.state.isEditingMapMarker}
-            setEditingProperty={this.setEditingProperty}
-            setStateEventDataProperty={this.setStateEventDataProperty}
-            regionChanged={(region) => { this.setState({ regionPicked: region }) }}
-          />
-          <View style={{ marginTop: 20, marginBottom: 20, flex: 1 }}>
-            <Button
-              color={'#bdc3c7'}
-              onPress={Platform.OS == 'ios' ?
-                createOpenLink({
-                  latitude: parseFloat(eventData.spot.spot_latitude),
-                  longitude: parseFloat(eventData.spot.spot_longitude),
-                  query: 'Oh yeah'
-                }) :
-                createOpenLink({
-                  query: (eventData.spot.spot_latitude + ',' + eventData.spot.spot_longitude)
-                })
-              }
-              title={translate("Click To Open in Maps")} />
-          </View>
-          {/* {this.state.eventData.event.event_id != "" &&
+            {/* {this.state.eventData.event.event_id != "" &&
             <View>
               <AdMobBanner style={{ left: -15, marginVertical: 10 }} />
               <Text style={{ textAlign: 'center' }}>Well.. we know ads are bad, sorry about that !</Text>
             </View>
           } */}
-          <View style={{ height: 15 }} />
-          <Comments
-            comments={this.state.eventData.comments}
-            canCommentAlready={this.state.eventData.event.event_id != ""}
-            addComment={this.addComment}
-            validateComment={this.validateComment}
-            onCommentChangeText={this.onCommentChangeText}
-            cancelComment={this.cancelComment}
-            setEditingProperty={this.setEditingProperty}
+            <View style={{ height: 15 }} />
+            <Comments
+              comments={this.state.eventData.comments}
+              canCommentAlready={this.state.eventData.event.event_id != ""}
+              addComment={this.addComment}
+              validateComment={this.validateComment}
+              onCommentChangeText={this.onCommentChangeText}
+              cancelComment={this.cancelComment}
+              setEditingProperty={this.setEditingProperty}
 
-          />
-        </View>
-        <View style={{ height: 200 }}></View>
-      </KeyboardAwareScrollView >
+            />
+          </View>
+          <View style={{ height: 200 }}></View>
+        </KeyboardAwareScrollView >
+      </View>
     );
   }
 
@@ -459,7 +492,7 @@ class EventScreen extends React.Component {
         this.setState({
           refreshing: false,
           editing: true,
-          isEditingMapMarker: true
+          creationFlowOnGoing: true
         });
       } catch (error) {
         this.setState({
@@ -510,23 +543,10 @@ class EventScreen extends React.Component {
     let newValue = value;
     let newProperty = property;
     let newDate = new Date(dateValueIfDate);
-    let currentDate = new Date(this.state.eventData.event.date);
     switch (property) {
-      case 'date':
-        newDate.setHours(currentDate.getHours());
-        newDate.setMinutes(currentDate.getMinutes());
-        newDate.setSeconds(currentDate.getSeconds());
-        newValue = newDate;
-        if (Platform.OS == 'android')
-          this.setEditingProperty('Date', false);
-        break;
-      case 'datetime':
-        newDate.setDate(currentDate.getDate());
-        newDate.setFullYear(currentDate.getFullYear());
+      case 'fulldate':
         newValue = newDate;
         newProperty = 'date';
-        if (Platform.OS == 'android')
-          this.setEditingProperty('Time', false);
 
         break;
       case 'WHOLE':

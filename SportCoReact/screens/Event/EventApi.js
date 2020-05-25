@@ -44,7 +44,6 @@ export async function updateEvent() {
                     spot_id: spotData.spot_id
                 }
                 updatedEventWithSpot.date.setSeconds(0, 0);
-                console.log(updatedEventWithSpot.date);
                 try {
                     const newEventAddedData = await this.apiService.addEntity('events', updatedEventWithSpot)
                     let newEventId = newEventAddedData.data.data.event_id;

@@ -101,6 +101,12 @@
     "First submit your event, then comments will be available":"First submit your event, then comments will be available",
     "Sync with my phone calendar":"Sync with my phone calendar",
     "Always Sync with my phone calendar":"Always Sync with my phone calendar",
-    "Error trying to save user pref":"Error trying to save user pref"
+    "Error trying to save user pref":"Error trying to save user pref",
+    "Exactly":"Exactly",
+    "Precisely":"Precisely",
+    "Forget it":"Forget it",
+    "Let's Go" :  "Let's Go",
+    "Sport":"Sport",
+    "Date":"Date"
 
 }

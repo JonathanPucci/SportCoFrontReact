@@ -3,7 +3,6 @@ import { Text, View, TextInput, Picker, ScrollView } from 'react-native';
 import { styles } from './styles'
 import MapView from 'react-native-maps';
 import { Button, Icon, Overlay, Divider } from 'react-native-elements'
-import DateTimePicker from '@react-native-community/datetimepicker';
 import { GoogleMapsAutoComplete } from "../../components/GoogleMapsAutoComplete"
 import SmoothPicker from "react-native-smooth-picker";
 import Bubble from './Bubble'
@@ -14,6 +13,7 @@ import { TabBar, TabView, SceneMap } from 'react-native-tab-view';
 import { Layout } from '../../constants/Layout';
 import Colors from '../../constants/Colors';
 import { translate } from '../../App';
+import DatePicker from 'react-native-date-picker';
 
 
 export class OverlaySport extends React.Component {
@@ -28,10 +28,10 @@ export class OverlaySport extends React.Component {
                     <SportsAvailable
                         maxOne={true}
                         sportsSelected={[this.props.sport]}
-                        sportsSelectedChanged={this.onSportChange.bind(this)}
+                        sportsSelectedChanged={(newsports) => { this.props.onSportChange(newsports[0]) }}
                     />
                     <SaveButton
-                        title={`| `+ translate("That's better")}
+                        title={`| ` + translate("That's better")}
                         callback={this.props.saveSport}
                     />
                 </View>
@@ -39,9 +39,6 @@ export class OverlaySport extends React.Component {
         )
     }
 
-    onSportChange(newsports) {
-        this.props.onSportChange(newsports[0]);
-    }
 }
 
 export class OverlayDateTimePicker extends React.Component {
@@ -49,75 +46,30 @@ export class OverlayDateTimePicker extends React.Component {
     render() {
         return (
             <View>
-                {Platform.OS == 'ios' ? (
-                    <Overlay
-                        isVisible={this.props.isEditingDate}
-                        onBackdropPress={() => { this.props.stopEditingDate() }}
-                    >
-                        <View style={{ elevation: 3 }}>
-                            <Text style={{ alignSelf: 'center', fontSize: 20, fontWeight: 'bold' }}>Date</Text>
-                            <DateTimePicker
-                                testID="dateTimePicker"
-                                minimumDate={new Date()}
-                                value={new Date(this.props.event.event.date)}
-                                mode={'date'}
-                                is24Hour={true}
-                                onChange={this.props.onDateChange}
-                            />
-                            <Text style={{ alignSelf: 'center', fontSize: 20, fontWeight: 'bold' }}>Heure</Text>
-                            <DateTimePicker
-                                testID="dateTimePicker"
-                                minimumDate={new Date()}
-                                value={new Date(this.props.event.event.date)}
-                                mode={'time'}
-                                is24Hour={true}
-                                onChange={this.props.onDateTimeChange}
-                            />
-                            <SaveButton
-                                title={`| `+translate('Save')+`?`}
-                                callback={this.props.saveDate}
-                            />
-                        </View>
-                    </Overlay>
-                ) : (
-                        <View>
-                            {this.props.isEditingTime && (
-                                <DateTimePicker
-                                    testID="dateTimePicker"
-                                    value={new Date(this.props.event.event.date)}
-                                    mode={'time'}
-                                    is24Hour={true}
-                                    onChange={this.onDateTimeChange}
-                                />
-                            )}
-                            {this.props.isEditingDate && (
-                                <DateTimePicker
-                                    testID="dateTimePicker"
-                                    value={new Date(this.props.event.event.date)}
-                                    mode={'date'}
-                                    is24Hour={true}
-                                    onChange={this.onDateChange}
-                                />
-                            )}
-                        </View>
-                    )}
+                <Overlay
+                    isVisible={this.props.isEditingDate}
+                    onBackdropPress={() => { this.props.stopEditingDate() }}
+                >
+                    <View style={{ flex: 1, alignSelf: 'center', justifyContent: 'center', alignItems: 'center' }}>
+                        <DatePicker
+                            minimumDate={new Date()}
+                            date={new Date(this.props.event.event.date)}
+                            mode={'datetime'}
+                            is24Hour={true}
+                            onDateChange={this.props.onDateChange}
+                        />
+                        <SaveButton
+                            title={`| ` + translate("Save")}
+                            callback={this.props.increaseFormStep}
+                        />
+
+                    </View>
+                </Overlay>
+
             </View>
         )
     }
 
-    onDateChange = (e, d) => {
-        if (e.type != 'dismissed')
-            this.props.onDateChange(e, d);
-        else
-            this.props.stopEditingDate()
-    }
-
-    onDateTimeChange = (e, d) => {
-        if (e.type != 'dismissed')
-            this.props.onDateTimeChange(e, d);
-        else
-            this.props.stopEditingDate()
-    }
 }
 
 export class OverlayDescription extends React.Component {
@@ -154,7 +106,7 @@ export class OverlayDescription extends React.Component {
                         />
                     </View>
                     <SaveButton
-                        title={`| `+translate('Save')+`?`}
+                        title={`| ` + translate('Save') + `?`}
                         callback={this.props.saveDescription}
                     />
                 </View>
@@ -187,7 +139,7 @@ export class OverlayLevel extends React.Component {
                     </Picker>
                     <View style={{ flex: 1 }}>
                         <SaveButton
-                            title={`| `+translate('Save')+`?`}
+                            title={`| ` + translate('Save') + `?`}
                             callback={this.props.saveLevel}
                         />
                     </View>
@@ -272,7 +224,7 @@ export class OverlayMinMaxParticipants extends React.Component {
                     </View>
                     <View style={{ margin: 20 }}>
                         <SaveButton
-                            title={`| `+translate('Save')+`?`}
+                            title={`| ` + translate('Save') + `?`}
                             callback={this.props.saveParticipants}
                         />
                     </View>
@@ -282,131 +234,14 @@ export class OverlayMinMaxParticipants extends React.Component {
     }
 }
 
-export class MapViewSpotPicker extends React.Component {
 
-    constructor() {
-        super();
-        this.state = {
-            spots: []
-        }
-        this.apiService = new SportCoApi();
-    }
-
-
-    componentDidMount() {
-        this.getData();
-    }
-
-    getData() {
-        this.setState({ loading: true, refreshing: true, spots: [] },
-            this.doGetData.bind(this));
-    }
-
-    doGetData() {
-        this.apiService.getAllEntities('spots')
-            .then((spotsData) => {
-                this.setState({ loading: false, refreshing: false, spots: spotsData.data });
-            })
-            .catch((err) => {
-                this.setState({ loading: false, refreshing: false });
-            });
-    }
-
-    render() {
-        let markerCoordinates = this.state.markerRegion == undefined ?
-            { ...this.props.regionPicked } : { ...this.state.markerRegion };
-        markerCoordinates.latitude = parseFloat(markerCoordinates.latitude);
-        markerCoordinates.longitude = parseFloat(markerCoordinates.longitude);
-        return (
-            <Overlay isVisible={this.props.isVisible} onBackdropPress={() => {
-                if (this.props.event_id != "")
-                    this.props.stopEditingMapMarker()
-            }
-            } >
-                <View style={{ flex: 1 }} >
-                    <GoogleMapsAutoComplete
-                        handler={this.goToLocation.bind(this)}
-                    />
-                    <View style={{ flex: 1, marginTop: 100 }}>
-
-                        {this.props.regionPicked.latitude == undefined ||
-                            this.props.regionPicked.longitude == undefined ? (<View />) : (
-                                <MapView
-                                    style={styles.mapStyle}
-                                    initialRegion={this.props.regionPicked}
-                                    zoomEnabled={true}
-                                    followUserLocation={true}
-                                    showsUserLocation={true}
-                                    onRegionChange={(region) => {
-                                        this.props.onRegionChange(region);
-                                        this.setState({ markerRegion: region });
-                                    }}
-                                    ref={ref => { this.mapView = ref; }}
-                                >
-                                    <MapView.Marker
-                                        coordinate={markerCoordinates}
-                                    >
-                                    </MapView.Marker>
-                                    {this.state.spots.map((spot, index) => {
-                                        let spotCoords = {
-                                            latitude: parseFloat(spot.spot_latitude),
-                                            longitude: parseFloat(spot.spot_longitude),
-                                        }
-                                        if (spotCoords.latitude == undefined || isNaN(spotCoords.latitude))
-                                            return <View key={'markerKey' + index} />
-                                        return (
-                                            <MapView.Marker
-                                                key={'markerKey' + index}
-                                                coordinate={spotCoords}
-                                                pinColor={'blue'}
-                                                onPress={() => {
-                                                    let newRegion = {
-                                                        spot_id: spot.spot_id,
-                                                        longitude: spot.spot_longitude,
-                                                        latitude: spot.spot_latitude
-                                                    };
-                                                    this.props.onRegionChange(newRegion);
-                                                    if (this.props.selectedSpot != undefined)
-                                                        this.props.selectedSpot(index, newRegion)
-                                                    this.setState({ markerRegion: newRegion });
-                                                }}
-                                            />
-                                        )
-                                    })
-
-                                    }
-                                </MapView>
-                            )}
-                        <Text style={{ marginTop: 50, textAlign: 'center', fontSize: 20 }}>{translate("Choose a spot or drag to create a new one !")}</Text>
-
-                    </View>
-                    <SaveButton
-                        title={`| `+translate('Save')+`?`}
-                        callback={() => { this.props.saveLocation(this.state.markerRegion) }}
-                    />
-                </View>
-            </Overlay>
-        )
-    }
-
-    goToLocation(lat, lon) {
-        //Only coming from autoComplete
-        var coordinatesZommed = {
-            latitude: lat,
-            longitude: lon,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.01,
-        }
-        this.mapView.animateToRegion(coordinatesZommed, 1500);
-    }
-}
 
 export class SaveButton extends React.Component {
     render() {
         return (
             <View>
                 <Button
-                    buttonStyle={{ backgroundColor: 'green' }}
+                    buttonStyle={{ backgroundColor: 'green', borderRadius: this.props.borderRadius ? this.props.borderRadius : 0 }}
                     icon={
                         <Icon
                             name="check"
@@ -455,12 +290,12 @@ export class OverlayShareWithin extends React.Component {
             <TabBar
                 {...props}
                 indicatorStyle={{ backgroundColor: Colors.timakaColor }}
-                style={{ backgroundColor: 'white'  }}
+                style={{ backgroundColor: 'white' }}
                 renderLabel={({ route, focused, color }) => (
-                    <Text style={{ color : 'black', margin: 8 }}>
-                      {route.title}
+                    <Text style={{ color: 'black', margin: 8 }}>
+                        {route.title}
                     </Text>
-                  )}
+                )}
             />
         );
         let index = this.state.index;

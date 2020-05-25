@@ -38,9 +38,9 @@ class HomeScreen extends React.Component {
   }
 
   componentDidMount() {
-    // setTimeout(()=> {
-    //   this.props.navigation.navigate('Event', { event: {event : {event_id:3}} })
-    // },500);
+    setTimeout(()=> {
+      this.navigateToEventCreation()
+    },500);
   }
 
   render() {
@@ -50,10 +50,8 @@ class HomeScreen extends React.Component {
           ref={(sc) => this.scrollView = sc}
           style={styles.container} contentContainerStyle={styles.contentContainer}>
 
-
-
           <View style={styles.welcomeContainer}>
-            <Text style={styles.text}>{translate('Welcome to Timaka') }</Text>
+            <Text style={styles.text}>{translate('Welcome to Timaka')}</Text>
             <Text style={[styles.text]}>{translate('Amazing sport sessions ahead !')}</Text>
           </View>
 
@@ -65,10 +63,10 @@ class HomeScreen extends React.Component {
             <Text style={styles.text}>{translate('searchAndCreateLabel')} </Text>
           </View>
 
-          <View style={{ flexDirection: 'row', justifyContent: 'space-around'}}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
             <View style={styles.buttonView}>
               <Button
-                title={`   `+translate('Search')}
+                title={`   ` + translate('Search')}
                 color='white'
                 icon={
                   <Icon
@@ -82,7 +80,7 @@ class HomeScreen extends React.Component {
 
             <View style={styles.buttonView}>
               <Button
-                title={`   `+translate(`Create`)}
+                title={`   ` + translate(`Create`)}
                 color='white'
                 icon={
                   <Icon
@@ -119,7 +117,7 @@ class HomeScreen extends React.Component {
 
           <View style={styles.buttonView}>
             <Button
-              title={`   `+translate(`AddSpot`)}
+              title={`   ` + translate(`AddSpot`)}
               color='white'
               icon={
                 <Icon

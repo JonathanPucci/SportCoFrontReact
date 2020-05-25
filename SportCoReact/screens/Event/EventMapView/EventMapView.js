@@ -3,12 +3,13 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 import { styles } from './styles'
 import MapView from 'react-native-maps';
-import { MapViewSpotPicker } from '../OverlaysEventEdition'
+import { MapViewSpotPicker } from './EventMapViewPicker'
 
 import { DescriptionText } from "../DescriptionText/DescriptionText";
 import { translate } from '../../../App';
-import { Button, Icon } from 'react-native-elements';
+import { Button, Icon, Overlay } from 'react-native-elements';
 import Colors from '../../../constants/Colors';
+import { SaveButton } from '../OverlaysEventEdition';
 
 const roadMapStyle = [
     {
@@ -92,15 +93,29 @@ export class EventMapView extends React.Component {
                     }}
                     onPress={() => this.zoom(false)}
                 />
-                <MapViewSpotPicker
-                    event_id={this.props.eventData.event.event_id}
+                <Overlay
                     isVisible={this.props.isEditingMapMarker}
-                    stopEditingMapMarker={() => this.props.setEditingProperty('Localisation', false)}
-                    regionPicked={!isNaN(eventRegion.latitude) ? eventRegion : this.props.regionPicked}
-                    onRegionChange={(region) => { this.props.regionChanged(region) }}
-                    saveLocation={(r) => this.props.setStateEventDataProperty('spot', 'WHOLE', r)}
-                    selectedSpot={(i, r) => this.props.setStateEventDataProperty('spot', 'WHOLE', r)}
-                />
+                    onBackdropPress={() => {
+                        if (this.props.eventData.event.event_id != "")
+                            this.props.setEditingProperty('Localisation', false)
+                    }}
+                >
+                    <View style={{ flex: 1 }}>
+                        <View style={{ flex: 1 }}>
+                            <MapViewSpotPicker
+                                stopEditingMapMarker={() => this.props.setEditingProperty('Localisation', false)}
+                                regionPicked={!isNaN(eventRegion.latitude) ? eventRegion : this.props.regionPicked}
+                                onRegionChange={(region) => { this.props.regionChanged(region) }}
+                                saveLocation={(r) => this.props.setStateEventDataProperty('spot', 'WHOLE', r)}
+                                selectedSpot={(i, r) => this.props.setStateEventDataProperty('spot', 'WHOLE', r)}
+                            />
+                        </View>
+                        <SaveButton
+                            title={`| ` + translate('Save') + `?`}
+                            callback={() => { this.props.setStateEventDataProperty('spot', 'WHOLE', this.props.regionPicked) }}
+                        />
+                    </View>
+                </Overlay>
             </View>
         )
     }

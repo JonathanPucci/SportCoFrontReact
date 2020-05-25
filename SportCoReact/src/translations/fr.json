@@ -102,7 +102,11 @@
     "First submit your event, then comments will be available":"Publie déjà la session, puis on pourra commenter !",
     "Sync with my phone calendar" :"Synchroniser avec mes calendriers",
     "Always Sync with my phone calendar":"Toujours synchroniser avec mes calendriers",
-    "Error trying to save user pref":"Erreur lors de la sauvegarde des prérérences.. Veuillez réessayer"
-
-
+    "Error trying to save user pref":"Erreur lors de la sauvegarde des prérérences.. Veuillez réessayer",
+    "Exactly":"Exactement",
+    "Precisely":"Précisément",
+    "Forget it":"En fait non, oublie !",
+    "Let's Go" :  "C'est parti",
+    "Sport":"Sport",
+    "Date":"Date"
 }

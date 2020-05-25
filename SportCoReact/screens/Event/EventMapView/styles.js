@@ -44,6 +44,12 @@ export const styles = StyleSheet.create({
     height: 400,
     width: Layout.window.width-30,
   },
+  mapStyleOverlay: {
+    height: 400,
+  },
+  mapStyleTimakaOverlay:{
+    height: Layout.window.height/2,
+  },
   image: {
     alignSelf: 'center',
     height: 80,
