@@ -1,19 +1,21 @@
 import * as React from 'react';
 import { View, RefreshControl } from 'react-native';
-import { Text, CheckBox, Input } from 'react-native-elements';
+import { Text, CheckBox, Input, Overlay } from 'react-native-elements';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 import { styles } from './styles'
-import {GoogleMapsAutoComplete} from "../../components/GoogleMapsAutoComplete"
-import { MapViewSpotPicker } from '../Event/OverlaysEventEdition'
+import { GoogleMapsAutoComplete } from "../../components/GoogleMapsAutoComplete"
+import { MapViewSpotPicker } from '../Event/EventMapView/EventMapViewPicker'
 import { ScrollView } from 'react-native-gesture-handler';
 import SportCoApi from '../../services/apiService';
 import { connect } from 'react-redux'
 import { initialZoom } from '../../screens/Search/SearchScreen';
-import { OptionIcon} from '../../screens/Event/OptionIcon';
+import { OptionIcon } from '../../screens/Event/OptionIcon';
 import { SpotMap } from './SpotMap';
 import Geolocation from 'react-native-geolocation-service';
 import { translate } from '../../App';
+import { SaveButton } from '../Event/OverlaysEventEdition';
+import { SPORTS } from '../../constants/DbConstants';
 
 class SpotManager extends React.Component {
 
@@ -41,7 +43,7 @@ class SpotManager extends React.Component {
     componentDidMount() {
         this.watchId = Geolocation.getCurrentPosition(
             this.setCurrentPosition.bind(this),
-            (err) => { console.log('setPosError');console.log(err) },
+            (err) => { console.log('setPosError'); console.log(err) },
             {
                 enableHighAccuracy: true,
                 timeout: 1000,
@@ -119,24 +121,38 @@ class SpotManager extends React.Component {
                             region={this.state.region}
                             spots={this.state.spots}
                         />
-                        <MapViewSpotPicker
+                        <Overlay
                             isVisible={this.state.isPickingPlace}
-                            stopEditingMapMarker={() => this.setState({ isPickingPlace: false })}
-                            regionPicked={this.state.region}
-                            onRegionChange={(region) => {
-                                this.setState({
-                                    region: {
-                                        ...this.state.region,
-                                        latitude: region.latitude,
-                                        longitude: region.longitude
-                                    },
-                                });
+                            onBackdropPress={() => {
+                                if (this.props.eventData.event.event_id != "")
+                                    this.props.setEditingProperty('Localisation', false)
                             }}
-                            saveLocation={this.pickedSpotCoords.bind(this)}
-                            selectedSpot={(index) => {
-                                this.setState({ isPickingPlace: false }, this.selectedSpot.bind(this, index));
-                            }}
-                        />
+                        >
+                            <View style={{ flex: 1 }}>
+                                <MapViewSpotPicker
+                                    stopEditingMapMarker={() => this.setState({ isPickingPlace: false })}
+                                    regionPicked={this.state.region}
+                                    onRegionChange={(region) => {
+                                        this.setState({
+                                            region: {
+                                                ...this.state.region,
+                                                latitude: region.latitude,
+                                                longitude: region.longitude
+                                            },
+                                        });
+                                    }}
+                                    saveLocation={this.pickedSpotCoords.bind(this)}
+                                    selectedSpot={(index) => {
+                                        this.setState({ isPickingPlace: false }, this.selectedSpot.bind(this, index));
+                                    }}
+                                />
+                                <SaveButton
+                                    title={`| ` + translate('Save') + `?`}
+                                    callback={this.pickedSpotCoords.bind(this)}
+                                />
+                            </View>
+                        </Overlay>
+
                         <View style={{ position: 'absolute', top: 70, left: 10 }}>
                             <OptionIcon name='plus' color='purple' callback={this.addNewSpot.bind(this)} />
                         </View>
@@ -183,14 +199,14 @@ class SpotManager extends React.Component {
 
                 {this.state.isEditing ? (
                     <Input
-                        placeholder={translate("Spot Name Here ...")}
+                        placeholder={translate("Spot Name Here")}
                         value={spot.spot_name}
                         onChangeText={this.changeName.bind(this)}
                     />
                 ) : (
                         <Text h4 style={styles.spotName}>{translate("Spot Name")} : {spot.spot_name} </Text>
                     )}
-                {this.state.sportsAvailable.map((sport, index) => {
+                {SPORTS.map((sport, index) => {
                     return (
                         <View key={'spotfield' + index}>
                             {this.renderSportFieldAvailability(sport)}

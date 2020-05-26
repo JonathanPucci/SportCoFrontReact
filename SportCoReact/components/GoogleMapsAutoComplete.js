@@ -17,7 +17,6 @@ export class GoogleMapsAutoComplete extends React.Component {
                 placeHolder={translate("SearchGmapsPlaceholder")}
                 language={"en-US"}
                 onSelect={place => {
-                    console.log("coucoufromplaces");
                     Keyboard.dismiss();
                     this.props.handler(place.result.geometry.location.lat, place.result.geometry.location.lng)
 

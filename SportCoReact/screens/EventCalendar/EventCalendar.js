@@ -141,6 +141,9 @@ class EventCalendar extends React.Component {
                 await saveNewTimakaCalendarIfDoesNotExistsOrGetId();
             }
         })
+            .catch(err => {
+                console.log(err)
+            })
     }
 
 
@@ -150,7 +153,7 @@ class EventCalendar extends React.Component {
         let events = data.data;
         for (let index = 0; index < events.length; index++) {
             const event = events[index];
-            if (event.date > new Date())
+            if (new Date(event.date) > new Date())
                 saveOrUpdateEventToNativeCalendar(event, calendarId)
         }
     }
