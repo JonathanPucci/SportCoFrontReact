@@ -24,16 +24,17 @@ export class MapViewSpotPicker extends React.Component {
         this.getData();
     }
 
-    getData() {
+    getData = () => {
         this.setState({ loading: true, refreshing: true, spots: [] },
-            this.doGetData.bind(this)
+            this.doGetData()
         );
     }
 
-    doGetData() {
-        this.apiService.getAllEntities('spots')
+    doGetData = () => {
+        let area = this.state.markerRegion == undefined ? this.props.regionPicked : this.state.markerRegion;
+        this.apiService.addEntity('spots/visible', area)
             .then((spotsData) => {
-                this.setState({ loading: false, refreshing: false, spots: spotsData.data });
+                this.setState({ loading: false, refreshing: false, spots: spotsData.data.data });
             })
             .catch((err) => {
                 this.setState({ loading: false, refreshing: false });
@@ -48,7 +49,6 @@ export class MapViewSpotPicker extends React.Component {
             latitudeDelta: 0.01,
             longitudeDelta: 0.01,
         }
-        console.log("gogogo")
         this.mapView.animateToRegion(coordinatesZommed, 1500);
     }
 
@@ -72,7 +72,8 @@ export class MapViewSpotPicker extends React.Component {
                                     this.props.onRegionChange(region);
                                     this.setState({ markerRegion: region });
                                 }}
-                                onPress={()=>{console.log('mappressedhere1')}}
+                                onRegionChangeComplete={() => { this.getData() }}
+                                onPress={() => { console.log('mappressedhere1') }}
                                 ref={ref => { this.mapView = ref; }}
                             >
                                 <MapView.Marker

@@ -11,6 +11,7 @@ import { translate } from "../../../App";
 import DatePicker from 'react-native-date-picker'
 import { Layout } from "../../../constants/Layout";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import {app_locale} from "../Helpers";
 
 export const FormTitle = ({ title }) => (
     <View style={{
@@ -38,6 +39,7 @@ export const FormTitle = ({ title }) => (
 
 class FormStepMapPicker extends Component {
     render() {
+        
         let eventData = this.props.eventData;
         let eventRegion = {
             latitude: parseFloat(eventData.spot.spot_latitude),
@@ -49,9 +51,8 @@ class FormStepMapPicker extends Component {
             <View style={{ flex: 1 }}>
                 <FormTitle title={translate('Location')} />
                 <KeyboardAwareScrollView
-                    style={{ marginTop: TITLE_HEIGHT, flex: 1, }}
+                    style={{ marginTop: TITLE_HEIGHT, flex: 1 }}
                     keyboardShouldPersistTaps="always"
-
                 >
                     <MapViewSpotPicker
                         isFromTimakaOverlay={true}
@@ -68,6 +69,7 @@ class FormStepMapPicker extends Component {
 
 class FormStepSport extends Component {
     render() {
+
         return (
             <View >
                 <FormTitle title={translate('Sport')} />
@@ -83,24 +85,55 @@ class FormStepSport extends Component {
     }
 }
 
+class FormStepTeam extends Component {
+    render() {
+        return (
+            <View >
+                <FormTitle title={translate('Team')} />
+                <ScrollView style={{ marginTop: TITLE_HEIGHT }}>
+
+                </ScrollView>
+            </View>
+        )
+    }
+}
+
+
 class FormStepDateTime extends Component {
 
+    constructor(props){
+        super(props);
+        this.today = new Date();
+        this.state={
+            date : props.event.event.date
+        }
+    }
+
     render() {
+        
         return (
             <View style={{ flex: 1, alignSelf: 'center', alignItems: 'center' }}>
                 <FormTitle title={translate('Date')} />
                 <View style={{ flex: 1, alignSelf: 'center', justifyContent: 'center', alignItems: 'center' }}>
                     <DatePicker
-                        minimumDate={new Date()}
-                        date={new Date(this.props.event.event.date)}
+                        minuteInterval={5}
+                        minimumDate={this.today}
                         mode={'datetime'}
+                        locale={app_locale}
                         is24Hour={true}
-                        onDateChange={this.props.onDateChange}
+                        onDateChange={this.onDateChange}
                     />
                 </View>
             </View>
         )
     }
+
+    onDateChange = (date) => {
+        this.setState({date : date});
+        this.props.onDateChange(date);
+    }
+
+
 }
 
 const FormSteps = [
@@ -154,6 +187,7 @@ class FormCarousel extends Component {
     }
 
     render() {
+
         return (
             <View style={{ flex: 1 }}>
 
@@ -186,20 +220,20 @@ class FormCarousel extends Component {
                                             exitEventCreation={this.props.exitEventCreation}
                                         />
                                     )
+                                case 'datetimePicker':
+                                    return (
+                                        <FormStepDateTime
+                                            event={this.props.eventData}
+                                            onDateChange={this.props.onDateChange}
+                                            increaseFormStep={this.increaseFormStep}
+                                        />
+                                    )
                                 case 'sportPicker':
                                     return (
                                         <FormStepSport
                                             sport={this.props.sport}
                                             saveSport={this.props.saveSport}
                                             onSportChange={this.props.onSportChange}
-                                            increaseFormStep={this.increaseFormStep}
-                                        />
-                                    )
-                                case 'datetimePicker':
-                                    return (
-                                        <FormStepDateTime
-                                            event={this.props.eventData}
-                                            onDateChange={this.props.onDateChange}
                                             increaseFormStep={this.increaseFormStep}
                                         />
                                     )

@@ -32,6 +32,7 @@ class FacebookLogin extends React.Component {
   facebookLogin = async () => {
     let data = null;
     LoginManager.logOut()
+    console.log("loggedOutOfFB")
     try {
       const result = await LoginManager.logInWithPermissions([
         "public_profile",

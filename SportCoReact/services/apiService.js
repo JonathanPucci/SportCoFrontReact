@@ -1,10 +1,10 @@
 import axios from 'axios';
 
-const DEV_URL = 'http://192.168.1.17:8080/';
+const DEV_URL = 'http://192.168.1.97:8080/';
 const LIVE_URL = 'https://sportcoback.herokuapp.com/';
 
-// export const CURRENT_URL = DEV_URL;
-export const CURRENT_URL = LIVE_URL;
+export const CURRENT_URL = DEV_URL;
+// export const CURRENT_URL = LIVE_URL;
 
 export default class SportCoApi {
   constructor() {

@@ -8,10 +8,11 @@ import { CARD_HEIGHT, CARD_WIDTH } from '../../components/CardEvent'
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff'
+    backgroundColor: '#fff',
   },
 
   contentContainer: {
+    flex : 1,
     paddingTop: 0
   },
   text: {

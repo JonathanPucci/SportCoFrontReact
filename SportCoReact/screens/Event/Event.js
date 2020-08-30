@@ -38,6 +38,7 @@ const newEmptyEvent = {
     sport: 'basket',
     date: new Date(),
     visibility: 'public',
+    is_team_event : false,
     sport_level: 'intermediate'
   },
   host: {},
@@ -146,6 +147,7 @@ class EventScreen extends React.Component {
     let date = computeDate(eventData.event.date);
     let randomForAd = Math.round(Math.random() * 10);
     let displayAd = randomForAd == 2;
+    console.log('renderEvent')
     return (
       <View
         style={styles.container}

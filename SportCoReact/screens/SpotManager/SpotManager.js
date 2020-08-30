@@ -61,7 +61,9 @@ class SpotManager extends React.Component {
                 region: {
                     ...this.state.region,
                     latitude: position.coords.latitude,
-                    longitude: position.coords.longitude
+                    longitude: position.coords.longitude,
+                    latitudeDelta : 0.06,
+                    longitudeDelta : 0.06
                 }
             }, () => {
 
@@ -75,9 +77,10 @@ class SpotManager extends React.Component {
     }
 
     doGetData() {
-        this.apiService.getAllEntities('spots')
+        this.apiService.addEntity('spots/visible',this.state.region)
             .then((spotsData) => {
-                this.setState({ loading: false, refreshing: false, spots: spotsData.data });
+                console.log(spotsData.data.data);
+                this.setState({ loading: false, refreshing: false, spots: spotsData.data.data });
             })
             .catch((err) => {
                 this.setState({ loading: false, refreshing: false });

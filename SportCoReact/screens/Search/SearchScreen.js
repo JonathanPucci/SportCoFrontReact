@@ -1,26 +1,21 @@
 import * as React from 'react';
-import { View, Animated, Text, Platform, TextInput, ScrollView, Image } from 'react-native';
-import { Overlay, Button, Icon } from 'react-native-elements'
+import { View, Animated, Text, Platform } from 'react-native';
+import { Button, Icon } from 'react-native-elements'
 import { connect } from 'react-redux'
 import { GoogleMapsAutoComplete } from "../../components/GoogleMapsAutoComplete"
-import Fade from "../../components/Fade"
-import IonIcon from 'react-native-vector-icons/Ionicons';
-import MCIIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useFocusEffect } from '@react-navigation/native';
 import { styles } from './styles'
 import EventScrollList from './EventScrollList'
 import CustomMapView from './CustomMapView'
 import SportCoApi from '../../services/apiService';
-import { CARD_HEIGHT, CARD_WIDTH } from '../../components/CardEvent'
-import SportsAvailable from '../../components/SportsAvailable';
-import { FloatingAction } from "react-native-floating-action";
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import Geolocation from 'react-native-geolocation-service';
 import { SPORTS } from '../../constants/DbConstants';
 import { logDebugInfo, logDebugError } from '../Event/Helpers';
-import InputScrollView from 'react-native-input-scroll-view';
 import { Keyboard } from 'react-native';
 import { translate } from '../../App';
+import FilterOverlay from './FilterOverlay';
+import CalendarView from './CalendarView';
+import { Layout, BOTTOM_TAB_HEIGHT, TOP_NAV_BAR_HEIGHT } from '../../constants/Layout';
 
 
 
@@ -69,7 +64,8 @@ class SearchScreen extends React.Component {
       isChoosingAFilter: false,
       hostIdFilter: '',
       hostNameFilter: '',
-      sportsAccepted: SPORTS
+      sportsAccepted: SPORTS,
+      viewCalendar: true
     }
     this.animation = new Animated.Value(0);
     this.sportCoApi = new SportCoApi();
@@ -150,9 +146,9 @@ class SearchScreen extends React.Component {
     this.sportCoApi.getEntities("events/area", this.state.region)
       .then((eventsdata) => {
         if (eventsdata == null)
-        logDebugInfo('THERE IT WAS NULL', eventsdata)
+          logDebugInfo('THERE IT WAS NULL', eventsdata)
         if (eventsdata == null)
-        return
+          return
         let events = eventsdata.data;
         if (events.length == 0) {
           this.setState({ loading: false, moved: false, optionsVisible: false })
@@ -234,7 +230,9 @@ class SearchScreen extends React.Component {
     return (
       <View style={styles.container} contentContainerStyle={styles.contentContainer}>
         <FetchData onFocus={this.getData.bind(this)} />
-        {this.renderMain()}
+        <View>
+          {this.renderMain()}
+        </View>
       </View>
     )
   }
@@ -248,213 +246,107 @@ class SearchScreen extends React.Component {
       );
     }
 
-
     return (
       <View style={styles.container} contentContainerStyle={styles.contentContainer}>
-        <GoogleMapsAutoComplete
-          handler={this.goToLocation.bind(this)}
-          stylesContainer={{ width: "80%", marginTop: 5 }}
-          stylesInput={{ height: 40 }}
+
+        {!this.state.viewCalendar ? (
+          <View>
+            <GoogleMapsAutoComplete
+              handler={this.goToLocation.bind(this)}
+              stylesContainer={{ width: "80%", marginTop: 5 }}
+              stylesInput={{ height: 40 }}
+            />
+            <View style={styles.mapContainer}>
+              <CustomMapView
+                style={styles.mapContainer}
+                ref={(ref) => { this.mapViewRef = ref }}
+                region={this.state.region}
+                currentLatitudeDelta={this.state.region.latitudeDelta}
+                currentLongitudeDelta={this.state.region.longitudeDelta}
+                events={this.state.events}
+                interpolations={this.state.interpolations}
+                animation={this.animation}
+                myEventScrollList={(index) => { this.setState({ currentEventIndex: index, reloadCallout: true }) }}
+                regionMoved={this.setRegionMoved.bind(this)}
+                navigation={this.props.navigation}
+                pressedMap={this.pressedMap.bind(this)}
+              />
+            </View>
+            <View style={[
+              { position: 'absolute', top: Layout.window.height - BOTTOM_TAB_HEIGHT * 8, elevation: 2, flex: 1, },
+              Platform.OS == 'ios' ? { left: -50 } : { right: -50 }
+            ]}>
+              <EventScrollList
+                ref={(ref) => this.myEventScrollList = ref}
+                animation={this.animation}
+                currentIndex={this.state.currentEventIndex}
+                markers={this.state.events}
+                pressedCard={(index) => { this.showEventCardAndMarker(index) }}
+                scrollEnded={() => { this.scrollEnded() }}
+              />
+            </View>
+          </View>
+        ) : (
+            <View style={{
+              width: Layout.window.width - 50,
+              height: Layout.window.height - BOTTOM_TAB_HEIGHT - TOP_NAV_BAR_HEIGHT-100,
+            }}>
+              <CalendarView
+                navigation={this.props.navigation}
+                events={this.state.events}
+                navigation={this.props.navigation}
+              />
+            </View>
+          )
+        }
+
+        <View style={{ position: 'absolute', top: 0, right: 0, height: Layout.window.height }}>
+          <View style={[styles.actionButton, { top: 15 }]}>
+            <Icon name='settings' color='#2089dc' type='octicon' size={25} onPress={() => { this.hitActionButton('FILTER') }} />
+            {this.state.sportsAccepted.length != SPORTS.length && (
+              <View style={{ position: 'absolute', backgroundColor: '#2089dc', justifyContent: 'center', width: 15, height: 15, borderRadius: 7, bottom: 35, left: 35 }}>
+                <Text style={{ color: 'white', fontSize: 10, textAlign: 'center' }}>{this.state.sportsAccepted.length}</Text>
+              </View>)}
+            {this.state.hostNameFilter != '' && (
+              <View style={{ position: 'absolute', backgroundColor: '#2089dc', justifyContent: 'center', width: 15, height: 15, borderRadius: 7, top: 35, left: 35 }}>
+                <Text style={{ color: 'white', fontSize: 10, textAlign: 'center' }}>{this.state.hostNameFilter.split(' ')[0][0]}</Text>
+              </View>)}
+          </View>
+          <View style={[styles.actionButton, { top: 70 }]}>
+            <Icon name='cursor' color='#2089dc' type='simple-line-icon' size={25} onPress={() => { this.hitActionButton('CENTER') }} />
+          </View>
+          <View style={[styles.actionButton, { top: 125 }]}>
+            <Icon name='search' color='#2089dc' type='material' size={30} onPress={this.pressedSearchHere.bind(this)} />
+          </View>
+          {!this.state.viewCalendar ? (
+            <View style={[styles.actionButton, { top: 180 }]}>
+              <Icon name='calendar' color='#2089dc' type='font-awesome' size={30} onPress={() => { this.hitActionButton('CALENDAR') }} />
+            </View>
+          ) : (
+              <View style={[styles.actionButton, { top: 180 }]}>
+                <Icon name='map' color='#2089dc' type='font-awesome' size={30} onPress={() => { this.hitActionButton('MAP') }} />
+              </View>
+            )}
+          <View style={[{ position: 'absolute', top: Layout.window.height - BOTTOM_TAB_HEIGHT * 6 }, Platform.OS == 'ios' ? { right: 15 } : { left: 15 }]}>
+            <Icon name='add' raised color='#2089dc' size={25} onPress={() => { this.hitActionButton('ADD') }} />
+          </View>
+        </View>
+
+        <FilterOverlay
+          sportsAccepted={this.state.sportsAccepted}
+          hostNameFilter={this.state.hostNameFilter}
+          isChoosingAFilter={this.state.isChoosingAFilter}
+          hostIdFilter={this.state.hostIdFilter}
+          allUsers={this.state.allUsers}
+          eventsRetrieved={this.state.eventsRetrieved}
+          pressedSearchHere={this.pressedSearchHere}
+          filterBySport={this.filterBySport.bind(this)}
+          setState={(state, callback) => { this.setState(state, callback) }}
         />
-        <View style={styles.mapContainer}>
-          <CustomMapView
-            style={styles.mapContainer}
-            ref={(ref) => { this.mapViewRef = ref }}
-            region={this.state.region}
-            currentLatitudeDelta={this.state.region.latitudeDelta}
-            currentLongitudeDelta={this.state.region.longitudeDelta}
-            events={this.state.events}
-            interpolations={this.state.interpolations}
-            animation={this.animation}
-            myEventScrollList={(index) => { this.setState({ currentEventIndex: index, reloadCallout: true }) }}
-            regionMoved={this.setRegionMoved.bind(this)}
-            navigation={this.props.navigation}
-            pressedMap={this.pressedMap.bind(this)}
-          />
-        </View>
-        <View style={[styles.actionButton, { top: 15 }]}>
-          <Icon name='settings' color='#2089dc' type='octicon' size={25} onPress={() => { this.hitActionButton('FILTER') }} />
-          {this.state.sportsAccepted.length != SPORTS.length && (
-            <View style={{ position: 'absolute', backgroundColor: '#2089dc', justifyContent: 'center', width: 15, height: 15, borderRadius: 7, bottom: 35, left: 35 }}>
-              <Text style={{ color: 'white', fontSize: 10, textAlign: 'center' }}>{this.state.sportsAccepted.length}</Text>
-            </View>)}
-          {this.state.hostNameFilter != '' && (
-            <View style={{ position: 'absolute', backgroundColor: '#2089dc', justifyContent: 'center', width: 15, height: 15, borderRadius: 7, top: 35, left: 35 }}>
-              <Text style={{ color: 'white', fontSize: 10, textAlign: 'center' }}>{this.state.hostNameFilter.split(' ')[0][0]}</Text>
-            </View>)}
-        </View>
-        <View style={[styles.actionButton, { top: 70 }]}>
-          <Icon name='cursor' color='#2089dc' type='simple-line-icon' size={25} onPress={() => { this.hitActionButton('CENTER') }} />
-        </View>
-        <View style={[styles.actionButton, { top: 125 }]}>
-          <Icon name='search' color='#2089dc' type='material' size={30} onPress={this.pressedSearchHere.bind(this)} />
-        </View>
-        <View style={[{ position: 'absolute', bottom: 30 }, Platform.OS == 'ios' ? { right: 15 } : { left: 15 }]}>
-          <Icon name='add' raised color='#2089dc' size={25} onPress={() => { this.hitActionButton('ADD') }} />
-        </View>
-        <View style={[
-          { position: 'absolute', bottom: 10, elevation: 2, flex: 1, },
-          Platform.OS == 'ios' ? { left: -50 } : { right: -50 }
-        ]}>
-          <EventScrollList
-            ref={(ref) => this.myEventScrollList = ref}
-            animation={this.animation}
-            currentIndex={this.state.currentEventIndex}
-            markers={this.state.events}
-            pressedCard={(index) => { this.showEventCardAndMarker(index) }}
-            scrollEnded={() => { this.scrollEnded() }}
-          />
-        </View>
-        <Overlay
-          isVisible={this.state.isChoosingAFilter}
-          onBackdropPress={() => { this.setState({ isChoosingAFilter: false }) }}
-          overlayStyle={styles.overlay}
-        >
-          <InputScrollView
-            keyboardShouldPersistTaps='handled' style={styles.sports} topOffset={90}>
-            <SportsAvailable
-              sportsSelected={this.state.sportsAccepted}
-              sportsSelectedChanged={(newsports) => { this.setState({ sportsAccepted: newsports }, () => this.filterBySport()) }}
-            />
-            <Button
-              titleStyle={{ fontSize: 20 }}
-              buttonStyle={{ marginTop: 50 }}
-              title={translate('Select All')}
-              onPress={() => { this.selectAllSports(); this.filterBySport() }}
-            />
-            {this.renderHostNameFilter()}
-            <Button
-              titleStyle={{ fontSize: 20 }}
-              buttonStyle={{ marginTop: 50, backgroundColor: 'green' }}
-              title={translate("Yep, all good")}
-              onPress={() => { this.filterBySport(true) }}
-            />
-          </InputScrollView>
-        </Overlay>
       </View >
     );
   }
 
-  renderHostNameFilter() {
-    let dataToShow = [];
-    if (this.state.hostIdFilter != '') {
-      let user = this.state.allUsers.find(item => { return item.user_id == this.state.hostIdFilter });
-      return (
-        <View>
-          <Text style={{ textAlign: 'center', marginTop: 20 }}> {translate("Only show events hosted by")} </Text>
-          <TouchableWithoutFeedback
-            style={{ flexDirection: 'row', justifyContent: "center", alignSelf: 'center' }}
-            onPress={() => { this.setState({ hostIdFilter: '' }) }}
-          >
-            <Text style={{ alignSelf: "center", textAlign: 'center' }}>{user.user_name}</Text>
-            <View style={{ justifyContent: 'center', alignSelf: 'center' }}>
-              <Icon
-                name='remove' reverse size={18}
-                color='red'
-                style={{ marginLeft: 40 }}
-              />
-            </View>
-          </TouchableWithoutFeedback>
-        </View>
-      )
-    }
-    if (this.state.hostNameFilter.length > 0)
-      dataToShow = this.state.allUsers.filter((item) => { return item.user_name.toLowerCase().includes(this.state.hostNameFilter.toLowerCase()) }).slice(0, 1);
-    return (
-      <View style={{ marginTop: 20 }}>
-        {this.renderHostNameInput(translate('Filter By Host Name'), translate('Find by name') + '...', this.state.hostNameFilter, this.onHostNameFilterChanged)}
-        <View style={{ flexDirection: "column" }}>
-          {dataToShow.map((user, index) => {
-            return (
-              <View key={'user' + index} style={{ flexDirection: 'row', justifyContent: 'center' }}  >
-                <TouchableWithoutFeedback
-                  style={{ marginLeft: 15 }}
-                  onPress={() => { this.setState({ hostIdFilter: user.user_id }) }}
-                  style={{ flexDirection: 'row', justifyContent: 'center' }}>
-                  {user.photo_url != null ?
-                    (
-                      <Image source={{ uri: user.photo_url + '?type=large&width=500&height=500' }} style={styles.friendImage} />
-                    ) : (
-                      <Image source={DEFAULT_PROFILE_PIC} resizeMode='contain' style={styles.friendImageNoBorder} />
-                    )
-                  }
-                  <Text style={{ alignSelf: 'center', marginLeft: 30 }}>{user.user_name}</Text>
-                  <View style={{ justifyContent: 'center', alignSelf: 'center' }}>
-                    <Icon name='check' reverse size={18}
-                      color='green'
-                      style={{ marginLeft: 30 }}
-                    />
-                  </View>
-                </TouchableWithoutFeedback>
-              </View>
-            )
-          })}
-        </View>
-      </View>
-    )
-  }
-
-  renderHostNameInput = (title, placeholderText, data, callbackOnChange) => {
-    return (
-      <View>
-        <Text style={{ alignSelf: 'center', fontSize: 20, fontWeight: 'bold' }}>{title}</Text>
-        <TouchableWithoutFeedback style={styles.inputView}
-          onPress={() => { this[title].focus() }}>
-          <TextInput
-            style={styles.textInputFilter}
-            ref={(input) => { this[title] = input; }}
-            onChangeText={callbackOnChange}
-            defaultValue={data}
-            placeholder={placeholderText}
-            multiline
-          />
-        </TouchableWithoutFeedback>
-      </View>
-    )
-  }
-
-  onHostNameFilterChanged = (text) => {
-    this.setState({ hostNameFilter: text });
-  }
-
-  renderActionButton() {
-    let actions = [
-      {
-        text: "",
-        icon: (<IonIcon name="md-add" style={styles.actionButtonIcon} />),
-        name: "ADD",
-        position: 1
-      },
-      {
-        text: "",
-        icon: (<MCIIcon name="filter" style={styles.actionButtonIcon} />),
-        name: "FILTER",
-        position: 2
-      },
-      {
-        text: "",
-        icon: (<MCIIcon name="arch" style={styles.actionButtonIcon} />),
-        name: "CENTER",
-        position: 3
-      }
-
-    ];
-
-    return (
-
-      <FloatingAction
-        position={Platform.OS == 'ios' ? 'left' : 'right'}
-        color="#2089dc"
-        visible={this.state.optionsVisible}
-        showBackground={false}
-        distanceToEdge={{ vertical: CARD_HEIGHT + 30, horizontal: 20 }}
-        actions={actions}
-        buttonSize={60}
-        floatingIcon={(<IonIcon name="md-create" style={styles.actionButtonIcon} />)}
-        onPressItem={this.hitActionButton.bind(this)}
-      />
-    )
-  }
 
   hitActionButton(name) {
     switch (name) {
@@ -469,6 +361,12 @@ class SearchScreen extends React.Component {
       case 'CENTER':
         this.goToCurrentLocation()
         break;
+      case 'CALENDAR':
+        this.setState({ viewCalendar: true })
+        break;
+
+      case 'MAP':
+        this.setState({ viewCalendar: false })
       default:
         break;
     }
@@ -565,11 +463,6 @@ class SearchScreen extends React.Component {
    *************************                 ***************************************
    ********************************************************************************/
 
-
-  selectAllSports() {
-    let newsports = SPORTS;
-    this.setState({ sportsAccepted: newsports });
-  }
 
   filterBySport(exit = false) {
     let newEvents = [];

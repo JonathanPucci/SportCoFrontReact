@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, TouchableWithoutFeedback, Image, Text } from 'react-native';
 import { mapSportIcon } from '../helpers/mapper'
-import {Layout} from '../constants/Layout'
+import { Layout } from '../constants/Layout'
 import { translate } from '../App';
 
 export const CARD_HEIGHT = (Layout.window.height - 40) / 4.5;
@@ -12,6 +12,7 @@ export default class CardEvent extends React.Component {
 
     render() {
         let item = this.props.item;
+        let photoUrl = item.host.photo_url;
         let date = new Date(item.event.date);
         var dd = date.getDate();
         var mm = date.getMonth() + 1;
@@ -33,13 +34,38 @@ export default class CardEvent extends React.Component {
                         resizeMode="cover"
                     />
                     <View style={markerStyles.textContent}>
+
                         <Text numberOfLines={1} style={markerStyles.cardtitle}>
                             {item.event.sport.toUpperCase() + '  ' + dateString}
                         </Text>
-                        <Text numberOfLines={1} style={markerStyles.cardDescription}>{hour}</Text>
+
+                        <View style={{ flexDirection: 'row'}}>
+                            <Text numberOfLines={1} style={markerStyles.cardDescription}>{hour}</Text>
+                            <View style={{
+                                flex: 1,
+                                marginLeft: 0
+                            }}>
+                                {photoUrl != undefined && <Image source={{ uri: photoUrl + '?type=large&width=500&height=500' }} style={
+                                    {
+                                        alignSelf: 'center',
+                                        height: 40,
+                                        width: 40,
+                                        borderWidth: 1,
+                                        borderRadius: 20,
+                                    }
+                                } />}
+                                {photoUrl == undefined && <Image source={DEFAULT_PROFILE_PIC} resizeMode='contain' style={{
+                                    alignSelf: 'center',
+                                    height: 40,
+                                    width: 40,
+                                }
+                                } />}
+                            </View>
+                        </View>
                         <Text numberOfLines={1} style={markerStyles.cardDescription}>{item.event.description}</Text>
                         <Text numberOfLines={1} style={markerStyles.cardDescription}>
-                            {translate('Going')+' : ' + item.participants.length + '/' + item.event.participants_max}</Text>
+                            {translate('Going') + ' : ' + item.participants.length + '/' + item.event.participants_max}</Text>
+
                     </View>
                 </View>
             </TouchableWithoutFeedback>

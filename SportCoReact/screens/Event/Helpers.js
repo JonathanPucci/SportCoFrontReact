@@ -6,7 +6,7 @@ import * as RNLocalize from 'react-native-localize';
 
 const locales = { enGB, fr }
 
-const locale =
+export const app_locale =
     Platform.OS === 'ios'
         ? NativeModules.SettingsManager.settings.AppleLocale
         : NativeModules.I18nManager.localeIdentifier;
@@ -31,15 +31,20 @@ export function computeAlreadyJoined(userId, eventData) {
     return false;
 }
 
-export function computeDate(dateData) {
+export function computeDate(dateData, onlyDay = false) {
     let date = new Date(dateData);
     let local = undefined;
-    if (locale != undefined) {
-        local = locale.toString().substring(0, 2);
+    if (app_locale != undefined) {
+        local = app_locale.toString().substring(0, 2);
     }
-    return format(date, 'PPPPp', {
-        locale: locales[local] // or global.__localeId__
-    })
+    if (!onlyDay)
+        return format(date, 'PPPPp', {
+            locale: locales[local] // or global.__localeId__
+        })
+    else
+        return format(date, 'PPPP', {
+            locale: locales[local] // or global.__localeId__
+        })
 }
 
 export function isEmpty(obj) {
@@ -54,9 +59,9 @@ export function isEmpty(obj) {
 export function timeSince(date) {
     const fallback = { languageTag: 'en' }
     const { languageTag } =
-        RNLocalize.findBestAvailableLanguage(['en','fr']) ||
+        RNLocalize.findBestAvailableLanguage(['en', 'fr']) ||
         fallback;
-    return formatDistanceToNow(date, { locale: languageTag == 'fr'? fr : enGB })
+    return formatDistanceToNow(date, { locale: languageTag == 'fr' ? fr : enGB })
 }
 
 export function convertUTCDateToLocalDate(date) {
