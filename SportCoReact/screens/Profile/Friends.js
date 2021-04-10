@@ -67,12 +67,12 @@ class FriendsList extends React.Component {
                         </View>
                         <ScrollView
                             keyboardShouldPersistTaps='always'>
-                            <ProfileInput title={'Friends'} placeholderText={translate("Find by name...")}
+                            <ProfileInput title={'Friends'} placeholderText={translate("Find by name")}
                                 data={this.state.friendsNameFilter} callbackOnChange={this.onFriendNameFilterChanged}
                                 isAdding={isAdding} />
                             <View style={{ flexDirection: "column" }}>
                                 {dataToShow.length == 0 && (
-                                    <Text style={{ textAlign: 'center' }}>{translate("You may want to change the filter up there ...")}</Text>
+                                    <Text style={{ textAlign: 'center' }}>{translate("You may want to change the filter up there")}</Text>
                                 )}
                                 {dataToShow.map((userFriend, index) => {
                                     return (

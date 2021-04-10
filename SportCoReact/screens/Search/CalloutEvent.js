@@ -11,6 +11,7 @@ import { computeDate } from '../Event/Helpers';
 import Colors from '../../constants/Colors';
 import { DEFAULT_PROFILE_PIC } from '../../constants/AppConstants';
 import { translate } from '../../App';
+import  UserPicture  from '../../components/UserPicture';
 
 class CalloutEvent extends React.Component {
 
@@ -24,6 +25,8 @@ class CalloutEvent extends React.Component {
             this.getData();
         let eventInfo = this.state.event == undefined ? this.props.event : this.state.event;
         let icon = mapSportIcon(eventInfo.event.sport.toLowerCase());
+        let fb_access_token = this.props.auth.fb_access_token;
+
         return (
             <Callout onPress={() => this.goToEvent(eventInfo)} >
                 <View style={eventCalloutStyles.eventContainer}>
@@ -47,15 +50,7 @@ class CalloutEvent extends React.Component {
                         <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: 10 }}>
                             <Text style={{ textAlign: 'center', marginBottom:10 }}>{eventInfo.host.user_name}</Text>
                             <View style={styles.imageContainer}>
-                                {eventInfo.host.photo_url != undefined ?
-                                    <Text>
-                                        <Image source={{ uri: eventInfo.host.photo_url + '?type=large&width=500&height=500' }} style={styles.image} resizeMode="cover" />
-                                    </Text>
-                                    :
-                                    <Text  >
-                                        <Image source={DEFAULT_PROFILE_PIC} style={styles.imageNoBorder} resizeMode="contain" />
-                                    </Text>
-                                }
+                                <UserPicture photo_url={eventInfo.host.photo_url} type='fb' size={60}/>
                             </View>
                         </View>
                     </View>

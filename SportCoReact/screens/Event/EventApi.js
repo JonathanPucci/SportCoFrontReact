@@ -85,6 +85,7 @@ export async function updateEvent() {
                             user_id: this.props.auth.user_id,
                             event_id: newEventId
                         }
+                        // logDebugInfo('NEW_EVENT_CREATED', eventP)
                         await this.apiService.addEntity('eventparticipant', eventP);
                         if (this.props.auth.user.auto_save_to_calendar)
                             saveOrUpdateEventToNativeCalendar(updatedEventWithSpot);

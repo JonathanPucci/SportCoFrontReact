@@ -8,11 +8,10 @@ import { connect } from 'react-redux'
 import { styles, MAX_ON_LINE, MARGIN_BETWEEN_ICONS } from './styles'
 import { mapSportIcon } from '../../helpers/mapper';
 import * as RootNavigation from '../../navigation/RootNavigation.js';
-import { DEFAULT_PROFILE_PIC } from '../../constants/AppConstants'
 import SportCoApi from '../../services/apiService';
 import Colors from '../../constants/Colors';
 import { translate } from '../../App';
-
+import UserPicture from '../../components/UserPicture';
 
 class ProfileBubbles extends React.Component {
 
@@ -45,20 +44,22 @@ class ProfileBubbles extends React.Component {
                 itemsToShow.push(waitingTeam);
             }
         return (
-            <View>
+            <View style={{ flex: 1 }}>
                 <Text style={styles.desc}>
                     {translate(title)}
                 </Text>
                 {itemsToShow.length == 0 && (<Text style={{ marginLeft: 25 }}> {defaultText}</Text>)}
-                <View style={{ marginTop: 10, marginLeft: MARGIN_BETWEEN_ICONS, flexDirection: 'row' }}>
+                <View style={{ marginTop: 10, marginLeft: MARGIN_BETWEEN_ICONS, flexDirection: 'row', flex: 1 }}>
                     {itemsToShow.slice(0, (title == ('Friends') || title == ('Teams')) ? MAX_ON_LINE - 2 : MAX_ON_LINE).map((item, index) => {
                         let actionNeededFromUserIfWaiterInTeam = false
-                        if (title == ('Teams'))
+                        if (title == ('Teams')) {
                             actionNeededFromUserIfWaiterInTeam = this.actionNeededFromUser(item.team_id)
+                            console.log(item)
+                        }
                         return (
                             <TouchableWithoutFeedback
                                 key={title.split(' ')[title.split(' ').length - 1] + index}
-                                style={{ marginLeft: MARGIN_BETWEEN_ICONS }}
+                                style={{ marginLeft: MARGIN_BETWEEN_ICONS, flex: 1 }}
                                 onPress={() => {
                                     (title == ('Friends')) ?
                                         RootNavigation.navigateToProfile(item.email) :
@@ -71,14 +72,8 @@ class ProfileBubbles extends React.Component {
                                         source={mapSportIcon(item.sport.toLowerCase()).image}
                                         style={styles.imageUserEvent}
                                     /> :
-                                    (<View>
-                                        {item.photo_url != null ?
-                                            (
-                                                <Image source={{ uri: item.photo_url + '?type=large&width=500&height=500' }} style={styles.friendImage} />
-                                            ) : (
-                                                <Image source={DEFAULT_PROFILE_PIC} resizeMode='contain' style={styles.friendImageNoBorder} />
-                                            )
-                                        }
+                                    (<View style={{ flex: 1, width: styles.friendImage.height }}>
+                                        <UserPicture photoUrl={item.photo_url} photoUrlS3={title != ('Teams') ? item.photo_url_s3 : item.team_picture} type={title != ('Teams') ? item.photo_to_use : 'custom'} size={styles.friendImage.height} isTeamPicture={title == 'Teams'} />
                                     </View>)
                                 }
                                 <View style={styles.iconOnEvent}>
@@ -121,7 +116,7 @@ class ProfileBubbles extends React.Component {
                         )
                     })}
 
-                    {((title == ('Friends') && user.userFriends.length > MAX_ON_LINE - 2) || (title == ('Teams') && user.userTeams.length > MAX_ON_LINE - 2)) && (user.user_id == this.props.auth.user_id)  && (
+                    {((title == ('Friends') && user.userFriends.length > MAX_ON_LINE - 2) || (title == ('Teams') && user.userTeams.length > MAX_ON_LINE - 2)) && (user.user_id == this.props.auth.user_id) && (
                         <TouchableWithoutFeedback
                             style={{ marginLeft: MARGIN_BETWEEN_ICONS, alignItems: 'center', justifyContent: 'center' }}
                             onPress={title == ('Friends') ? this.props.wantsToSeeFriends : this.props.wantsToSeeTeams}>

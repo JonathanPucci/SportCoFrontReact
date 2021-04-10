@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { Text, View, Image, RefreshControl, Platform, Linking, ScrollView } from 'react-native';
+import { Text, View, Image, RefreshControl, Platform } from 'react-native';
 import { connect } from 'react-redux'
 import { styles } from './styles'
 import SportCoApi from '../../services/apiService';
 import { mapSportIcon } from '../../helpers/mapper';
-import { Button, Icon, Overlay, Divider } from 'react-native-elements'
+import { Button, Icon } from 'react-native-elements'
 import { OverlayDateTimePicker, OverlayMinMaxParticipants, OverlayDescription, OverlayLevel, OverlaySport, OverlayShareWithin } from './OverlaysEventEdition'
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
@@ -15,7 +15,7 @@ import * as EventApi from './EventApi';
 import { Comments } from "./Comments/Comments";
 import { DescriptionText } from "./DescriptionText/DescriptionText";
 import { EventMapView } from './EventMapView/EventMapView';
-import { Participants } from './Participants/Participants';
+import  Participants  from './Participants/Participants';
 import { Options } from './Options/Options';
 import { OptionIcon } from './OptionIcon';
 import Geolocation from 'react-native-geolocation-service';
@@ -24,11 +24,8 @@ import Share from 'react-native-share';
 import AdMobInterstitial from '../../services/AdMob/AdMobInterstitial';
 import AdMobBanner from '../../services/AdMob/AdMobBanner';
 import { translate } from '../../App';
-import FormCarousel from './FormCarousel/FormCarousel';
-import { Layout } from '../../constants/Layout';
-import { OverlayTimaka } from '../../components/OverLayTimaka';
 
-const newEmptyEvent = {
+export const newEmptyEvent = {
   event: {
     event_id: '',
     description: '',
@@ -38,7 +35,7 @@ const newEmptyEvent = {
     sport: 'basket',
     date: new Date(),
     visibility: 'public',
-    is_team_event : false,
+    is_team_event: false,
     sport_level: 'intermediate'
   },
   host: {},
@@ -49,7 +46,10 @@ const newEmptyEvent = {
 
 class EventScreen extends React.Component {
 
+
+
   constructor(props) {
+
     super(props);
     this.state = {
       refreshing: false,
@@ -119,6 +119,7 @@ class EventScreen extends React.Component {
     };
     await this.getData();
     const initEventData = this.getInitEventData();
+
     this.setState(
       {
         ...this.state,
@@ -143,6 +144,7 @@ class EventScreen extends React.Component {
     if (eventData == undefined || eventData.event == undefined)
       return <View></View>
     let photoUrl = eventData.host.photo_url;
+    let fbToken = this.props.auth.fb_access_token;
     let eventIcon = mapSportIcon(eventData.event.sport.toLowerCase());
     let date = computeDate(eventData.event.date);
     let randomForAd = Math.round(Math.random() * 10);
@@ -152,33 +154,7 @@ class EventScreen extends React.Component {
       <View
         style={styles.container}
       >
-        {this.state.creationFlowOnGoing && (
-          <OverlayTimaka>
-            <FormCarousel
-              eventData={this.state.eventData}
-              editing={this.state.editing}
-              regionPicked={this.state.regionPicked}
-              isEditingMapMarker={true}
-              setEditingProperty={this.setEditingProperty}
-              setStateEventDataProperty={this.setStateEventDataProperty}
-              regionChanged={(region) => {
-                this.setState({
-                  regionPicked: region,
-                  eventData: {
-                    ...this.state.eventData,
-                    spot: { ...this.state.eventData.spot, spot_latitude: region.latitude, spot_longitude: region.longitude }
-                  }
-                })
-              }}
-              sport={this.state.eventData.event.sport}
-              onSportChange={(sport) => this.setStateEventDataProperty('event', 'sport', sport)}
-              saveSport={() => { this.setEditingProperty('Sport', false); }}
-              onDateChange={(d) => this.setStateEventDataProperty('event', 'fulldate', null, d)}
-              exitEventCreation={() => { this.stopCreationFlow(); this.props.navigation.goBack() }}
-              successCreation={() => { this.stopCreationFlow() }}
-            />
-          </OverlayTimaka>
-        )}
+
         <KeyboardAwareScrollView
           extraScrollHeight={150}
           style={styles.container}
@@ -192,7 +168,7 @@ class EventScreen extends React.Component {
           {/* {this.state.eventData.event.event_id != "" && displayAd && <AdMobInterstitial />} */}
 
 
-          {this.renderHostHeader(eventData, photoUrl, eventIcon)}
+          {this.renderHostHeader(eventData, photoUrl, eventIcon, fbToken)}
           <View style={{ flex: 1, width: '100%', alignSelf: 'center', marginTop: 20 }}>
             <View style={styles.descriptionView}>
               <View style={{ flex: 1, flexDirection: 'column' }}>
@@ -339,12 +315,12 @@ class EventScreen extends React.Component {
    ********************      RENDERING HEADER   ************************************
    ********************************************************************************/
 
-  renderHostHeader(event, photoUrl, eventIcon) {
+  renderHostHeader(event, photoUrl, eventIcon, fbToken) {
     return (
       <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
         <TouchableWithoutFeedback onPress={() => seeProfile(this.props.navigation, this.state.eventData.host.email)}>
           <View style={styles.imageContainer}>
-            {photoUrl != undefined && <Image source={{ uri: photoUrl + '?type=large&width=500&height=500' }} style={styles.image} />}
+            {photoUrl != undefined && <Image source={{ uri: photoUrl + '?type=large&width=500&height=500&access_token=' + fbToken }} style={styles.image} />}
             {photoUrl == undefined && <Image source={DEFAULT_PROFILE_PIC} resizeMode='contain' style={styles.imageNoBorder} />}
           </View>
         </TouchableWithoutFeedback>
@@ -471,49 +447,51 @@ class EventScreen extends React.Component {
     if (this.state.eventData != undefined)
       eventData = this.state.eventData;
     let eventId = (eventData.event.event_id == "") ? -1 : eventData.event.event_id;
-    try {
-      const eventData = await this.apiService.getSingleEntity("events", eventId)
-      const action = {
-        type: "SAVE_EVENT_BEFORE_EDIT",
-        value: eventData.data,
-      };
-      this.props.dispatch(action);
-      this.setState({
-        refreshing: false,
-        editing: false
-      });
-
-    }
-    catch (error) {
+    if (eventId == -1) {
       //Creation flow ongoing
       try {
         const data = await this.apiService.getSingleEntity("users/email", this.props.auth.user.email)
-        let eventData = {
-          ...newEmptyEvent,
+        let eventDataToPass = {
+          ...eventData,
           event: {
-            ...newEmptyEvent.event,
+            ...eventData.event,
             host_id: this.props.auth.user_id
           },
           host: data.data
         }
-        // console.log(eventData);
-
         const action = {
           type: "SAVE_EVENT_BEFORE_EDIT",
-          value: eventData,
+          value: eventDataToPass,
         };
         this.props.dispatch(action);
         this.setState({
           refreshing: false,
           editing: true,
-          creationFlowOnGoing: true
         });
       } catch (error) {
+        console.log(error)
         this.setState({
           refreshing: false,
           editing: false
         });
       };
+    } else {
+      try {
+        const eventData = await this.apiService.getSingleEntity("events", eventId)
+        const action = {
+          type: "SAVE_EVENT_BEFORE_EDIT",
+          value: eventData.data,
+        };
+        this.props.dispatch(action);
+        this.setState({
+          refreshing: false,
+          editing: false
+        });
+
+      }
+      catch (error) {
+        console.log(error)
+      }
     }
   }
 

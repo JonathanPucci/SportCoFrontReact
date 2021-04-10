@@ -7,6 +7,6 @@ module.exports = {
           packageInstance: 'new RNNotificationsPackage(reactNativeHost.getApplication())',
         }
       },
-      assets: ['react-native-vector-icons']
+      assets: ['react-native-vector-icons','./assets/fonts/']
     },
   };

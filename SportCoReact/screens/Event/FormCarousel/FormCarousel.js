@@ -36,6 +36,24 @@ export const FormTitle = ({ title }) => (
     </View>
 );
 
+class FormStepSport extends Component {
+    render() {
+
+        return (
+            <View >
+                <FormTitle title={translate('Sport')} />
+                <ScrollView style={{ marginTop: TITLE_HEIGHT }}>
+                    <SportsAvailable
+                        maxOne={true}
+                        sportsSelected={[this.props.sport]}
+                        sportsSelectedChanged={(newsports) => { this.props.onSportChange(newsports[0]) }}
+                    />
+                </ScrollView>
+            </View>
+        )
+    }
+}
+
 
 class FormStepMapPicker extends Component {
     render() {
@@ -67,23 +85,6 @@ class FormStepMapPicker extends Component {
     }
 }
 
-class FormStepSport extends Component {
-    render() {
-
-        return (
-            <View >
-                <FormTitle title={translate('Sport')} />
-                <ScrollView style={{ marginTop: TITLE_HEIGHT }}>
-                    <SportsAvailable
-                        maxOne={true}
-                        sportsSelected={[this.props.sport]}
-                        sportsSelectedChanged={(newsports) => { this.props.onSportChange(newsports[0]) }}
-                    />
-                </ScrollView>
-            </View>
-        )
-    }
-}
 
 class FormStepTeam extends Component {
     render() {
@@ -110,17 +111,17 @@ class FormStepDateTime extends Component {
     }
 
     render() {
-        
         return (
             <View style={{ flex: 1, alignSelf: 'center', alignItems: 'center' }}>
                 <FormTitle title={translate('Date')} />
-                <View style={{ flex: 1, alignSelf: 'center', justifyContent: 'center', alignItems: 'center' }}>
+                <View style={{ flex: 1, alignSelf: 'center', justifyContent: 'center', alignItems: 'center', height:20 }}>
                     <DatePicker
                         minuteInterval={5}
                         minimumDate={this.today}
+                        date={this.state.date}
                         mode={'datetime'}
                         locale={app_locale}
-                        is24Hour={true}
+                        is24hourSource='locale'
                         onDateChange={this.onDateChange}
                     />
                 </View>
@@ -190,7 +191,6 @@ class FormCarousel extends Component {
 
         return (
             <View style={{ flex: 1 }}>
-
                 <View style={{ flex: 6 }}>
                     <Carousel
                         decelerationRate="fast"

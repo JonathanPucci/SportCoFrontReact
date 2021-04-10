@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, Animated, Text, Platform } from 'react-native';
+import { View, Animated, Text, Platform, ScrollView, Image } from 'react-native';
 import { Button, Icon } from 'react-native-elements'
 import { connect } from 'react-redux'
 import { GoogleMapsAutoComplete } from "../../components/GoogleMapsAutoComplete"
@@ -9,14 +9,20 @@ import EventScrollList from './EventScrollList'
 import CustomMapView from './CustomMapView'
 import SportCoApi from '../../services/apiService';
 import Geolocation from 'react-native-geolocation-service';
-import { SPORTS } from '../../constants/DbConstants';
+import { SPORTS, SPORTS_FILTERS } from '../../constants/DbConstants';
 import { logDebugInfo, logDebugError } from '../Event/Helpers';
 import { Keyboard } from 'react-native';
 import { translate } from '../../App';
 import FilterOverlay from './FilterOverlay';
-import CalendarView from './CalendarView';
-import { Layout, BOTTOM_TAB_HEIGHT, TOP_NAV_BAR_HEIGHT } from '../../constants/Layout';
+import CalendarView from './CalendarView/CalendarView';
+import { Layout, BOTTOM_TAB_HEIGHT, TOP_NAV_BAR_HEIGHT, AUTOCOMPLETE_HEIGHT } from '../../constants/Layout';
 
+import { getStatusBarHeight } from 'react-native-status-bar-height';
+import { mapSportIcon } from '../../helpers/mapper';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+const FILTERS_HEIGHT = 175;
 
 
 // Effect to get Events at focus (after coming back from events)
@@ -65,7 +71,9 @@ class SearchScreen extends React.Component {
       hostIdFilter: '',
       hostNameFilter: '',
       sportsAccepted: SPORTS,
-      viewCalendar: true
+      viewCalendar: false,
+      sortSport: false,
+      sortDate: true
     }
     this.animation = new Animated.Value(0);
     this.sportCoApi = new SportCoApi();
@@ -143,14 +151,17 @@ class SearchScreen extends React.Component {
 
   retrieveEventsInArea = () => {
     // console.log(Platform.OS + " retrieve In Area");
+    console.log(this.state.region)
     this.sportCoApi.getEntities("events/area", this.state.region)
       .then((eventsdata) => {
+
         if (eventsdata == null)
           logDebugInfo('THERE IT WAS NULL', eventsdata)
         if (eventsdata == null)
           return
         let events = eventsdata.data;
         if (events.length == 0) {
+          logDebugInfo('NO EVENT FOUND', '');
           this.setState({ loading: false, moved: false, optionsVisible: false })
         }
         if (events.length == 0)
@@ -212,7 +223,7 @@ class SearchScreen extends React.Component {
         moved: false,
         optionsVisible: false,
         currentEventIndex: Platform.OS == 'android' ? eventsFetchedSoFar.length - 1 : 0,
-        allUsers: allUsers
+        allUsers: allUsers,
       },
         () => {
           this.filterBySport(true);
@@ -236,6 +247,7 @@ class SearchScreen extends React.Component {
       </View>
     )
   }
+
   renderMain() {
     if (this.state.loading) {
       return (
@@ -247,16 +259,29 @@ class SearchScreen extends React.Component {
     }
 
     return (
-      <View style={styles.container} contentContainerStyle={styles.contentContainer}>
+      <SafeAreaView style={styles.container} contentContainerStyle={styles.contentContainer}>
 
         {!this.state.viewCalendar ? (
           <View>
             <GoogleMapsAutoComplete
               handler={this.goToLocation.bind(this)}
               stylesContainer={{ width: "80%", marginTop: 5 }}
-              stylesInput={{ height: 40 }}
+              stylesInput={{ height: AUTOCOMPLETE_HEIGHT }}
             />
             <View style={styles.mapContainer}>
+              <View style={[
+                { position: 'absolute', bottom: BOTTOM_TAB_HEIGHT, elevation: 2, zIndex: 2, flex: 1, },
+                Platform.OS == 'ios' ? { left: -50 } : { right: -50 }
+              ]}>
+                <EventScrollList
+                  ref={(ref) => this.myEventScrollList = ref}
+                  animation={this.animation}
+                  currentIndex={this.state.currentEventIndex}
+                  markers={this.state.events}
+                  pressedCard={(index) => { this.showEventCardAndMarker(index) }}
+                  scrollEnded={() => { this.scrollEnded() }}
+                />
+              </View>
               <CustomMapView
                 style={styles.mapContainer}
                 ref={(ref) => { this.mapViewRef = ref }}
@@ -272,65 +297,107 @@ class SearchScreen extends React.Component {
                 pressedMap={this.pressedMap.bind(this)}
               />
             </View>
-            <View style={[
-              { position: 'absolute', top: Layout.window.height - BOTTOM_TAB_HEIGHT * 8, elevation: 2, flex: 1, },
-              Platform.OS == 'ios' ? { left: -50 } : { right: -50 }
-            ]}>
-              <EventScrollList
-                ref={(ref) => this.myEventScrollList = ref}
-                animation={this.animation}
-                currentIndex={this.state.currentEventIndex}
-                markers={this.state.events}
-                pressedCard={(index) => { this.showEventCardAndMarker(index) }}
-                scrollEnded={() => { this.scrollEnded() }}
-              />
+            {/*********************
+               ***  ACTION BUTTONS ***
+               *********************/}
+            <View style={{ position: 'absolute', top: TOP_NAV_BAR_HEIGHT - AUTOCOMPLETE_HEIGHT + 5, right: 0, height: Layout.window.height - BOTTOM_TAB_HEIGHT }}>
+              <View style={[styles.actionButton, { top: 0 }]}>
+                <Icon name='settings' color='#2089dc' type='octicon' size={25} onPress={() => { this.hitActionButton('FILTER') }} />
+                {this.state.sportsAccepted.length != SPORTS.length && (
+                  <View style={{ position: 'absolute', backgroundColor: '#2089dc', justifyContent: 'center', width: 15, height: 15, borderRadius: 7, bottom: 35, left: 35 }}>
+                    <Text style={{ color: 'white', fontSize: 10, textAlign: 'center' }}>{this.state.sportsAccepted.length}</Text>
+                  </View>
+                )}
+                {this.state.hostNameFilter != '' && (
+                  <View style={{ position: 'absolute', backgroundColor: '#2089dc', justifyContent: 'center', width: 15, height: 15, borderRadius: 7, top: 35, left: 35 }}>
+                    <Text style={{ color: 'white', fontSize: 10, textAlign: 'center' }}>{this.state.hostNameFilter.split(' ')[0][0]}</Text>
+                  </View>
+                )}
+              </View>
+              <View style={[styles.actionButton, { top: 55 }]}>
+                <Icon name='cursor' color='#2089dc' type='simple-line-icon' size={25} onPress={() => { this.hitActionButton('CENTER') }} />
+              </View>
+              <View style={[styles.actionButton, { top: 110 }]}>
+                <Icon name='search' color='#2089dc' type='material' size={30} onPress={this.pressedSearchHere.bind(this)} />
+              </View>
+              <View style={[styles.actionButton, { top: 165 }]}>
+                <Icon name='calendar' color='#2089dc' type='font-awesome' size={30} onPress={() => { this.hitActionButton('CALENDAR') }} />
+              </View>
+              <View style={[{ position: 'absolute', bottom: BOTTOM_TAB_HEIGHT + 100 }, Platform.OS == 'ios' ? { right: 15 } : { left: 15 }]}>
+                <Icon name='add' raised color='#2089dc' size={25} onPress={() => { this.hitActionButton('ADD') }} />
+              </View>
             </View>
           </View>
         ) : (
-            <View style={{
-              width: Layout.window.width - 50,
-              height: Layout.window.height - BOTTOM_TAB_HEIGHT - TOP_NAV_BAR_HEIGHT-100,
-            }}>
+          <View style={{ flex: 1 }}>
+            {/*********************
+             ***  CALENDAR VIEW ***
+             *********************/}
+
+            <View style={{ height: FILTERS_HEIGHT, width: Layout.window.width }}>
+
+              <View style={{ flexDirection: 'row', alignItems: 'center', alignSelf: 'center', marginTop: 20 }} >
+                <Button
+                  containerStyle={{ width: 150 }}
+                  titleStyle={{ fontSize: 14 }}
+                  icon={<Icon containerStyle={{ marginRight: 20 }} name='soccer-ball-o' color={this.state.sortSport ? 'white' : '#2089dc'} type='font-awesome' size={15} onPress={() => { this.hitActionButton('SORT_SPORT') }} />}
+                  title={translate("Sort By Sport")}
+                  type={this.state.sortSport ? 'solid' : 'outline'}
+                  onPress={() => { this.hitActionButton('SORT_SPORT') }}
+                />
+                <Button
+                  containerStyle={{ width: 150, marginLeft: 20 }}
+                  titleStyle={{ fontSize: 13 }}
+                  icon={<Icon containerStyle={{ marginRight: 20 }} name='calendar' color={this.state.sortDate ? 'white' : '#2089dc'} type='foundation' size={15} onPress={() => { this.hitActionButton('SORT_DATE') }} />}
+                  title={translate("Sort By Date")}
+                  type={this.state.sortDate ? 'solid' : 'outline'}
+                  onPress={() => { this.hitActionButton('SORT_DATE') }}
+                />
+              </View>
+              <ScrollView horizontal style={{ alignSelf: 'center', }} showsHorizontalScrollIndicator={false}>
+                {SPORTS_FILTERS.map((sport, i, a) => {
+                  let sportSelected = this.state.sportsAccepted.length != SPORTS.length && this.state.sportsAccepted.includes(sport);
+                  return (
+                    <TouchableOpacity key={sport} style={[
+                      { flex: 1, marginLeft: 20, marginRight: 20, flexDirection: 'column', justifyContent: 'center' },
+
+                    ]}
+                      onPress={() => { this.hitActionButton('FILTER_SPORT', sport) }}>
+                      {/* <Icon name={mapSportIcon(sport).iconName} type={mapSportIcon(sport).iconFamily} size={20} /> */}
+                      <Image source={mapSportIcon(sport).sportFilterImage} resizeMode='contain' style={{ height: 50, width: 50, }} />
+                      <Text style={{ textAlign: 'center', fontFamily: sportSelected ? 'ClanPro-Bold' : 'ClanPro-Regular' }}>{sport.charAt(0) + sport.substring(1).toLowerCase()}</Text>
+                      {
+                        sportSelected && (
+                          <View style={{ height: 20, width: 20, borderRadius: 10, backgroundColor: 'green', alignSelf: 'center' }} />
+                        )
+                      }
+                    </TouchableOpacity>
+                  )
+                })
+                }
+              </ScrollView>
+              <View style={{ backgroundColor: 'rgb(230,230,230)', height: 8, width: Layout.window.width }} />
+            </View>
+
+            <View style={{ height: Layout.window.height - BOTTOM_TAB_HEIGHT - FILTERS_HEIGHT - 90}}>
               <CalendarView
                 navigation={this.props.navigation}
                 events={this.state.events}
                 navigation={this.props.navigation}
+                sortDate={this.state.sortDate}
+                sortSport={this.state.sortSport}
+                searchFilter={this.state.sortSport}
               />
             </View>
-          )
+            <View style={{ alignSelf: 'flex-end', right: 25, position: 'absolute', top: Layout.window.height - BOTTOM_TAB_HEIGHT - 200 }} >
+              <Icon raised name='map' color='#2089dc' type='font-awesome' size={25} onPress={() => { this.hitActionButton('MAP') }} />
+            </View>
+          </View>
+        )
         }
 
-        <View style={{ position: 'absolute', top: 0, right: 0, height: Layout.window.height }}>
-          <View style={[styles.actionButton, { top: 15 }]}>
-            <Icon name='settings' color='#2089dc' type='octicon' size={25} onPress={() => { this.hitActionButton('FILTER') }} />
-            {this.state.sportsAccepted.length != SPORTS.length && (
-              <View style={{ position: 'absolute', backgroundColor: '#2089dc', justifyContent: 'center', width: 15, height: 15, borderRadius: 7, bottom: 35, left: 35 }}>
-                <Text style={{ color: 'white', fontSize: 10, textAlign: 'center' }}>{this.state.sportsAccepted.length}</Text>
-              </View>)}
-            {this.state.hostNameFilter != '' && (
-              <View style={{ position: 'absolute', backgroundColor: '#2089dc', justifyContent: 'center', width: 15, height: 15, borderRadius: 7, top: 35, left: 35 }}>
-                <Text style={{ color: 'white', fontSize: 10, textAlign: 'center' }}>{this.state.hostNameFilter.split(' ')[0][0]}</Text>
-              </View>)}
-          </View>
-          <View style={[styles.actionButton, { top: 70 }]}>
-            <Icon name='cursor' color='#2089dc' type='simple-line-icon' size={25} onPress={() => { this.hitActionButton('CENTER') }} />
-          </View>
-          <View style={[styles.actionButton, { top: 125 }]}>
-            <Icon name='search' color='#2089dc' type='material' size={30} onPress={this.pressedSearchHere.bind(this)} />
-          </View>
-          {!this.state.viewCalendar ? (
-            <View style={[styles.actionButton, { top: 180 }]}>
-              <Icon name='calendar' color='#2089dc' type='font-awesome' size={30} onPress={() => { this.hitActionButton('CALENDAR') }} />
-            </View>
-          ) : (
-              <View style={[styles.actionButton, { top: 180 }]}>
-                <Icon name='map' color='#2089dc' type='font-awesome' size={30} onPress={() => { this.hitActionButton('MAP') }} />
-              </View>
-            )}
-          <View style={[{ position: 'absolute', top: Layout.window.height - BOTTOM_TAB_HEIGHT * 6 }, Platform.OS == 'ios' ? { right: 15 } : { left: 15 }]}>
-            <Icon name='add' raised color='#2089dc' size={25} onPress={() => { this.hitActionButton('ADD') }} />
-          </View>
-        </View>
+
+
 
         <FilterOverlay
           sportsAccepted={this.state.sportsAccepted}
@@ -343,18 +410,21 @@ class SearchScreen extends React.Component {
           filterBySport={this.filterBySport.bind(this)}
           setState={(state, callback) => { this.setState(state, callback) }}
         />
-      </View >
+      </SafeAreaView >
     );
   }
 
 
-  hitActionButton(name) {
+  hitActionButton(name, sport) {
     switch (name) {
       case 'FILTER':
         this.setState({ isChoosingAFilter: true })
         break;
+      case 'FILTER_SPORT':
+        this.addSportFilter(sport);
+        break;
       case 'ADD':
-        this.props.navigation.navigate('Event', {
+        this.props.navigation.navigate('EventCreator', {
           eventData: { event: { event_id: '' } }
         });
         break;
@@ -364,13 +434,48 @@ class SearchScreen extends React.Component {
       case 'CALENDAR':
         this.setState({ viewCalendar: true })
         break;
-
+      case 'SORT_DATE':
+        this.setState({ sortDate: true, sortSport: false })
+        break;
+      case 'SORT_SPORT':
+        this.setState({ sortSport: true, sortDate: false })
+        break;
       case 'MAP':
         this.setState({ viewCalendar: false })
       default:
         break;
     }
   }
+
+  addSportFilter = (sport) => {
+    var otherSport = 'NOPE';
+    if (sport == 'volley')
+      otherSport = 'beachvolley';
+    if (sport == 'soccer')
+      otherSport = 'futsal';
+    if (this.state.sportsAccepted.length == SPORTS.length) {
+      let newSports = otherSport != 'NOPE' ? [sport, otherSport] : [sport];
+      this.setState({ sportsAccepted: newSports }, () => this.filterBySport(true))
+    } else {
+      let newSports = [...this.state.sportsAccepted];
+      if (this.state.sportsAccepted.includes(sport)) {
+        newSports.splice(newSports.indexOf(sport), 1);
+        if (otherSport != 'NOPE')
+          newSports.splice(newSports.indexOf(otherSport), 1);
+
+      } else {
+        newSports.push(sport);
+        if (otherSport != 'NOPE')
+          newSports.push(otherSport);
+      }
+      if (newSports.length == 0) {
+        newSports = SPORTS
+      }
+      this.setState({ sportsAccepted: newSports }, () => this.filterBySport(true))
+    }
+  }
+
+
 
   /*********************************************************************************
    *************************                 ***************************************

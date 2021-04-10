@@ -3,24 +3,29 @@ import { Platform, StatusBar, StyleSheet, SafeAreaView, View, Image, Linking, Vi
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { navigationRef } from './RootNavigation';
-import { navigateToEvent } from './RootNavigation';
+import { navigateToEvent, navigate } from './RootNavigation';
 
 import BottomTabNavigator, { LogoTitle } from './BottomTabNavigator';
 import LoginScreen from '../screens/Login/LoginScreen';
 import EventScreen from '../screens/Event/Event';
+import EventCreator from '../screens/Event/EventCreator';
+
 import { MultiEventScreen } from '../screens/Search/CalloutMultiEvent';
 import ProfileScreen from '../screens/Profile/ProfileScreen';
 
 import { connect } from 'react-redux';
 import SpotManager from '../screens/SpotManager/SpotManager';
 import SportCoApi from '../services/apiService';
-import * as RootNavigation from '../navigation/RootNavigation.js';
 import TeamScreen from '../screens/Team/TeamScreen';
+import { HeaderBackButton } from '@react-navigation/stack';
+import Splash from '../Splash';
+import { cardStyleInterpolatorHelper, headerStyleInterpolatorHelper } from './Helpers';
 
 
 const Stack = createStackNavigator();
 
 class AppNavigator extends React.Component {
+
 
     constructor() {
         super();
@@ -87,28 +92,50 @@ class AppNavigator extends React.Component {
 
     render() {
         return (
-            <SafeAreaView style={styles.container}>
+            <View style={styles.container}>
                 {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
-                <NavigationContainer ref={navigationRef}>
-                    <Stack.Navigator>
+                <Stack.Screen name="Splash" component={Splash}
+                    options={{
+                        headerShown: false,
+                        tabBarVisible: false
+                    }}
+                />
+                <SafeAreaView style={styles.container}>
+                    <NavigationContainer ref={navigationRef}>
                         {(this.props.auth == undefined || this.props.auth.user == undefined)
                             // If not logged in, the user will be shown this route
-                            ? <Stack.Screen
-                                name="SportCoApp"
-                                component={LoginScreen}
-                                options={{ headerTitle: props => <LogoTitle {...props} /> }}
-                            />
+                            ?
+                            <Stack.Navigator >
+                                <Stack.Screen
+                                    name="SportCoApp"
+                                    component={LoginScreen}
+                                    options={{
+                                        headerShown: false,
+                                        headerStyleInterpolator: headerStyleInterpolatorHelper,
+                                        cardStyleInterpolator: cardStyleInterpolatorHelper,
+                                    }}
+                                /></Stack.Navigator>
                             // When logged in, the user will be shown this route
-                            : <Stack.Screen name="Back" component={BottomTabNavigator} />
+                            :
+                            <Stack.Navigator >
+                                <Stack.Screen name="Back" component={BottomTabNavigator}
+                                    options={{ headerTitle: props => <LogoTitle {...props} /> }}
+                                />
+                                <Stack.Screen name="Event" component={EventScreen}
+                                    options={{
+                                        headerLeft: () => (<HeaderBackButton onPress={() => { navigate('Search') }} />)
+
+                                    }} />
+                                <Stack.Screen name="EventCreator" component={EventCreator} />
+                                <Stack.Screen name="Evenements" component={MultiEventScreen} />
+                                <Stack.Screen name="Profile" component={ProfileScreen} />
+                                <Stack.Screen name="Team" component={TeamScreen} />
+                                <Stack.Screen name="SpotManager" component={SpotManager} />
+                            </Stack.Navigator>
                         }
-                        <Stack.Screen name="Event" component={EventScreen} />
-                        <Stack.Screen name="Evenements" component={MultiEventScreen} />
-                        <Stack.Screen name="Profile" component={ProfileScreen} />
-                        <Stack.Screen name="Team" component={TeamScreen} />
-                        <Stack.Screen name="SpotManager" component={SpotManager} />
-                    </Stack.Navigator>
-                </NavigationContainer>
-            </SafeAreaView>
+                    </NavigationContainer>
+                </SafeAreaView>
+            </View>
         );
     }
 

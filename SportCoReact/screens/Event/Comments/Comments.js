@@ -44,13 +44,15 @@ export class Comments extends React.Component {
         <DescriptionText title={'Comments'} data='' centered='auto' isMutable={false} setEditingProperty={this.props.setEditingProperty} />
         {comments.map((comment, index) => {
           let photoUrl = comment.photo_url;
+          let fb_access_token = comment.fb_access_token;
+
           return (
             <View key={"comment-" + index} style={styles.commentBloc}>
               <View style={styles.commentInfo}>
                 <View style={{ flexDirection: 'row' }}>
                   {/* <View style={styles.imageContainerComment}>
                     {photoUrl != undefined ?
-                      <Image source={{ uri: photoUrl + '?type=large&width=500&height=500' }} style={styles.imageComment} />
+                      <Image source={{ uri: photoUrl + '?type=large&width=500&height=500&access_token='+fb_access_token }} style={styles.imageComment} />
                       : <Image source={DEFAULT_PROFILE_PIC} resizeMode='contain' style={styles.imageCommentNoBorder} />}
                   </View> */}
                   <ProfilePic

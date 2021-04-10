@@ -42,8 +42,8 @@
     "  Participant left your event": "Participant left your event",
     "  Someone wants to join your team": "Someone wants to join your team",
     "  Someone joined your team": "Someone joined your team",
-    "Find by name...": "Find by name...",
-    "You may want to change the filter up there ...": "You may want to change the filter up there ...",
+    "Find by name": "Find by name",
+    "You may want to change the filter up there": "You may want to change the filter up there",
     "Last Events Created": "Last Events Created",
     "(Not yet, but I'll create one!)": "(Not yet, but I'll create one!)",
     "Last Events Joined": "Last Events Joined",
@@ -58,7 +58,7 @@
     "Job / Title": "Job / Title",
     "Title here ...": "Title here ...",
     "Bio": "Bio",
-    "Description here ...": "Description here ...",
+    "Description here": "Description here ...",
     "Teams": "Teams",
     "Friends": "Friends",
     "My Teams": "My Teams",
@@ -110,6 +110,8 @@
     "Sport":"Sport",
     "Date":"Date",
     "Min":"Min",
-    "Max":"Max"
+    "Max":"Max",
+    "Sort By Date" :  "Sort By Date" ,    
+    "Sort By Sport" :  "Sort By Sport" 
 
 }

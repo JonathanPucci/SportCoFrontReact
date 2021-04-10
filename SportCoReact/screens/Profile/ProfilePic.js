@@ -5,11 +5,14 @@ import { Image, View } from 'react-native';
 
 import { DEFAULT_PROFILE_PIC } from '../../constants/AppConstants'
 import { getFileFromS3 } from '../../services/aws3Service';
+import { connect } from 'react-redux'
 
 
-export default class ProfilePic extends React.Component {
+class ProfilePic extends React.Component {
+
+
     render() {
-        let { edition,photoDraft,photo_to_useDraft,user, stylePic, styleDefault, styleContainer } = this.props;
+        let { edition, photoDraft, photo_to_useDraft, user, stylePic, styleDefault, styleContainer } = this.props;
         let photoSource = '';
         let resizeMode = 'contain';
         let imageStyle = stylePic;
@@ -19,7 +22,7 @@ export default class ProfilePic extends React.Component {
                 imageStyle = styleDefault;
                 break;
             case 'fb':
-                photoSource = { uri: user.photo_url + '?type=large&width=500&height=500' };
+                photoSource = { uri: user.photo_url + '?type=large&width=500&height=500&access_token=' + this.props.auth.fb_access_token };
                 break;
             case 'custom':
                 resizeMode = 'cover';
@@ -28,13 +31,29 @@ export default class ProfilePic extends React.Component {
             default:
                 break;
         }
+        let IMAGE =  <Image source={photoSource} resizeMode={resizeMode} style={imageStyle} />;
         return (
             <View style={styleContainer}>
                 {photoSource != '' &&
                     (
-                        <Image source={photoSource} resizeMode={resizeMode} style={imageStyle} />
+                       IMAGE
                     )}
             </View>
         )
     }
 }
+
+
+const mapDispatchToProps = dispatch => {
+    return {
+        dispatch: action => {
+            dispatch(action);
+        }
+    };
+};
+
+function mapStateToProps(state) {
+    return state;
+}
+
+export default (connectedApp = connect(mapStateToProps, mapDispatchToProps)(ProfilePic));

@@ -51,7 +51,8 @@ class FacebookLogin extends React.Component {
       const credential = auth.FacebookAuthProvider.credential(
         data.accessToken
       );
-      console.log(credential);
+      logDebugInfo('Creds HERE',credential.token);
+      await this.props.saveToken(credential.token);
       await auth().signInWithCredential(credential);
     } catch (err) {
       logDebugInfo("FACEBOOKLOGIN",err);
@@ -68,10 +69,10 @@ class FacebookLogin extends React.Component {
             }
           }, async (err, res) => {
             // console.log(err, res)
+            console.log('GRAPH_REQUEST')
             if (res.email != null) {
               try {
                 let existingUser = await this.apiService.getSingleEntity('users/email', res.email);
-                console.log(existingUser);
                 this.props.saveToBackendUser({
                   displayName: existingUser.data.user_name,
                   photoURL: null,

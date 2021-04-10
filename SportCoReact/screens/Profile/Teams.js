@@ -13,6 +13,7 @@ import { DEFAULT_PROFILE_PIC } from '../../constants/AppConstants'
 import ProfileInput from './ProfileInput';
 import { convertUTCDateToLocalDate } from '../Event/Helpers';
 import { translate } from '../../App';
+import { getFileFromS3 } from '../../services/aws3Service';
 
 
 class TeamsList extends React.Component {
@@ -75,14 +76,14 @@ class TeamsList extends React.Component {
                         (
                             <View>
                                 <ScrollView
-                                    style={{ height: isAdding?'70%' : '90%' }}
+                                    style={{ height: isAdding ? '70%' : '90%' }}
                                     keyboardShouldPersistTaps='handled'>
-                                    <ProfileInput title={isAdding ? translate('Teams') : translate("My Teams")} placeholderText={'Find by name...'}
-                                        data={this.state.teamsNameFilter} callbackOnChange={this.onTeamNameFilterChanged}
+                                    <ProfileInput title={isAdding ? translate('Teams') : translate("My Teams")} placeholderText={'Find by name'}
+                                        data={this.state.teamsNameFilter} callbackOnChange={this.onTeamNameFilterChanged} 
                                         isAdding={isAdding} />
                                     <View style={{ flexDirection: "column" }}>
                                         {dataToShow.length == 0 && (
-                                            <Text style={{ textAlign: 'center' }}>{translate("You may want to change the filter up there ...")}</Text>
+                                            <Text style={{ textAlign: 'center' }}>{translate("You may want to change the filter up there")}</Text>
                                         )}
                                         {dataToShow.map((team, index) => {
                                             return (
@@ -118,7 +119,6 @@ class TeamsList extends React.Component {
 
     renderData = (team) => {
         let { isAdding, user } = this.props;
-
         return (
             <View>
                 <View style={{ flexDirection: 'row', justifyContent: 'center' }}  >
@@ -127,12 +127,10 @@ class TeamsList extends React.Component {
                         onPress={() => { this.props.stopShowingTeams(); RootNavigation.navigateToTeam(team.team_id) }}
                     >
                         <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                            {team.photo_url != null ?
-                                (
-                                    <Image source={{ uri: team.photo_url + '?type=large&width=500&height=500' }} style={styles.friendImage} />
-                                ) : (
-                                    <Image source={DEFAULT_PROFILE_PIC} resizeMode='contain' style={styles.friendImageNoBorder} />
-                                )
+                            {team.team_picture != null ?
+                                <Image source={{ uri: getFileFromS3('teams', team.team_picture) }} style={styles.image} />
+                                :
+                                <Image source={DEFAULT_PROFILE_PIC} resizeMode='contain' style={styles.imageNoBorder} />
                             }
                             <Text style={{ alignSelf: 'center', marginLeft: 30 }}>{team.team_name}</Text>
                         </View>
@@ -182,6 +180,7 @@ class TeamsList extends React.Component {
     renderTeamCreator = () => {
         return (
             <View>
+
                 <ProfileInput notShowingTitle title={translate('Teams')}
                     placeholderText={translate("Team Name Here")}
                     data={this.state.newTeamName} callbackOnChange={this.onTeamNameChanged}

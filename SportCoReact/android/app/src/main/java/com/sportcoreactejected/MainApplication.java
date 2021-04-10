@@ -27,7 +27,7 @@ import java.util.List;
 // import com.facebook.reactnative.androidsdk.FBSDKPackage;
 // import com.wix.reactnativenotifications.RNNotificationsPackage;
 import io.invertase.firebase.messaging.ReactNativeFirebaseMessagingPackage;
-
+import com.airbnb.android.react.lottie.LottiePackage;
 
 
 public class MainApplication extends Application implements ReactApplication {
@@ -50,7 +50,7 @@ public class MainApplication extends Application implements ReactApplication {
        // Add the following line: 
       //  packages.add(new RNNotificationsPackage(MainApplication.this)); 
       // packages.add(new ReactNativeFirebaseMessagingPackage());
-      
+      packages.add(new LottiePackage());
 
       
                 

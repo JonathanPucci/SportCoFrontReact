@@ -1,4 +1,4 @@
-import { Layout, BOTTOM_TAB_HEIGHT, TOP_NAV_BAR_HEIGHT } from '../../constants/Layout'
+import { Layout, BOTTOM_TAB_HEIGHT, TOP_NAV_BAR_HEIGHT, AUTOCOMPLETE_HEIGHT } from '../../constants/Layout'
 import {
   StyleSheet
 } from "react-native";
@@ -56,8 +56,8 @@ export const styles = StyleSheet.create({
     right: 15,
     borderRadius: 10,
     backgroundColor: 'rgba(255,255,255,0.85)',
-    width: 50,
-    height: 50,
+    width: AUTOCOMPLETE_HEIGHT + 5,
+    height: AUTOCOMPLETE_HEIGHT + 5,
     justifyContent: 'center'
   },
   overlay:{

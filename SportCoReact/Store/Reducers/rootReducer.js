@@ -8,7 +8,8 @@ import {
   USER_LOGGED_OUT,
   SAVE_EVENT_BEFORE_EDIT,
   SAVE_DEVICE_TOKEN,
-  USER_CHANGE_CALENDAR_PREF
+  USER_CHANGE_CALENDAR_PREF,
+  FB_AUTH
 } from '../Actions';
 
 const options = {
@@ -17,6 +18,7 @@ const options = {
   region: 'eu-west-3',
   successActionStatus: 201
 };
+
 
 function auth(state = { user: null, waiting: false }, action) {
   switch (action.type) {
@@ -45,6 +47,13 @@ function auth(state = { user: null, waiting: false }, action) {
         user: user,
         user_id: action.additionalInfo,
         s3Options: options
+      };
+      return nextState;
+    case FB_AUTH:
+      var nextState = {
+        ...state,
+        fb_access_token: '294917101510368|r0_wV_RhFkF5jzq3frtpnLFvNCc'
+        // fb_access_token: action.value
       };
       return nextState;
     case USER_CHANGE_CALENDAR_PREF:
@@ -79,7 +88,6 @@ function auth(state = { user: null, waiting: false }, action) {
 
 function eventSaved(state = {}, action) {
   switch (action.type) {
-
     case SAVE_EVENT_BEFORE_EDIT:
       var nextState = {
         ...state,

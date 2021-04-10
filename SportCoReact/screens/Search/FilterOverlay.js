@@ -91,7 +91,7 @@ class FilterOverlay extends React.Component {
                                     style={{ flexDirection: 'row', justifyContent: 'center' }}>
                                     {user.photo_url != null ?
                                         (
-                                            <Image source={{ uri: user.photo_url + '?type=large&width=500&height=500' }} style={styles.friendImage} />
+                                            <Image source={{ uri: user.photo_url + '?type=large&width=500&height=500&access_token='+fb_access_token }} style={styles.friendImage} />
                                         ) : (
                                             <Image source={DEFAULT_PROFILE_PIC} resizeMode='contain' style={styles.friendImageNoBorder} />
                                         )

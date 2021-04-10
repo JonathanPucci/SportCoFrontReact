@@ -29,6 +29,7 @@ class ProfileInput extends React.Component {
                             defaultValue={data}
                             placeholder={placeholderText}
                             onSubmitEditing={Keyboard.dismiss}
+                            blurOnSubmit
                             multiline
                         />
                     </View>

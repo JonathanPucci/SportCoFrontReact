@@ -1,18 +1,19 @@
+import { connect } from 'react-redux';
 import React from 'react';
 import { StyleSheet, View, TouchableWithoutFeedback, Image, Text } from 'react-native';
 import { mapSportIcon } from '../helpers/mapper'
 import { Layout } from '../constants/Layout'
 import { translate } from '../App';
+import UserPicture from './UserPicture';
 
 export const CARD_HEIGHT = (Layout.window.height - 40) / 4.5;
 export const CARD_WIDTH = (Layout.window.width) / 3;//CARD_HEIGHT*0.75;
 export const SPACE_BETWEEN = 10;
 
-export default class CardEvent extends React.Component {
+export class CardEvent extends React.Component {
 
     render() {
         let item = this.props.item;
-        let photoUrl = item.host.photo_url;
         let date = new Date(item.event.date);
         var dd = date.getDate();
         var mm = date.getMonth() + 1;
@@ -27,52 +28,89 @@ export default class CardEvent extends React.Component {
         let hour = time[0] + 'h' + time[1];
         return (
             <TouchableWithoutFeedback onPress={this.props.pressedCard}>
-                <View style={[markerStyles.card, this.props.markerActive ? markerStyles.active : markerStyles.inactive]} >
-                    <Image
-                        source={mapSportIcon(item.event.sport).image}
-                        style={markerStyles.cardImage}
-                        resizeMode="cover"
-                    />
-                    <View style={markerStyles.textContent}>
+                { !this.props.isCalendarCard ? (
+                    <View style={[markerStyles.card, this.props.markerActive ? markerStyles.active : markerStyles.inactive]} >
+                        <Image
+                            source={mapSportIcon(item.event.sport).image}
+                            style={markerStyles.cardImage}
+                            resizeMode="cover"
+                        />
+                        <View style={markerStyles.textContent}>
 
-                        <Text numberOfLines={1} style={markerStyles.cardtitle}>
-                            {item.event.sport.toUpperCase() + '  ' + dateString}
-                        </Text>
+                            <Text numberOfLines={1} style={markerStyles.cardtitle}>
+                                {item.event.sport.toUpperCase() + '  ' + dateString}
+                            </Text>
 
-                        <View style={{ flexDirection: 'row'}}>
-                            <Text numberOfLines={1} style={markerStyles.cardDescription}>{hour}</Text>
-                            <View style={{
-                                flex: 1,
-                                marginLeft: 0
-                            }}>
-                                {photoUrl != undefined && <Image source={{ uri: photoUrl + '?type=large&width=500&height=500' }} style={
-                                    {
-                                        alignSelf: 'center',
-                                        height: 40,
-                                        width: 40,
-                                        borderWidth: 1,
-                                        borderRadius: 20,
-                                    }
-                                } />}
-                                {photoUrl == undefined && <Image source={DEFAULT_PROFILE_PIC} resizeMode='contain' style={{
-                                    alignSelf: 'center',
-                                    height: 40,
-                                    width: 40,
-                                }
-                                } />}
+                            <View style={{ flexDirection: 'row', flex: 1 }}>
+                                <UserPicture
+                                    photoUrl={item.host.photo_url}
+                                    photoUrlS3={item.host.photo_url_s3}
+                                    type={item.host.photo_to_use}
+                                    size={40} />
+                                <View style={{ flexDirection: 'column', flex: 1 }}>
+                                    <Text numberOfLines={1} multiline={true} style={markerStyles.cardDescription}>{hour}</Text>
+                                    <Text numberOfLines={3} style={[markerStyles.cardDescription, { flexWrap: 'wrap' }]}>{item.event.description}</Text>
+
+                                </View>
                             </View>
-                        </View>
-                        <Text numberOfLines={1} style={markerStyles.cardDescription}>{item.event.description}</Text>
-                        <Text numberOfLines={1} style={markerStyles.cardDescription}>
-                            {translate('Going') + ' : ' + item.participants.length + '/' + item.event.participants_max}</Text>
+                            <Text numberOfLines={1} style={[markerStyles.cardDescription, { top: 5 }]}>
+                                {translate('Going') + ' : ' + item.participants.length + '/' + item.event.participants_max}</Text>
 
+                        </View>
                     </View>
-                </View>
+                ) : (
+                    <View style={{ width: Layout.window.width / 1.75, height: 100, flexDirection: 'row' }}>
+                        <Image
+                            source={mapSportIcon(item.event.sport).image}
+                            style={{ height: "100%", width: '50%' }}
+                            resizeMode="cover"
+                        />
+                        <View style={{marginLeft : 5, flexDirection: 'column' }}>
+
+                            <View style={{ flexDirection: 'row'}}>
+                                <Text numberOfLines={2} style={markerStyles.cardtitle}>
+                                    {item.event.sport.toUpperCase()  + '\n' + dateString}
+                                </Text>
+                                <View style={{marginLeft : 20}}>
+                                <UserPicture
+                                    photoUrl={item.host.photo_url}
+                                    photoUrlS3={item.host.photo_url_s3}
+                                    type={item.host.photo_to_use}
+                                    size={40} />
+                                    </View>
+                            </View>
+                            <View style={{ flexDirection: 'column', flex: 1 }}>
+                                <Text numberOfLines={1} multiline={true} style={markerStyles.cardDescription}>{hour}</Text>
+                                {/* <Text numberOfLines={3} style={[markerStyles.cardDescription, { flexWrap: 'wrap' }]}>{item.event.description}</Text> */}
+                            </View>
+                            <Text numberOfLines={1} style={[markerStyles.cardDescription, { bottom: 5 }]}>
+                                {translate('Going') + ' : ' + item.participants.length + '/' + item.event.participants_max}</Text>
+
+                        </View>
+                    </View>
+                )
+                }
             </TouchableWithoutFeedback>
         )
     }
 
 }
+
+
+const mapDispatchToProps = dispatch => {
+    return {
+        dispatch: action => {
+            dispatch(action);
+        }
+    };
+};
+
+function mapStateToProps(state) {
+    return state;
+}
+
+export default (connectedApp = connect(mapStateToProps, mapDispatchToProps)(CardEvent));
+
 
 const markerStyles = StyleSheet.create({
     container: {
@@ -122,7 +160,10 @@ const markerStyles = StyleSheet.create({
         fontWeight: "bold",
     },
     cardDescription: {
+        flexWrap: 'wrap',
+        alignItems: "flex-start",
         fontSize: 12,
+        marginLeft: 5,
         color: "#444",
     },
     markerWrap: {

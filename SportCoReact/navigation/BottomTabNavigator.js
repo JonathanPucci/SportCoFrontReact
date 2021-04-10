@@ -19,8 +19,8 @@ export default function BottomTabNavigator({ navigation, route }) {
   // currently active tab. Learn more in the documentation:
   // https://reactnavigation.org/docs/en/screen-options-resolution.html
   navigation.setOptions({
-    headerTitle: props => <LogoTitle {...props} />,
-    headerStyle: { height: TOP_NAV_BAR_HEIGHT }
+    headerTitle: props => {return (route.state != undefined && route.state.index == 2) ? null :  <LogoTitle {...props} />},
+    headerStyle: { height: (route.state != undefined && route.state.index == 2) ? 0 : TOP_NAV_BAR_HEIGHT }
   });
 
   return (

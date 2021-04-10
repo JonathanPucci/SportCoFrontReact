@@ -43,8 +43,8 @@
     "  Someone wants to join your team": "Quelqu'un veut rejoindre votre équipe",
     "  Someone joined your team": "Quelqu'un a rejoint votre équipe",
     "Find by name": "Trouver par nom/prénom",
-    "Find by name...": "Trouver par nom/prénom...",
-    "You may want to change the filter up there ...": "Tu devrais peut-être changer le filtre au dessus ...",
+    "Find by name": "Trouver par nom/prénom...",
+    "You may want to change the filter up there": "Tu devrais peut-être changer le filtre au dessus",
     "Last Events Created": "Dernières sessions créées",
     "(Not yet, but I'll create one!)": "(Pas encore, mais je m'y mets bientôt!)",
     "Last Events Joined": "Dernières sessions",
@@ -59,11 +59,11 @@
     "Job / Title": "Job / Titre",
     "Title here ...": "Titre ici ...",
     "Bio": "Bio",
-    "Description here ...": "Description ici ...",
+    "Description here": "Description ici ...",
     "Teams": "Equipes",
     "Friends": "Amis",
     "My Teams": "Mes Equipes",
-    "Or, start a new team !": "Ou, créé une nouvelle équipe !",
+    "Or, start a new team !": "C'est qui le patron ? Tu peux créer une nouvelle équipe ici !",
     "Team Name Here": "Nom d'équipe ici",
     "Team Description Here": "Description d'équipe ici",
     "Joinable without manager acceptance": "Accessible sans accord du chef",
@@ -111,5 +111,7 @@
     "Sport":"Sport",
     "Date":"Date",
     "Min":"Min",
-    "Max":"Max"
+    "Max":"Max",
+    "Sort By Date" :  "Tri Par Date" ,    
+    "Sort By Sport" :  "Tri Par Sport" 
 }

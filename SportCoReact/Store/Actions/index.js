@@ -1,4 +1,5 @@
 export const USER_LOGGED = "USER_LOGGED";
+export const FB_AUTH = "FB_AUTH";
 export const WAITING = "WAITING";
 export const DONE_WAITING = "DONE_WAITING";
 export const RETRIEVED_USER_INFO = "RETRIEVED_USER_INFO";

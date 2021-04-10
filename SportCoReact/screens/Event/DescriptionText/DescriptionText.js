@@ -50,13 +50,13 @@ export class DescriptionText extends React.Component {
                             size={title == 'Min' ? 8 : 15}
                             onPress={() => this.props.setEditingProperty(title, true)} />
                     )}
-                    <Text 
-                    numberOfLines={1}
-                    style={[
-                        styles.titleDescription,
-                        centered != 'auto' ? { textAlign: 'center' } : {},
-                        this.props.editing ? { top: 15 } : {}
-                    ]}>{translate(title)}</Text>
+                    <Text
+                        numberOfLines={1}
+                        style={[
+                            styles.titleDescription,
+                            centered != 'auto' ? { textAlign: 'center' } : {},
+                            this.props.editing ? { top: 15 } : {}
+                        ]}>{translate(title)}</Text>
                 </View>
                 <View style={[
                     styles.titleDescriptionText,
@@ -67,15 +67,7 @@ export class DescriptionText extends React.Component {
                         width: title == 'Visibility' ? 140 : 'auto',
                         alignSelf: centered
                     }]}>
-                    {title == 'Level' && (
-                        <Image source={levelImage} style={{
-                            position: 'absolute',
-                            bottom: this.props.editing ? 40 : 50,
-                            left: this.props.editing ? 100 : 60,
-                            height: 40,
-                            width: 40
-                        }} />
-                    )}
+
                     <Text style={[
                         styles.titleDescriptionText,
                         {
@@ -85,8 +77,16 @@ export class DescriptionText extends React.Component {
                     ]}>
                         {data}
                     </Text>
+                    {title == 'Level' && (
+                        <Image source={levelImage} style={{
+                            bottom: this.props.editing ? 10 : 20,
+                            height: 40,
+                            width: 40
+                        }} 
+                        />
+                    )}
                     {title == 'Visibility' && (
-                        <View style={{ flexDirection: 'row', right: 10, bottom: this.props.editing ? 15 : 28 }}>
+                        <View style={{ flexDirection: 'row', right: 10, bottom: this.props.editing ? 20 : 32 }}>
                             <Icon name={'eye'} type='material-community' />
                             <View style={{ bottom: 3 }}>
                                 <Icon name={data == 'PRIVATE' ? 'lock' : 'lock-open'} />

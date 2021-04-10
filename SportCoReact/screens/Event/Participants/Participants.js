@@ -7,10 +7,11 @@ import { TouchableWithoutFeedback, ScrollView } from 'react-native-gesture-handl
 import { seeProfile, mapLevelImage } from '../Helpers'
 import { DescriptionText } from "../DescriptionText/DescriptionText";
 import { DEFAULT_PROFILE_PIC } from '../../../constants/AppConstants';
+import { connect } from 'react-redux'
 
 const MAX_ON_LINE = 5;
 
-export class Participants extends React.Component {
+class Participants extends React.Component {
 
     state = {
         showingParticipantList: false
@@ -53,6 +54,8 @@ export class Participants extends React.Component {
     renderParticipant = (participant, index) => {
         let photoUrl = participant.photo_url;
         let levelImage = mapLevelImage(this.props.eventData.event.sport, participant);
+        let fb_access_token = this.props.auth.fb_access_token;
+
         return (
             <View key={'participant-' + index} style={{ flexDirection: 'column', margin: 10, justifyContent: 'center', alignItems: 'center' }}>
                 <Image source={levelImage}
@@ -65,7 +68,7 @@ export class Participants extends React.Component {
                     }} />
                 <TouchableWithoutFeedback onPress={() => this.seeProfile(this.props.navigation, participant.email)}>
                     <View style={styles.imageContainerParticipant}>
-                        {photoUrl != undefined && <Image source={{ uri: photoUrl + '?type=large&width=500&height=500' }} style={styles.imageParticipant} />}
+                        {photoUrl != undefined && <Image source={{ uri: photoUrl + '?type=large&width=500&height=500&access_token='+fb_access_token }} style={styles.imageParticipant} />}
                         {photoUrl == undefined && <Image source={DEFAULT_PROFILE_PIC} resizeMode='contain' style={styles.imageParticipantNoBorder} />}
                     </View>
                 </TouchableWithoutFeedback>
@@ -88,3 +91,18 @@ export class Participants extends React.Component {
     }
 
 }
+
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+      dispatch: (action) => { dispatch(action) }
+    }
+  }
+  
+  const mapStateToProps = (state) => ({
+    ...state,
+    eventDataFromStore: state.eventSaved.eventData
+  })
+  
+  export default connect(mapStateToProps, mapDispatchToProps)(Participants)
+  

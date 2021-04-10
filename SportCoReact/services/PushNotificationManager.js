@@ -31,10 +31,11 @@ class PushNotificationManager extends React.Component {
 
     registerFirebaseEvents() {
         messaging().onMessage(async remoteMessage => {
+            
             console.log(JSON.stringify(remoteMessage))
             this.props.showNotification({
-                title: remoteMessage.notification.title,
-                message: remoteMessage.notification.body,
+                title: remoteMessage.data.notification.title,
+                message: remoteMessage.data.notification.body,
                 onPress: () => {
                     console.log(remoteMessage.data)
                     let eventOrTeam_id = remoteMessage.data.data_value;

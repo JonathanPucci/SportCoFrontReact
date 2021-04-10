@@ -28,6 +28,8 @@ import ImagePickerTimaka from '../../components/ImagePicker';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Spinner from 'react-native-loading-spinner-overlay';
 import ProfilePic from './ProfilePic';
+import UserPicture from '../../components/UserPicture';
+
 import { translate } from '../../App';
 
 class ProfileScreen extends React.Component {
@@ -122,7 +124,7 @@ class ProfileScreen extends React.Component {
                   </Text>
                 </View>
               </View>
-              <ProfilePic
+              {/* <ProfilePic
                 edition={false}
                 photo_to_useDraft={this.state.photo_to_useDraft}
                 photoDraft={this.state.photo_url_s3Draft}
@@ -130,7 +132,15 @@ class ProfileScreen extends React.Component {
                 stylePic={styles.image}
                 styleDefault={styles.imageNoBorder}
                 styleContainer={styles.imageContainer}
-              />
+              /> */}
+              <View style={{ marginRight: 25 }}>
+                <UserPicture
+                  photoUrl={this.state.user.photo_url}
+                  photoUrlS3={this.state.user.photo_url_s3}
+                  type={this.state.user.photo_to_use}
+                  size={styles.image.height}
+                />
+              </View>
             </View>
             <Divider style={styles.divider} />
 
@@ -229,7 +239,7 @@ class ProfileScreen extends React.Component {
         isVisible={this.state.isEditingProfile}
         onBackdropPress={() => { this.setState({ isEditingProfile: false }) }}
       >
-        <ScrollView>
+        <KeyboardAwareScrollView>
           <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
             <ProfilePic
               edition={this.state.isEditingProfile}
@@ -240,6 +250,7 @@ class ProfileScreen extends React.Component {
               styleDefault={styles.imageNoBorder}
               styleContainer={styles.imageContainer}
             />
+
             <View style={{ alignSelf: 'center' }}>
               <ImagePickerTimaka
                 saveToS3OnSelect={true}
@@ -249,6 +260,7 @@ class ProfileScreen extends React.Component {
               />
             </View>
           </View>
+          
           <View style={{ marginTop: 20 }}>
             <ProfileInput title={translate("User Name")} placeholderText={translate("Name here ...")}
               data={this.state.user.user_name} callbackOnChange={this.onNameChange}
@@ -278,7 +290,7 @@ class ProfileScreen extends React.Component {
               data={this.state.user.user_title} callbackOnChange={this.onTitleChange}
               isAdding={this.state.isAdding}
               noautofocus />
-            <ProfileInput title={translate("Bio")} placeholderText={translate("Description here ...")}
+            <ProfileInput title={translate("Bio")} placeholderText={translate("Description here")}
               data={this.state.user.user_description} callbackOnChange={this.onDescriptionChange}
               isAdding={this.state.isAdding}
               noautofocus />
@@ -287,7 +299,7 @@ class ProfileScreen extends React.Component {
               callback={this.saveProfile}
             />
           </View>
-        </ScrollView>
+        </KeyboardAwareScrollView>
       </Overlay>
 
     )

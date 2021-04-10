@@ -173,11 +173,13 @@ class NotificationsScreen extends React.Component {
 
   renderIcon(notif, event, size = undefined) {
     let photoUrl = notif.data_value2;
+    let fb_access_token = this.props.auth.user.fb_access_token;
+
     let iconName = mapNotifInfo(notif.message_type).iconName;
     return (
       <View style={styles.imageContainer}>
         {photoUrl != undefined ? (
-          <Image source={{ uri: photoUrl + '?type=large&width=500&height=500' }} style={styles.image} />
+          <Image source={{ uri: photoUrl + '?type=large&width=500&height=500&access_token='+fb_access_token }} style={styles.image} />
         ) : (
             <Image source={DEFAULT_PROFILE_PIC} resizeMode='contain' style={styles.image} />
           )}

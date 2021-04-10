@@ -20,6 +20,8 @@ class Members extends React.Component {
 
     render = () => {
         let nuplets = this.buildNUplets(this.props.items);
+        let fb_access_token = this.props.auth.user.fb_access_token;
+
         return (
             <View>
                 <Text style={styles.desc}>{translate("Members")} {this.props.toBeValidated ? translate("to validate") : ''}</Text>
@@ -59,7 +61,7 @@ class Members extends React.Component {
                                                             backgroundColor: 'green',
                                                         } : {}]}>
                                                         {member.photo_url != null ?
-                                                            <Image source={{ uri: member.photo_url + '?type=large&width=500&height=500' }} style={styles.memberImage} />
+                                                            <Image source={{ uri: member.photo_url + '?type=large&width=500&height=500&access_token='+fb_access_token }} style={styles.memberImage} />
                                                             :
                                                             <Image source={DEFAULT_PROFILE_PIC} resizeMode='contain' style={styles.memberImageNoBorder} />
                                                         }

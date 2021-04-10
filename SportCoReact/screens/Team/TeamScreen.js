@@ -4,6 +4,7 @@ import { Image, SafeAreaView, View, RefreshControl } from 'react-native';
 import { Divider, Text, Button, Icon, Overlay, CheckBox } from 'react-native-elements'
 import { Social } from '../../components/social'
 import { ScrollView, TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import ImagePickerTimaka from '../../components/ImagePicker';
 
 import { USER_LOGGED_OUT } from '../../Store/Actions'
 import { connect } from 'react-redux'
@@ -20,6 +21,7 @@ import { logDebugError, timeSince } from '../Event/Helpers';
 import ProfileInput from '../Profile/ProfileInput';
 import { navigateToProfile } from '../../navigation/RootNavigation';
 import { translate } from '../../App';
+import { getFileFromS3, uploadFileToS3 } from '../../services/aws3Service';
 
 
 class TeamScreen extends React.Component {
@@ -34,6 +36,7 @@ class TeamScreen extends React.Component {
       nameDraft: '',
       descriptionDraft: '',
       manager_has_to_acceptDraft: false,
+      photo_to_useDraft: '',
       newManagerId: -1,
     }
     this.apiService = new SportCoApi()
@@ -57,7 +60,8 @@ class TeamScreen extends React.Component {
           members: res.data.teammembers,
           waitingMembers: res.data.waitingMembers,
           refreshing: false,
-          manager_has_to_acceptDraft: res.data.team.manager_has_to_accept
+          manager_has_to_acceptDraft: res.data.team.manager_has_to_accept,
+          photo_to_useDraft: res.data.team.team_picture
         });
       }
       catch (err) {
@@ -69,6 +73,8 @@ class TeamScreen extends React.Component {
   render() {
     if (this.state.team == undefined)
       return <View />
+    let fb_access_token = this.props.auth.user.fb_access_token;
+
     return (
       <View style={styles.container}>
         <ScrollView
@@ -93,12 +99,20 @@ class TeamScreen extends React.Component {
                 </Text>
               </View>
               <View style={styles.imageContainer}>
-                {this.state.team.photo_url != null ?
-                  <Image source={{ uri: this.state.team.photo_url + '?type=large&width=500&height=500' }} style={styles.image} />
-                  :
-                  <Image source={DEFAULT_PROFILE_PIC} resizeMode='contain' style={styles.imageNoBorder} />
+                {this.state.team.team_picture != null ?
+                  <Image source={{ uri: getFileFromS3('teams', this.state.team.team_picture) }} style={styles.image} />
+                  : (
+                    <View>
+                      {this.state.photo_to_useDraft != null && this.state.photo_to_useDraft != '' ?
+                        <Image source={{ uri: this.state.photo_to_useDraft }} style={styles.image} />
+                        :
+                        <Image source={DEFAULT_PROFILE_PIC} resizeMode='contain' style={styles.imageNoBorder} />
+                      }
+                    </View>
+                  )
                 }
               </View>
+
             </View>
             <Divider style={styles.divider} />
 
@@ -193,10 +207,33 @@ class TeamScreen extends React.Component {
         isVisible={this.state.isEditingTeam}
         onBackdropPress={() => { this.setState({ isEditingTeam: false }) }} >
         <View>
+          <View style={styles.imageContainer}>
+            {this.state.team.team_picture != null ?
+              <Image source={{ uri: getFileFromS3('teams', this.state.team.team_picture) }} style={styles.image} />
+              : (
+                <View>
+                  {this.state.photo_to_useDraft != '' ?
+                    <Image source={{ uri: this.state.photo_to_useDraft }} style={styles.image} />
+                    :
+                    <Image source={DEFAULT_PROFILE_PIC} resizeMode='contain' style={styles.imageNoBorder} />
+                  }
+                </View>
+              )
+            }
+          </View>
+          <View style={{ alignSelf: 'center' }}>
+            <ImagePickerTimaka
+              saveToS3OnSelect={true}
+              sendImageSource={async (sourceURI) => { this.setState({ photo_to_useDraft: sourceURI }) }}
+              hasFBOption={false}
+              hasS3Option={false}
+              s3Folder='teams'
+            />
+          </View>
           <ProfileInput title={translate("Team Name")} placeholderText={translate("Title here ...")}
             data={this.state.team.team_name} callbackOnChange={this.onTeamNameChange}
             isAdding={this.state.isAdding} />
-          <ProfileInput title={translate('Bio')} placeholderText={translate('Description here ...')}
+          <ProfileInput title={translate('Bio')} placeholderText={translate('Description here')}
             data={this.state.team.team_description} callbackOnChange={this.onDescriptionChange}
             isAdding={this.state.isAdding} />
           <CheckBox
@@ -323,6 +360,12 @@ class TeamScreen extends React.Component {
     editedTeam.team_title = this.state.titleDraft;
     editedTeam.team_description = this.state.descriptionDraft;
     editedTeam.manager_has_to_accept = this.state.manager_has_to_acceptDraft ? 1 : 0;
+    if (this.state.photo_to_useDraft != this.state.team.team_picture) {
+      console.log(this.state.photo_to_useDraft + '!=' + this.state.team.team_picture)
+      let response = await uploadFileToS3(this.state.photo_to_useDraft, this.state.team.team_id, 'teams/')
+      let imageName = response.key + "?" + new Date().getTime();
+      editedTeam.team_picture = imageName;
+    }
     await this.apiService.editEntity('teams', editedTeam);
     this.getData();
   }

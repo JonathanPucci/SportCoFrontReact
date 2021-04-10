@@ -45,7 +45,7 @@ class ImagePickerTimaka extends Component {
                 // You can also display the image using data:
                 // const source = { uri: 'data:image/jpeg;base64,' + response.data };
                 // if (this.props.saveToS3OnSelect)
-                //     await uploadFileToS3(source.uri, this.props.imageNameForS3, this.props.sendImageSource)
+                //     await uploadFileToS3(source.uri, this.props.imageNameForS3, this.props.s3Folder,this.props.sendImageSource)
                 this.props.sendImageSource(source.uri);
             }
         });
